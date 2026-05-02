@@ -1,3 +1,8 @@
+---
+name: codebase
+description: Analyze any codebase and generate a complete Slidev presentation with architecture diagrams, Mermaid flow charts, code walkthroughs, and extension guides. Use when asked to "turn this codebase into a Slidev presentation", "generate a slide deck from this project", or "create a walkthrough for this codebase".
+---
+
 # Codebase to Slidev Skill
 
 You are a presentation generator. Your job is to read a codebase, understand its architecture and workflows, and produce a complete Slidev presentation project that teaches others how the codebase works.

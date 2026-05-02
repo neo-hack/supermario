@@ -50,7 +50,7 @@ After user confirms the analysis:
 1. **Detect comment style per-language:**
    | Language | File header | Doc comments | Inline |
    |----------|------------|--------------|--------|
-   | JS / TS | `/** @file ... */` or `//` | `/** ... */` | `//` |
+    | JS / TS | `/** @file ... */` or `//` | TSDoc `/** ... */` | `//` |
    | Python | `"""Module docstring."""` | `"""..."""` | `#` |
    | Shell (.sh) | `# ...` | `# ...` | `#` |
    | Go | `// ...` | `// ...` | `//` |
@@ -72,13 +72,31 @@ After user confirms the analysis:
    c. **Non-obvious logic blocks** — a brief inline comment before complex logic explaining *why* (intent), not *what* (code already says what). Skip trivial code.
 
 4. **Rules:**
-   - Do NOT overwrite or duplicate existing comments.
-   - Do NOT modify any code logic — only add comments.
-   - Do NOT add emojis to comments.
-   - Comment language: match the language of existing comments in the project. If no comments exist yet, use the same natural language as the project's README or CLAUDE.md. If unclear, use the language the user is speaking in this conversation.
-   - Skip generated / bundled / minified files.
-   - Skip test files unless they lack any documentation and are part of the core module structure.
-   - Skip `node_modules`, `dist`, `build`, `.next`, `out`, `target`, `vendor`, `__pycache__`, `.cache`, `coverage`.
-   - For large files, focus on top-level structure and exported API. Don't comment every line — only what helps a developer quickly orient themselves.
+
+    **Quality over quantity:**
+    - Comments should not duplicate the code — avoid restating what the code already says (e.g., `i = i + 1; // Add one to i`).
+    - Comments should dispel confusion, not cause it. If a comment is unclear, leave it out.
+    - If you can't write a clear comment for a piece of code, flag it as potentially problematic rather than writing a vague comment.
+    - Good comments do not excuse unclear code — if the code needs a comment to be understood, consider whether renaming or restructuring would be better.
+
+    **What to comment:**
+    - Explain *why*, not *what*. Code tells you how; comments tell you why.
+    - Explain unidiomatic or non-obvious code — anything a reader might consider redundant, weird, or worth "simplifying." Prevent future readers from accidentally breaking it.
+    - For bug fixes, add a comment explaining the bug and the workaround (reference the issue tracker if applicable, e.g., `// Workaround for issue #1425`).
+    - For copied or adapted code, include a link to the original source (e.g., `// via https://stackoverflow.com/a/46018816`).
+    - For references to standards or specs, include a link (e.g., `// http://tools.ietf.org/html/rfc4180 suggests CRLF`).
+    - For incomplete implementations, mark with `// TODO:` and describe what remains, ideally referencing an issue tracker.
+    - For known but unfixed bugs, mark with `// FIXME:` and describe the issue and expected behavior.
+    - For critical logic that requires extra care, mark with `// NOTE:` and explain why it matters.
+
+    **General constraints:**
+    - Do NOT overwrite or duplicate existing comments.
+    - Do NOT modify any code logic — only add comments.
+    - Do NOT add emojis to comments.
+    - Comment language: match the language of existing comments in the project. If no comments exist yet, use the same natural language as the project's README or CLAUDE.md. If unclear, use the language the user is speaking in this conversation.
+    - Skip generated / bundled / minified files.
+    - Skip test files unless they lack any documentation and are part of the core module structure.
+    - Skip `node_modules`, `dist`, `build`, `.next`, `out`, `target`, `vendor`, `__pycache__`, `.cache`, `coverage`.
+    - For large files, focus on top-level structure and exported API. Don't comment every line — only what helps a developer quickly orient themselves.
 
 5. Process files module by module. After annotating each module, briefly list what was changed (file path + type of annotation added).
