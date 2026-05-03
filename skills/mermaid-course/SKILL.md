@@ -112,69 +112,96 @@ From scan results:
    - Has CI/CD config → Build Pipeline perspective
 7. **Merge perspective list** — user-specified (mandatory) + auto-inferred (supplementary), deduplicated. Architecture is always included. Every discovered module must be reachable from at least one perspective page
 
-## Phase 3: Build COURSE Data
+## Phase 3: Build Page Data
 
-Define a JavaScript object with:
+Each per-module and per-perspective page is one JS object with `learningPromise`, optional `prereqs`, optional anchor `diagram`, and a `units[]` array. Read `references/units-examples.md` for concrete patterns and `references/voice-examples.md` for tone.
 
-```
-COURSE = {
-  flowOrder: ["nodeId1", "nodeId2", ...],
-  "nodeId1": {
-    label: "Module Name",
-    summary: "One sentence what this module does.",
-    files: ["path/to/file1", "path/to/file2"],
-    steps: [
-      {
-        title: "Step Title",
-        code: "actual code from source file",
-        highlightLines: [3, 4, 5],
-        explanation: "What this code does and why it matters."
-      }
-    ]
-  }
-}
-```
-
-**Rules:**
-- `code` must be exact copies from real files — never invent or simplify
-- `highlightLines` uses 1-based line numbers, highlight the most important lines
-- `steps` should follow a logical teaching order (what it is → how it works → why it matters)
-- `flowOrder` defines the guided navigation sequence — follow the dependency/layer order (entry → core → data → infra)
-- 1-5 steps per module, 8-15 lines of code per step
-- If a function is longer than 15 lines, show only the important part with `// ...` comment
-- **Cover every module discovered in Phase 1** — do not skip modules. If a module seems "simple", give it 1 step with its most important code
-- Each module's `steps` must show real code — not just description text. Every module should have at least one code snippet from an actual file
-
-### INDEX Data (for index.html)
+### COURSE (per-module page, `module-<name>.html`)
 
 ```javascript
-const INDEX = {
-  project: { name: "Project Name", description: "One-line description", language: "TypeScript", framework: "Next.js" },
-  perspectives: [
-    { title: "Architecture Overview", description: "12 modules across 5 layers", page: "architecture.html", diagramType: "graph TD" }
-  ],
-  modules: [
-    { title: "user-service", description: "User management and authentication", page: "module-user-service.html", steps: 3 }
-  ]
+const COURSE = {
+  module: "auth",
+  learningPromise: "After reading, you'll understand how token validation flows through middleware before any handler runs.",
+  prereqs: ["HTTP middleware", "JWT structure"],
+  diagram: "graph TD ...",  // optional anchor diagram
+  units: [ /* see UNIT shapes below */ ]
 };
 ```
 
-### PERSPECTIVE Data (for perspective pages)
+### PERSPECTIVE (per-perspective page, e.g. `architecture.html`)
 
 ```javascript
 const PERSPECTIVE = {
-  title: "Request Lifecycle",
-  backLink: "index.html",
-  graph: "sequenceDiagram\n  participant Client\n  ...",
-  nodes: [
-    { id: "auth", label: "Auth Middleware", summary: "Validates JWT tokens and sets user context.", deepLink: "module-auth.html" }
-  ]
+  perspective: "architecture",
+  learningPromise: "After reading, you'll see why this codebase splits responsibilities into 5 layers and what each one's actually for.",
+  prereqs: ["MVC pattern"],
+  diagram: "graph TD ...",  // REQUIRED for perspective pages
+  units: [ /* same UNIT shapes; cross-module refs are inline markdown links in body fields */ ]
 };
 ```
 
-- `PERSPECTIVE` is used for cross-module perspective pages (architecture, data flow, etc.)
-- `COURSE` is used for per-module deep-dive pages (unchanged)
-- Node IDs must be consistent across all pages
+### INDEX (entry page, `index.html`)
+
+```javascript
+const INDEX = {
+  project: { name, description, language, framework },
+  perspectives: [{ title, description, page, unitCount }],
+  modules:      [{ title, description, page, unitCount }]
+};
+```
+
+### Unit kinds
+
+```javascript
+{ kind: "concept",     title, body }                                           // 60-150 words
+{ kind: "code-walk",   title, file, code, highlightLines, explanation, layout?, steps?, anchorNode? }
+{ kind: "guess-first", question, reveal: { code?, explanation } }              // collapsed
+{ kind: "compare",     title, left: { label, code }, right: { label, code }, lesson }
+{ kind: "surprise",    title, body }                                           // 1-3 sentences callout
+{ kind: "takeaway",    body }                                                  // recap card
+{ kind: "diagram",     title, mermaid, caption, zoomable? }                    // architecture/sequence figure; zoomable defaults true
+```
+
+### code-walk layouts
+
+| Layout    | Shape                                                                 | Use when                                                       |
+|-----------|-----------------------------------------------------------------------|----------------------------------------------------------------|
+| `stacked` (default) | Single column: code, then prose                              | One short explanation, no per-line beats                       |
+| `split`             | Sticky code left, prose right (collapses < 880px)            | Multiple beats tied to specific lines, would otherwise scroll-back |
+| `stepped`           | Sticky code left, ordered `steps[]` right; scroll-driven highlight migration | One narrative walk through a function in 3-5 beats |
+
+`stepped` requires `steps: [{ highlightLines, beat }]` instead of flat `highlightLines + explanation`. **Hard cap: at most one `stepped` code-walk per module.**
+
+### Voice rules
+
+A teacher pointing at the thing. Signposted, opinionated, comparing to familiar mental models. See `references/voice-examples.md` for flat-vs-pointed pairs the AI MUST imitate. Anti-patterns: neutral description, academic filler ("it is important to note"), passive voice ("as we can see").
+
+### Per-unit budgets
+
+| Unit | Limit |
+|------|-------|
+| `concept` | 60–150 words |
+| `code-walk` | 8–15 lines code + 50–150 words explanation |
+| `guess-first` | question ≤ 2 sentences, reveal ≤ 150 words |
+| `compare` | ≤ 12 lines per side, lesson ≤ 80 words |
+| `surprise` | 1–3 sentences |
+| `takeaway` | 2–4 sentences |
+| **Per page** | **4–8 units (hard max 10)** |
+
+### Pedagogy enforcement (mandatory)
+
+Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/scripts/validate-units.js path/to/page.json` after assembly; the build fails on violation:
+
+- Every module MUST have a non-empty `learningPromise`.
+- Every module's `units[]` MUST contain ≥ 1 `guess-first` OR ≥ 1 `surprise`.
+- Every module's `units[]` MUST end with a `takeaway`.
+- Every perspective's `units[]` MUST start with a `concept` and end with a `takeaway`.
+- ≤ 1 `stepped` code-walk per page.
+- ≤ 10 units per page.
+
+### Real code only
+
+`code-walk.code` must be exact copies from real source files. Never invent or simplify. If a function exceeds 15 lines, show the important slice with `// ...` to mark elision.
 
 ## Phase 4: Build Mermaid Graph
 
