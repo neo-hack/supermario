@@ -259,50 +259,60 @@ The same module uses the same node ID across all pages it appears on (e.g., `aut
 
 ## Phase 5: Generate Page List
 
-From the perspective list (Phase 2) and module list (Phase 1), determine which files to generate:
+| File | Shell template | Page CSS partial | Page JS partial | Data | Condition |
+|------|----------------|------------------|-----------------|------|-----------|
+| `index.html`            | `template-index.html` | `_index.css` | `_index.js` | `INDEX`       | Always |
+| `architecture.html`     | `template-essay.html` | `_essay.css` | `_essay.js` | `PERSPECTIVE` | Always |
+| `<perspective>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `PERSPECTIVE` | One per non-architecture perspective |
+| `module-<name>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `COURSE`      | One per discovered module |
 
-| File | Template | Data | Condition |
-|------|----------|------|-----------|
-| `index.html` | `template-index.html` | `INDEX` | Always |
-| `architecture.html` | `template-course.html` | `PERSPECTIVE` | Always (architecture is mandatory) |
-| `<perspective>.html` | `template-course.html` | `PERSPECTIVE` | One per non-architecture perspective |
-| `module-<name>.html` | `template-course.html` | `COURSE` | One per discovered module |
-
-File naming: `index.html` is fixed. All other filenames are kebab-case, agent-decides. All files go in `docs/codebase-course/`.
+All files go in `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
 
 ## Phase 6: Assemble
 
-Read both templates. For each page in the file list (Phase 5), fill placeholders and output to `docs/codebase-course/`.
+For each page in the file list (Phase 5):
 
-### Using template-index.html
+1. **Read the shell template**: `templates/template-essay.html` or `templates/template-index.html`.
+2. **Read the partials**:
+   - `templates/partials/_base.css` (always)
+   - `templates/partials/_essay.css` OR `_index.css` (per page kind)
+   - `templates/partials/_runtime.js` (always)
+   - `templates/partials/_essay.js` OR `_index.js` (per page kind)
+3. **Inline the partials** by replacing slot markers in the shell:
+   - `{{COMMON_STYLES}}` ← contents of `_base.css`
+   - `{{PAGE_STYLES}}` ← contents of `_essay.css` or `_index.css`
+   - `{{COMMON_SCRIPTS}}` ← contents of `_runtime.js`
+   - `{{PAGE_SCRIPTS}}` ← contents of `_essay.js` or `_index.js`
+4. **Fill page-specific slots** (see below).
+5. **Validate** by piping the page-data object as JSON to `node skills/mermaid-course/scripts/validate-units.js -`. Abort the build on failure.
+6. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
 
-Replace these placeholders:
-- `{{PROJECT_NAME}}` — from Phase 1
-- `{{PROJECT_DESCRIPTION}}` — one-line project description
-- `{{LANGUAGE}}` — from Phase 1
-- `{{FRAMEWORK}}` — badge HTML string like `<span class="badge">Next.js</span>`, or empty string if none
-- `{{INDEX_DATA}}` — the `INDEX` JavaScript object as a literal (not JSON string — must be valid JS)
+Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `partials/` for DRY authoring; the output is independent files.
 
-### Using template-course.html
+### Page-specific slots — `template-essay.html`
 
-Replace these placeholders:
-- `{{PROJECT_NAME}}` — from Phase 1
-- `{{LANGUAGE}}` — from Phase 1
-- `{{MERMAID_GRAPH}}` — Mermaid graph definition from Phase 4
-- `{{BREADCRUMB_TITLE}}` — page title (e.g. "Architecture Overview", "user-service")
-- `{{BACK_LINK}}` — always `index.html`
+| Slot | Source |
+|------|--------|
+| `{{PROJECT_NAME}}` | from Phase 1 |
+| `{{PAGE_TITLE}}` | perspective title or module name |
+| `{{LEARNING_PROMISE}}` | `page.learningPromise` |
+| `{{LEARNING_PROMISE_RECAP}}` | shorter restatement of the promise (≤ 1 sentence) |
+| `{{PREREQ_CHIPS}}` | `page.prereqs.map(p => '<li>' + p + '</li>').join('')` |
+| `{{BACK_LINK}}` | `index.html` |
+| `{{BACK_LABEL}}` | `Index` |
+| `{{NEXT_LINK}}` | next page in reading order, or `index.html` |
+| `{{NEXT_LABEL}}` | name of the next page |
+| `{{PAGE_DATA}}` | the COURSE or PERSPECTIVE object as a valid JS literal (NOT a JSON string) |
 
-Then replace the data section:
-- Module pages: replace `COURSE` object in SECTION 1
-- Perspective pages: replace `COURSE` with `PERSPECTIVE` and set `PAGE_MODE = 'perspective'` in SECTION 1
+### Page-specific slots — `template-index.html`
 
-### Perspective Mode vs Module Mode
-
-The runtime in `template-course.html` supports two modes:
-
-**Module mode** (default): `COURSE` data with `flowOrder`, click nodes show code steps.
-
-**Perspective mode**: `PERSPECTIVE` data, click nodes show summary + "Deep dive" link to module page. To activate, set `const PAGE_MODE = 'perspective';` and replace `COURSE` with `PERSPECTIVE` in SECTION 1. The runtime checks `PAGE_MODE` and adjusts rendering.
+| Slot | Source |
+|------|--------|
+| `{{PROJECT_NAME}}` | from Phase 1 |
+| `{{PROJECT_DESCRIPTION}}` | one-line description |
+| `{{LANGUAGE}}` | from Phase 1 |
+| `{{FRAMEWORK}}` | `<span class="badge">Next.js</span>` or empty string |
+| `{{INDEX_DATA}}` | the INDEX object as a valid JS literal |
 
 ## Design System
 
