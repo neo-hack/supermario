@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PAGE_TITLE}} — {{PROJECT_NAME}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+{{COMMON_STYLES}}
+{{PAGE_STYLES}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="back-link" href="{{BACK_LINK}}">← {{BACK_LABEL}}</a>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">{{PROJECT_NAME}}</div>
+    <h1>{{PAGE_TITLE}}</h1>
+    <p class="learning-promise">{{LEARNING_PROMISE}}</p>
+    <ul class="prereqs">{{PREREQ_CHIPS}}</ul>
+  </section>
+
+  <section class="anchor">
+    <div class="anchor-label">Anchor diagram</div>
+    <div class="mermaid"></div>
+  </section>
+
+  <section class="units"></section>
+
+  <footer class="page-footer">
+    <a class="next-link" href="{{NEXT_LINK}}">{{NEXT_LABEL}} →</a>
+    <p class="recap">{{LEARNING_PROMISE_RECAP}}</p>
+  </footer>
+</main>
+
+<div class="zoom-overlay" hidden>
+  <div class="zoom-stage"></div>
+  <div class="zoom-controls">
+    <button data-zoom-out>−</button>
+    <span class="zoom-level" data-zoom-level>100%</span>
+    <button data-zoom-reset>Reset</button>
+    <button data-zoom-in>+</button>
+    <button data-zoom-close>Close</button>
+  </div>
+</div>
+
+<script>
+{{COMMON_SCRIPTS}}
+{{PAGE_SCRIPTS}}
+
+const PAGE = {{PAGE_DATA}};
+bootEssay(PAGE);
+</script>
+</body>
+</html>
