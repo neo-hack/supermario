@@ -203,33 +203,40 @@ Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/s
 
 `code-walk.code` must be exact copies from real source files. Never invent or simplify. If a function exceeds 15 lines, show the important slice with `// ...` to mark elision.
 
-## Phase 4: Build Mermaid Graph
+## Phase 4: Build Mermaid Graphs
 
-Define the flowchart that matches the module graph:
+Mermaid plays two roles. Never share one graph between them.
 
-```mermaid
-graph TD
-  A["Module Name 1"] -->|"label"| B["Module Name 2"]
-  A -->|"label"| C["Module Name 3"]
-  B --> D["Module Name 4"]
+### Role 1 — Anchor diagram
 
-  click A callback
-  click B callback
-  click C callback
-  click D callback
+The page-level `diagram` field on COURSE/PERSPECTIVE. Job: orientation, not navigation.
+
+- ≤ 8 nodes recommended (hard cap is reader patience).
+- `graph TD` for layered architecture; `graph LR` for sequential flows.
+- Use `["bracket labels"]` for readable node names.
+- **No `click nodeId callback` directives.** Click handling is wired by `_essay.js` via the `anchorNode` binding on units.
+- Optional. Omit if the page doesn't benefit from a mini-map.
+
+To enable scroll-linked highlighting, set `anchorNode: "<mermaidNodeId>"` on the unit(s) you want bound. The reader's scroll position drives which node lights up; tap a node to scroll back. Units without `anchorNode` are ignored.
+
+### Role 2 — Architecture / sequence / state figure
+
+The new `diagram` unit kind. Lives inline in `units[]`.
+
+```javascript
+{ kind: "diagram", title: "Auth handshake", mermaid: "sequenceDiagram\n  ...", caption: "...", zoomable: true }
 ```
 
-**Graph rules:**
-- Use `graph TD` (top-down) for architecture diagrams
-- Use `["bracket labels"]` for readable node names
-- Use `-->|"label"|` for labeled edges describing the relationship
-- Use `-.->` for optional/indirect dependencies
-- Add `click nodeId callback` for every node
-- Edge labels describe the relationship verb (reads, triggers, registers in, imports)
-- **For 8+ modules**: use `subgraph` to group modules by layer
-- **For 15+ modules**: create a top-level diagram showing layers only, with each layer clickable leading to a sub-diagram
+- Nodes represent real components, message flows, states, dependencies — independent of reading order.
+- No scroll-linking. No `anchorNode`. Just a captioned figure.
+- Counts toward the 4–8 unit budget.
+- `zoomable` defaults to `true`; set `false` only for tiny figures where zoom would be theater.
+- Other diagram types fit naturally here: `sequenceDiagram` (request flow), `classDiagram` (data models), `stateDiagram-v2` (lifecycle).
 
-**Sub-graph example for layered architecture:**
+### Subgraph rules (Role 1, large repos)
+
+For 8+ modules, group into `subgraph` blocks by layer. For 15+ modules, generate multiple narrower perspectives instead of one mega-diagram.
+
 ```mermaid
 graph TD
   subgraph Entry["Entry Layer"]
@@ -238,29 +245,17 @@ graph TD
   end
   subgraph Core["Business Layer"]
     C1["Auth Service"]
-    C2["User Service"]
-  end
-  subgraph Data["Data Layer"]
-    D1["Database"]
-    D2["Cache"]
   end
   E1 -->|"calls"| C1
-  E2 -->|"routes to"| C2
-  C1 -->|"reads"| D1
-  C2 -->|"reads"| D2
 ```
 
-**Multi-page graph rules:**
-- Each perspective page gets its own independent Mermaid graph
-- Module pages use `COURSE` data (existing behavior)
-- Perspective pages use `PERSPECTIVE` data (new)
-- Node IDs must be consistent across pages (e.g. `auth` node is `auth` everywhere)
-- Every node in a perspective page must have a `click nodeId callback` directive
+### Edge labels
 
-**Other diagram types** for inside the detail panel:
-- `sequenceDiagram` — request flow, data flow
-- `classDiagram` — data models, type hierarchies
-- `stateDiagram-v2` — lifecycle, state machines
+`-->|"label"|` describes the relationship verb (reads, triggers, registers in, imports). `-.->` for optional/indirect dependencies.
+
+### Cross-page node IDs
+
+The same module uses the same node ID across all pages it appears on (e.g., `auth` is `auth` everywhere).
 
 ## Phase 5: Generate Page List
 
