@@ -5,7 +5,7 @@ description: Use when asked to generate an interactive codebase course, visual a
 
 # Mermaid Interactive Codebase Course
 
-Generate a single self-contained HTML file that teaches a codebase through interactive Mermaid diagrams with click-to-explore detail panels. Zero build tools, zero npm, opens directly in any browser.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid diagrams as anchors, typed pedagogical units (concept, code-walk, guess-first, compare, surprise, takeaway, diagram) carrying the lesson. Zero build tools, zero npm. Each output page is self-contained.
 
 ## When to Use
 
@@ -25,9 +25,11 @@ Generate a single self-contained HTML file that teaches a codebase through inter
 Directory: `docs/codebase-course/`
 
   index.html                    <- Entry page (perspective + module cards)
-  architecture.html             <- Architecture perspective
-  <perspective>.html            <- Other perspectives (agent decides)
-  module-<name>.html            <- Per-module deep dives (agent decides)
+  architecture.html             <- Architecture perspective (essay)
+  <perspective>.html            <- Other perspectives (essays)
+  module-<name>.html            <- Per-module deep dives (essays)
+
+Each file is fully self-contained — CSS/JS inlined at build time from `templates/partials/`.
 
 ## Phase 1: Scan
 
@@ -320,38 +322,50 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 
 ## Important Rules
 
-1. **Real code only** — never invent, simplify, or modify code snippets
-2. **Cover every module** — no module discovered in Phase 1 may be omitted from the graph or COURSE data. Every node must have at least 1 step with real code
-3. **`securityLevel: 'loose'`** — without this, Mermaid blocks all click callbacks
-4. **500ms init delay** — Mermaid renders asynchronously; edge animations need `setTimeout(initEdges, 500)`
-5. **Test in browser** — open the generated .html and verify clicks, navigation, and animations work
-6. **Single file** — everything in one .html, no external CSS/JS files
-7. **No React** — this skill uses vanilla JS only to avoid CDN dual-instance issues
-8. **Exhaustive scanning** — read every source directory, not just the first few. A 20-module codebase should produce 20 nodes in the graph
-9. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`
-10. **Consistent node IDs** — the same module uses the same node ID across all pages
-11. **User perspective overrides** — if the user specifies perspectives, those are mandatory; auto-inferred perspectives are supplementary only
+1. **Real code only** — never invent, simplify, or modify code snippets.
+2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
+3. **Self-contained output** — each emitted HTML inlines all CSS/JS. Partials live in the skill's `templates/partials/` for DRY authoring, not at runtime.
+4. **Vanilla JS only** — no React, no build tools.
+5. **No Mermaid click directives** on essay pages. Anchor-diagram navigation comes from `_essay.js` reading `anchorNode` bindings on units.
+6. **Validate before writing** — `node scripts/validate-units.js` must pass for every page.
+7. **Test in browser** — open each generated `.html` and verify scroll-link, stepped-walk, and zoom interactions.
+8. **Consistent node IDs** — same module = same node ID across all pages.
+9. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Click does nothing | Add `securityLevel: 'loose'` to mermaid config |
-| Edge animations not visible | Wrap in `setTimeout` after `load` event |
-| Nodes too small/large | Adjust `nodeSpacing` and `rankSpacing` in flowchart config |
-| Code block unreadable | Use `font-family: Geist Mono`, `line-height: 1.7` |
-| Right panel empty on click | Check `window.callback` is defined, node IDs match COURSE keys |
-| Mermaid syntax error | Validate graph: no special chars in node labels without `["brackets"]` |
+| Anchor highlight doesn't migrate | Check unit has `anchorNode` matching a node ID in the page's `diagram` |
+| Stepped code-walk highlight stuck | Each `steps[]` item must have `highlightLines` (array, 1-based) and `beat` (prose) |
+| Zoomed Mermaid SVG looks blurry | Ensure `_essay.css` has NO `will-change: transform` on `.zoom-stage`; keep `shape-rendering: geometricPrecision` |
+| Zoom opens to empty stage | SVG clone must get explicit `width`/`height` attributes from `getBoundingClientRect()` of the source |
+| Validator fails on a module | Read the error — usually missing `guess-first`/`surprise`, missing trailing `takeaway`, or > 1 stepped walk |
+| Code block unreadable | `_base.css` sets `font-family: Geist Mono, line-height: 1.7` on `pre.code-block` |
+| Cross-module link in body doesn't render | Use markdown link syntax `[label](module-foo.html)`; `renderMarkdownLinks()` parses it |
 
 ## File Organization
 
 ```
 skills/mermaid-course/
-  SKILL.md                       # This file (6-phase workflow)
+  SKILL.md                            # This file (6-phase workflow)
   references/
-    design-system.md             # Full CSS/typography/shadow reference
-    template-index.html          # Entry page — card navigation
-    template-course.html         # Sub-page — Mermaid + detail panel + breadcrumb
+    design-system.md                  # CSS/typography/shadow reference
+    units-examples.md                 # 2-3 examples per unit kind
+    voice-examples.md                 # Flat-vs-pointed prose pairs
+  templates/
+    template-essay.html               # Shell for perspective and module pages
+    template-index.html               # Shell for the entry page
+    partials/
+      _base.css                       # Shared tokens, typography, layout, hero
+      _essay.css                      # Anchor diagram, units, zoom overlay
+      _index.css                      # Card grid
+      _runtime.js                     # Mermaid init, markdown link parser, helpers
+      _essay.js                       # Scroll-link, stepped-walk, zoom controls
+      _index.js                       # Index runtime (currently minimal)
+  scripts/
+    validate-units.js                 # Pedagogy enforcement
+    validate-units.test.js            # Tests for the validator
 ```
 
 ## Relationship to Other Skills
