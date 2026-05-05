@@ -7,9 +7,26 @@ You will work in **two phases**. Complete Phase 1 fully before starting Phase 2.
 
 ---
 
+## Argument Handling
+
+This command accepts an optional argument: `$ARGUMENTS`.
+
+- **No argument** — operate on the entire codebase (default behavior below).
+- **Argument is a directory** — scope Phase 1 exploration and Phase 2 annotation to that directory only. Treat it as the codebase root for this run.
+- **Argument is a file** — skip the module-level Phase 1 report. Instead:
+  1. Read the file.
+  2. Read files it imports/requires and files that import it (one hop, within the project — skip third-party deps).
+  3. Produce a brief context summary (one paragraph: what the file does, what it depends on, what depends on it). Wait for user confirmation.
+  4. In Phase 2, annotate ONLY the target file. Do not modify the related files — they exist only to inform comments on the target.
+- **Argument does not exist** — stop and report the path to the user.
+
+Resolve the argument relative to the project root. Skip directories listed in the exclude list below regardless of argument.
+
+---
+
 ## Phase 1: Module Analysis
 
-1. Explore codebase exhaustively. Skip these directories: `node_modules`, `.git`, `dist`, `build`, `.next`, `out`, `target`, `vendor`, `__pycache__`, `.cache`, `coverage`, `.turbo`, `.changeset`, `*.tsbuildinfo`.
+1. Explore codebase exhaustively (or the directory passed as argument). Skip these directories: `node_modules`, `.git`, `dist`, `build`, `.next`, `out`, `target`, `vendor`, `__pycache__`, `.cache`, `coverage`, `.turbo`, `.changeset`, `*.tsbuildinfo`.
 
 2. Identify the project type: monorepo (has workspaces / packages), single package, or multi-language project.
 
