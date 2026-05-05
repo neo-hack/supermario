@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{PAGE_TITLE}} — {{PROJECT_NAME}}</title>
+<title>Component Stories — {{PROJECT_NAME}}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,25 +18,24 @@
   <a class="back-link" href="{{BACK_LINK}}">← {{BACK_LABEL}}</a>
 </header>
 
-<main class="container">
-  <section class="hero">
+<main class="container story-container">
+  <section class="hero" data-story-id="story-hero">
     <div class="eyebrow">{{PROJECT_NAME}}</div>
-    <h1>{{PAGE_TITLE}}</h1>
-    <p class="learning-promise">{{LEARNING_PROMISE}}</p>
-    <ul class="prereqs">{{PREREQ_CHIPS}}</ul>
+    <h1>Component Stories</h1>
+    <p class="learning-promise">A self-contained component catalog for the Mermaid course renderer. Use it for visual review, interaction checks, and future e2e tests.</p>
+    <ul class="prereqs">
+      <li>Renderer fixture</li>
+      <li>Stable selectors</li>
+      <li>Zero build</li>
+    </ul>
   </section>
 
-  <section class="anchor">
+  <section class="anchor" data-story-id="anchor-diagram">
     <div class="anchor-label">Anchor diagram</div>
     <div class="mermaid"></div>
   </section>
 
   <section class="units"></section>
-
-  <footer class="page-footer">
-    <a class="next-link" href="{{NEXT_LINK}}">{{NEXT_LABEL}} →</a>
-    <p class="recap">{{LEARNING_PROMISE_RECAP}}</p>
-  </footer>
 </main>
 
 <div class="zoom-overlay" hidden>

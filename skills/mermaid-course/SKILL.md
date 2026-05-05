@@ -31,6 +31,10 @@ Directory: `docs/codebase-course/`
 
 Each file is fully self-contained — CSS/JS inlined at build time from `templates/partials/`.
 
+## Parallel Generation Mode
+
+If subagents are available and the target repo has enough independent modules to benefit, use `references/subagent-generation.md`. The main agent remains coordinator: it owns module registry, filename registry, node ids, perspective list, index page, link graph, and final validation. Subagents may scan assigned areas, draft page data, and generate assigned `module-<name>.html` files, but they must not create unassigned files or make global architecture decisions.
+
 ## Phase 1: Scan
 
 Read the codebase exhaustively. The goal is to discover ALL meaningful modules, not just the obvious ones.
@@ -170,8 +174,10 @@ const INDEX = {
 | Layout    | Shape                                                                 | Use when                                                       |
 |-----------|-----------------------------------------------------------------------|----------------------------------------------------------------|
 | `stacked` (default) | Single column: code, then prose                              | One short explanation, no per-line beats                       |
-| `split`             | Sticky code left, prose right (collapses < 880px)            | Multiple beats tied to specific lines, would otherwise scroll-back |
+| `split`             | Sticky code left, scrollable explanation cards right (collapses < 880px) | Multiple beats tied to specific lines, would otherwise scroll-back |
 | `stepped`           | Sticky code left, ordered `steps[]` right; scroll-driven highlight migration | One narrative walk through a function in 3-5 beats |
+
+For `split`, write `explanation` as a compact intro followed by `Line ...:` / `Lines ...:` beats. The renderer splits those beats into fixed-height, scrollable cards, keeps the active card styled like `stepped`, and syncs the code highlight as the reader scrolls the card column.
 
 `stepped` requires `steps: [{ highlightLines, beat }]` instead of flat `highlightLines + explanation`. **Hard cap: at most one `stepped` code-walk per module.**
 
@@ -207,9 +213,22 @@ Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/s
 
 `code-walk.code` must be exact copies from real source files. Never invent or simplify. If a function exceeds 15 lines, show the important slice with `// ...` to mark elision.
 
+### Code presentation rules
+
+Keep teaching snippets tight:
+
+- Trim leading and trailing blank lines from every `code`, `left.code`, `right.code`, and `code.source` value.
+- Collapse repeated interior blank lines to one blank line.
+- Prefer `// ...` or `# ...` elision comments over airy blank rows when skipping irrelevant source.
+- Highlight numbers are 1-based and must match the visible line numbers after trimming.
+- Do not highlight blank separator lines; move `highlightLines` to the nearest meaningful source line.
+- Scrollbar styling is global in `_base.css`; components may set overflow and `scrollbar-gutter`, but must not add page-local scrollbar colors or WebKit scrollbar selectors.
+
 ### Storyboard units
 
 Use `storyboard` when the reader needs to watch a system change across 2-5 scenes. Good fits: template assembly, request lifecycle, state transitions, build pipelines, parser phases, data synchronization. Bad fits: one static architecture overview, long prose explanations, or anything that needs arbitrary 2D canvas layout.
+
+Do not explain sequence-heavy lessons with a disguised `code-walk`. If the lesson is "first this state exists, then this merge happens, then this output flushes," use `storyboard` so the generated page visibly renders the Cinema Strip.
 
 Read `references/storyboard-patterns.md` before writing storyboard units. Follow the approved Variant B Cinema Strip shape: large Mermaid stage, scene strip, collapsible code drawer, and P3 aside-panel annotations.
 
@@ -248,6 +267,7 @@ Storyboard rules:
 - Every scene has a short `name` and non-empty `mermaid`.
 - `explanation` is 1-3 sentences.
 - `code.source` is copied from real source or from the current skill instructions. Do not invent code.
+- `code.source` follows the same code presentation rules: no leading/trailing blank lines and no repeated interior blank rows.
 - Use `code.highlights`, not `highlightLines`, for storyboard code.
 - A single-line annotation uses `{ line, note }`.
 - A multi-line annotation uses `{ lines: [start, ...end], note }`.
@@ -318,7 +338,9 @@ The same module uses the same node ID across all pages it appears on (e.g., `aut
 | `<perspective>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `PERSPECTIVE` | One per non-architecture perspective |
 | `module-<name>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `COURSE`      | One per discovered module |
 
-All files go in `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
+All generated course files go in the target repo's `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
+
+Do not generate `story.html` when executing this skill for a target codebase. `story.html` is a maintainer fixture for this skill repository only; see "Maintainer story page" below.
 
 ## Phase 6: Assemble
 
@@ -340,6 +362,18 @@ For each page in the file list (Phase 5):
 6. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
 
 Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `partials/` for DRY authoring; the output is independent files.
+
+## Maintainer story page
+
+This skill repository keeps a local component fixture at `tests/story.html`. It is for maintaining and testing the `mermaid-course` renderer itself, not for normal skill execution against a user's codebase.
+
+Maintainer-only sources:
+
+- `tests/fixtures/template-story.html` — shell for the maintainer story page.
+- `tests/fixtures/story-page-data.json` — stable fixture data covering major unit kinds and interaction states.
+- `templates/partials/_base.css`, `_essay.css`, `_runtime.js`, `_essay.js` — the same renderer partials used by real course pages.
+
+Use the story page when editing renderer UI, interaction behavior, or shared visual rules. It should expose stable `data-story-id` selectors for future e2e tests. Update `tests/fixtures/story-page-data.json` whenever adding a unit kind, interaction state, or reusable visual rule. Keep this fixture in the `supermario` repo; do not copy it into generated target-codebase output unless explicitly doing maintainer QA.
 
 ### Page-specific slots — `template-essay.html`
 
@@ -404,6 +438,7 @@ skills/mermaid-course/
   references/
     design-system.md                  # CSS/typography/shadow reference
     storyboard-patterns.md            # Mermaid storyboard patterns and annotation rules
+    subagent-generation.md            # Optional parallel generation protocol
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
   templates/
@@ -418,7 +453,12 @@ skills/mermaid-course/
       _index.js                       # Index runtime (currently minimal)
   scripts/
     validate-units.js                 # Pedagogy enforcement
+  tests/
+    render-essay.test.js              # Renderer and maintainer story tests
     validate-units.test.js            # Tests for the validator
+    fixtures/
+      template-story.html             # Maintainer story shell, not normal output
+      story-page-data.json            # Maintainer story component fixture
 ```
 
 ## Relationship to Other Skills

@@ -1,7 +1,7 @@
-// skills/mermaid-course/scripts/validate-units.test.js
+// skills/mermaid-course/tests/validate-units.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateModule, validatePerspective } from './validate-units.js';
+import { validateModule, validatePerspective } from '../scripts/validate-units.js';
 
 function validStoryboardUnit(overrides = {}) {
   return {

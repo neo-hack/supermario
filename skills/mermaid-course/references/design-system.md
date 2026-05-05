@@ -120,3 +120,6 @@ Base unit 8px. Key spacings:
 - Section borders: `1px solid var(--border)`
 - Nav button gap: 8px
 - File tag gap: 6px
+## Code Scrollbars
+
+All code teaching surfaces render as `pre.code-block` and use the shared dark scrollbar rules in `_essay.css`. Keep scrollbar styling on the common selector so `code-walk`, `compare`, `guess-first`, and storyboard drawers stay visually consistent.

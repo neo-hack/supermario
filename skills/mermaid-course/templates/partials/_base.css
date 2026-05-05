@@ -14,6 +14,10 @@
   --accent-soft: rgba(255, 99, 99, 0.12);
   --code-bg: #0c0d0f;
   --highlight: rgba(255, 99, 99, 0.10);
+  --scrollbar-size: 10px;
+  --scrollbar-track: rgba(255, 255, 255, 0.035);
+  --scrollbar-thumb: rgba(156, 156, 157, 0.42);
+  --scrollbar-thumb-hover: rgba(249, 249, 249, 0.58);
   --shadow-card:
     0 1px 0 rgba(255,255,255,0.04) inset,
     0 0 0 1px rgba(255,255,255,0.02),
@@ -29,6 +33,25 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 *, *::before, *::after { box-sizing: border-box; }
+* {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+*::-webkit-scrollbar-corner { background: transparent; }
 
 html, body {
   background: var(--bg);
