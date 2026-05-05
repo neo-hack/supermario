@@ -68,6 +68,7 @@ After user confirms the analysis:
    | Language | File header | Doc comments | Inline |
    |----------|------------|--------------|--------|
     | JS / TS | `/** @file ... */` or `//` | TSDoc `/** ... */` | `//` |
+   | JSX / TSX | same as JS / TS | TSDoc `/** ... */` on exports | `//` outside JSX, `{/* ... */}` inside JSX markup or attributes |
    | Python | `"""Module docstring."""` | `"""..."""` | `#` |
    | Shell (.sh) | `# ...` | `# ...` | `#` |
    | Go | `// ...` | `// ...` | `//` |
@@ -79,6 +80,8 @@ After user confirms the analysis:
    | Other | Use that language's standard comment syntax |
 
 2. **Detect existing project conventions first.** If the project already uses a specific comment style (e.g., all `//` instead of `/** */`), follow the existing style. Check a few existing files before deciding.
+
+   **JSX / TSX note:** `//` and `/* */` are invalid inside JSX markup — they render as text or break parsing. Inside returned JSX (between tags or in attribute lists), always use `{/* ... */}`. Outside the `return` (imports, hooks, handlers, top-level TSDoc), use normal JS comment syntax.
 
 3. **Add three types of annotations (only where they don't already exist):**
 
