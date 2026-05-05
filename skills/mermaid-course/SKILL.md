@@ -162,6 +162,7 @@ const INDEX = {
 { kind: "surprise",    title, body }                                           // 1-3 sentences callout
 { kind: "takeaway",    body }                                                  // recap card
 { kind: "diagram",     title, mermaid, caption, zoomable? }                    // architecture/sequence figure; zoomable defaults true
+{ kind: "storyboard",  title, caption?, scenes: [{ name, mermaid, explanation?, code?, focus? }] } // multi-scene Mermaid player with optional paired code
 ```
 
 ### code-walk layouts
@@ -199,11 +200,60 @@ Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/s
 - Every module's `units[]` MUST end with a `takeaway`.
 - Every perspective's `units[]` MUST start with a `concept` and end with a `takeaway`.
 - ≤ 1 `stepped` code-walk per page.
+- ≤ 3 `storyboard` units per page, with at least one non-storyboard text unit between storyboard units.
 - ≤ 10 units per page.
 
 ### Real code only
 
 `code-walk.code` must be exact copies from real source files. Never invent or simplify. If a function exceeds 15 lines, show the important slice with `// ...` to mark elision.
+
+### Storyboard units
+
+Use `storyboard` when the reader needs to watch a system change across 2-5 scenes. Good fits: template assembly, request lifecycle, state transitions, build pipelines, parser phases, data synchronization. Bad fits: one static architecture overview, long prose explanations, or anything that needs arbitrary 2D canvas layout.
+
+Read `references/storyboard-patterns.md` before writing storyboard units. Follow the approved Variant B Cinema Strip shape: large Mermaid stage, scene strip, collapsible code drawer, and P3 aside-panel annotations.
+
+```javascript
+{
+  kind: "storyboard",
+  title: "How Phase 6 assembles one page",
+  caption: "One output page is slot replacement plus validation.",
+  scenes: [
+    {
+      name: "Read shell",
+      mermaid: "flowchart LR\n  A[template-essay.html] --> B[slot markers]",
+      explanation: "The shell owns page structure. The content is still missing."
+    },
+    {
+      name: "Inline partials",
+      mermaid: "flowchart LR\n  A[_base.css] --> C[HTML]\n  B[_essay.js] --> C",
+      code: {
+        file: "skills/mermaid-course/SKILL.md",
+        lang: "markdown",
+        source: "1. Read the shell template\n2. Read the partials\n3. Inline the partials",
+        highlights: [
+          { line: 2, note: "Reusable CSS and JS become page-local assets." },
+          { line: 3, note: "The output stays self-contained after replacement." }
+        ]
+      },
+      explanation: "This is where reusable pieces become one file."
+    }
+  ]
+}
+```
+
+Storyboard rules:
+
+- `scenes.length` is 2-5. Use 3 scenes as the default.
+- Every scene has a short `name` and non-empty `mermaid`.
+- `explanation` is 1-3 sentences.
+- `code.source` is copied from real source or from the current skill instructions. Do not invent code.
+- Use `code.highlights`, not `highlightLines`, for storyboard code.
+- A single-line annotation uses `{ line, note }`.
+- A multi-line annotation uses `{ lines: [start, ...end], note }`.
+- Cap annotations at 5 per scene; split the scene when more are needed.
+- Use Mermaid image nodes only for local paths or data URLs. Do not use remote image URLs.
+- Page budget: at most 3 storyboard units per page, with at least one text unit between storyboard units.
 
 ## Phase 4: Build Mermaid Graphs
 
@@ -341,6 +391,8 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 | Zoomed Mermaid SVG looks blurry | Ensure `_essay.css` has NO `will-change: transform` on `.zoom-stage`; keep `shape-rendering: geometricPrecision` |
 | Zoom opens to empty stage | SVG clone must get explicit `width`/`height` attributes from `getBoundingClientRect()` of the source |
 | Validator fails on a module | Read the error — usually missing `guess-first`/`surprise`, missing trailing `takeaway`, or > 1 stepped walk |
+| Storyboard drawer feels noisy | Use fewer annotations, cap at 5 notes per scene, and split crowded scenes into two smaller scenes |
+| Storyboard image fails validation | Mermaid image nodes must use local paths or data URLs, never remote URLs |
 | Code block unreadable | `_base.css` sets `font-family: Geist Mono, line-height: 1.7` on `pre.code-block` |
 | Cross-module link in body doesn't render | Use markdown link syntax `[label](module-foo.html)`; `renderMarkdownLinks()` parses it |
 
@@ -351,6 +403,7 @@ skills/mermaid-course/
   SKILL.md                            # This file (6-phase workflow)
   references/
     design-system.md                  # CSS/typography/shadow reference
+    storyboard-patterns.md            # Mermaid storyboard patterns and annotation rules
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
   templates/

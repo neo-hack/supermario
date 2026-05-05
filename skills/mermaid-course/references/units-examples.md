@@ -366,3 +366,67 @@ Architecture / sequence / state figure. Inline in `units[]`. Renders with a Zoom
   zoomable: true
 }
 ```
+
+---
+
+## storyboard
+
+Multi-scene Mermaid player with optional paired code. Use when a static diagram would hide the sequence of moves.
+
+```javascript
+{
+  kind: "storyboard",
+  title: "How Phase 6 assembles one page",
+  caption: "The page appears when the shell, partials, data, and validator line up.",
+  scenes: [
+    {
+      name: "Read shell",
+      mermaid:
+`flowchart LR
+  A["template-essay.html"] --> B["slot markers"]
+  B --> C["empty page shell"]`,
+      explanation:
+        "Start with the shell. It owns the document structure, but it is still hollow: title slots, CSS slots, JS slots, and one PAGE_DATA slot."
+    },
+    {
+      name: "Inline partials",
+      mermaid:
+`flowchart LR
+  A["_base.css"] --> C["self-contained HTML"]
+  B["_essay.css"] --> C
+  D["_runtime.js"] --> C
+  E["_essay.js"] --> C`,
+      code: {
+        file: "skills/mermaid-course/SKILL.md",
+        lang: "markdown",
+        source: "1. Read template-essay.html\n2. Read _base.css and _essay.css\n3. Read _runtime.js and _essay.js\n4. Replace template slots",
+        highlights: [
+          { line: 2, note: "CSS partials define the Raycast-themed reading surface." },
+          { line: 3, note: "Runtime partials keep each output page interactive without a build step." }
+        ]
+      },
+      explanation:
+        "This is the key move: reusable partials become inline page assets, so the final course page opens as one file."
+    },
+    {
+      name: "Validate before emit",
+      mermaid:
+`flowchart LR
+  A["PAGE_DATA"] --> B["validate-units.js"]
+  B -->|ok| C["write HTML"]
+  B -->|errors| D["stop"]`,
+      code: {
+        file: "skills/mermaid-course/scripts/validate-units.js",
+        lang: "js",
+        source: "if (!result.ok) {\n  console.error('Validation failed:');\n  for (const e of result.errors) console.error(`  - ${e}`);\n  process.exit(1);\n}\nconsole.log('OK');",
+        highlights: [
+          { line: 1, note: "Validation gates output instead of warning after the page exists." },
+          { lines: [2, 3, 4], note: "The run prints every failure, then exits once." }
+        ]
+      },
+      explanation:
+        "Bad pedagogy fails before the page is written. That keeps the generator honest when it starts producing richer units."
+    }
+  ]
+}
+```
