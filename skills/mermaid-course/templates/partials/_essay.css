@@ -115,6 +115,12 @@ pre.code-block .line.line-hl {
   border-left: 2px solid var(--accent);
   padding-left: 18px;
 }
+.codewalk .line.storyboard-range-hl,
+pre.code-block .line.storyboard-range-hl {
+  background: rgba(85, 179, 255, 0.07);
+  border-left: 2px solid var(--info, #55b3ff);
+  padding-left: 18px;
+}
 .codewalk .ln {
   display: inline-block;
   width: 28px;
@@ -387,6 +393,245 @@ pre.code-block .line.line-hl {
 }
 .figure figcaption strong { color: var(--text); font-style: normal; font-weight: 600; }
 
+/* STORYBOARD unit — Variant B Cinema Strip with P3 aside annotations */
+.storyboard {
+  margin: 24px 0 18px;
+}
+.storyboard-mobile-guard {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.storyboard-shell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.storyboard-caption {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin: -4px 0 18px;
+}
+.storyboard-stage {
+  position: relative;
+  min-height: 430px;
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.025), transparent 70%);
+}
+.storyboard-scene-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.storyboard-zoom {
+  position: static;
+}
+.storyboard-mermaid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+.storyboard-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.storyboard-explanation {
+  margin-top: 18px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  background: rgba(7, 8, 10, 0.78);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.storyboard-explanation p {
+  margin-bottom: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+.storyboard-strip {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--code-bg);
+  overflow-x: auto;
+}
+.storyboard-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 140px;
+  min-height: 64px;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.015);
+  border: 1.5px dashed rgba(255,255,255,0.16);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--font-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.storyboard-tab:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+.storyboard-tab.active {
+  color: var(--text);
+  border-style: solid;
+  border-color: var(--accent);
+  background: rgba(255, 99, 99, 0.05);
+  box-shadow: 0 0 0 3px rgba(255, 99, 99, 0.08);
+}
+.storyboard-tab-num {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 4px;
+}
+.storyboard-tab.active .storyboard-tab-num {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.storyboard-code-slot {
+  background: var(--code-bg);
+}
+.storyboard-code-drawer {
+  border: 0;
+  background: var(--code-bg);
+}
+.storyboard-code-drawer summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 14px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.storyboard-code-drawer summary::-webkit-details-marker {
+  display: none;
+}
+.storyboard-code-drawer summary::after {
+  content: '▸ expand';
+  color: var(--text-dim);
+}
+.storyboard-code-drawer[open] summary::after {
+  content: '∨ collapse';
+}
+.storyboard-code-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: stretch;
+}
+.storyboard-code-grid .codewalk {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.storyboard-code-grid .codewalk-head {
+  border-top: 0;
+}
+.storyboard-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 1px solid var(--border);
+  padding: 14px;
+  background: var(--surface-2);
+}
+.storyboard-notes.empty {
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+.storyboard-note {
+  position: relative;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 99, 99, 0.04);
+}
+.storyboard-note.range {
+  border-color: var(--info, #55b3ff);
+  background: rgba(85, 179, 255, 0.05);
+}
+.storyboard-note::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 18px;
+  width: 13px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+.storyboard-note.range::before {
+  background: var(--info, #55b3ff);
+}
+.storyboard-note::after {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--accent);
+  opacity: 0.7;
+}
+.storyboard-note.range::after {
+  border-color: var(--info, #55b3ff);
+}
+.storyboard-note-line {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.storyboard-note.range .storyboard-note-line {
+  color: var(--info, #55b3ff);
+}
+.storyboard-note p {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .zoom-btn {
   position: absolute;
   top: 14px;
@@ -496,4 +741,18 @@ pre.code-block .line.line-hl {
   .layout-stepped .steps::after,
   .stepped .steps::before,
   .stepped .steps::after { display: none; }
+}
+
+@media (max-width: 760px) {
+  .storyboard {
+    width: 100%;
+    left: 0;
+    transform: none;
+  }
+  .storyboard-mobile-guard {
+    display: block;
+  }
+  .storyboard-shell {
+    display: none;
+  }
 }

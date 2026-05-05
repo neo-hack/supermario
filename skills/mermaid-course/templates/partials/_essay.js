@@ -203,11 +203,28 @@ function renderStoryboardCode(scene) {
             <span>${escapeHtml(code.file || '')}</span>
             <span>${escapeHtml(code.lang || 'text')}</span>
           </div>
-          ${renderCode(code.source || '', sortedLines)}
+          ${renderStoryboardCodeBlock(code.source || '', sortedLines, highlights)}
         </div>
         ${renderStoryboardAnnotationList(highlights)}
       </div>
     </details>`;
+}
+
+function renderStoryboardCodeBlock(source, highlightedLines, highlights) {
+  const rangeLines = new Set();
+  highlights.forEach((h) => {
+    if (Array.isArray(h.lines)) h.lines.forEach((n) => rangeLines.add(n));
+  });
+  const highlighted = new Set(highlightedLines);
+  const lines = String(source).split('\n');
+  const body = lines.map((line, i) => {
+    const n = i + 1;
+    const classes = ['line'];
+    if (highlighted.has(n)) classes.push(rangeLines.has(n) ? 'storyboard-range-hl' : 'line-hl');
+    const safe = escapeHtml(line);
+    return `<span class="${classes.join(' ')}" data-line="${n}">${safe || ' '}</span>`;
+  }).join('\n');
+  return `<pre class="code-block">${body}</pre>`;
 }
 
 function renderStoryboardAnnotationList(highlights) {
