@@ -11,6 +11,7 @@ function renderUnit(unit) {
     case 'surprise':    return renderSurprise(unit);
     case 'takeaway':    return renderTakeaway(unit);
     case 'diagram':     return renderDiagram(unit);
+    case 'storyboard':  return renderStoryboard(unit);
     default:
       return `<p style="color:#ff8a8a">Unknown unit kind: ${escapeHtml(unit.kind)}</p>`;
   }
@@ -139,6 +140,101 @@ function renderDiagram(u) {
     </figure>`;
 }
 
+function renderStoryboard(u) {
+  const scenes = u.scenes || [];
+  const titleHtml = u.title ? `<h2>${escapeHtml(u.title)}</h2>` : '';
+  const captionHtml = u.caption ? `<p class="storyboard-caption">${renderMarkdownLinks(escapeHtml(u.caption))}</p>` : '';
+  return `
+    <span class="unit-kind">storyboard</span>${titleHtml}${captionHtml}
+    <div class="storyboard wide" data-storyboard>
+      <div class="storyboard-mobile-guard">
+        Storyboard units are designed for desktop-width reading. Open this page on a wider screen to step through the diagrams and code.
+      </div>
+      <div class="storyboard-shell">
+        <div class="storyboard-stage">
+          <div class="storyboard-scene-label">
+            <span data-storyboard-scene-count>Scene 1 of ${scenes.length}</span>
+            <button class="zoom-btn storyboard-zoom" data-zoom-trigger>Zoom</button>
+          </div>
+          <div class="storyboard-mermaid"><div class="mermaid"></div></div>
+          <div class="storyboard-explanation" data-storyboard-explanation></div>
+        </div>
+        <div class="storyboard-strip" role="tablist" aria-label="${escapeHtml(u.title || 'Storyboard scenes')}">
+          ${scenes.map((scene, i) => `
+            <button
+              class="storyboard-tab${i === 0 ? ' active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${i === 0 ? 'true' : 'false'}"
+              data-storyboard-tab="${i}">
+              <span class="storyboard-tab-num">${String(i + 1).padStart(2, '0')}</span>
+              <span>${escapeHtml(scene.name || `Scene ${i + 1}`)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="storyboard-code-slot" data-storyboard-code-slot></div>
+      </div>
+      <template data-storyboard-scenes>${escapeHtml(JSON.stringify(scenes))}</template>
+    </div>`;
+}
+
+function renderStoryboardCode(scene) {
+  if (!scene.code) return '';
+  const code = scene.code;
+  const highlights = code.highlights || [];
+  const lineNumbers = new Set();
+  highlights.forEach((h) => {
+    if (Number.isInteger(h.line)) lineNumbers.add(h.line);
+    if (Array.isArray(h.lines)) h.lines.forEach((n) => lineNumbers.add(n));
+  });
+  const sortedLines = Array.from(lineNumbers).sort((a, b) => a - b);
+  const noteCount = highlights.length;
+  const lineCount = String(code.source || '').split('\n').length;
+  const defaultOpen = noteCount > 0 ? ' open' : '';
+  return `
+    <details class="storyboard-code-drawer"${defaultOpen}>
+      <summary>
+        <span>${escapeHtml(code.file || 'source')}</span>
+        <span>${lineCount} lines · ${noteCount} notes</span>
+      </summary>
+      <div class="storyboard-code-grid">
+        <div class="codewalk">
+          <div class="codewalk-head">
+            <span>${escapeHtml(code.file || '')}</span>
+            <span>${escapeHtml(code.lang || 'text')}</span>
+          </div>
+          ${renderCode(code.source || '', sortedLines)}
+        </div>
+        ${renderStoryboardAnnotationList(highlights)}
+      </div>
+    </details>`;
+}
+
+function renderStoryboardAnnotationList(highlights) {
+  if (!highlights || highlights.length === 0) return '<aside class="storyboard-notes empty">No annotations for this scene.</aside>';
+  return `
+    <aside class="storyboard-notes">
+      ${highlights.map((h) => {
+        const lines = Array.isArray(h.lines) ? h.lines : [h.line];
+        const rangeClass = lines.length > 1 ? ' range' : '';
+        const label = lines.length > 1 ? `L${lines[0]}-${lines[lines.length - 1]}` : `L${lines[0]}`;
+        return `
+          <div class="storyboard-note${rangeClass}">
+            <span class="storyboard-note-line">${escapeHtml(label)}</span>
+            <p>${renderMarkdownLinks(escapeHtml(h.note || ''))}</p>
+          </div>`;
+      }).join('')}
+    </aside>`;
+}
+
+async function renderMermaidElement(node) {
+  const src = node.textContent.trim();
+  if (!src) return;
+  const id = 'm' + Math.random().toString(36).slice(2);
+  const { svg } = await mermaid.render(id, src);
+  node.innerHTML = svg;
+}
+
 async function bootEssay(page) {
   const unitsRoot = document.querySelector('.units');
   if (unitsRoot) {
@@ -159,6 +255,7 @@ async function bootEssay(page) {
 
   await renderMermaid('.unit-diagram .mermaid, .figure .mermaid');
   initSteppedWalks();
+  await initStoryboards();
   initZoomOverlay();
   startScrollLoop();
 }
@@ -254,6 +351,61 @@ function initSteppedWalks() {
   });
 }
 
+/* ------- Storyboard scene player ------- */
+async function setStoryboardScene(root, index) {
+  const scenesEl = root.querySelector('[data-storyboard-scenes]');
+  if (!scenesEl) return;
+  const scenes = JSON.parse(scenesEl.textContent || '[]');
+  const scene = scenes[index];
+  if (!scene) return;
+
+  root.querySelectorAll('[data-storyboard-tab]').forEach((tab) => {
+    const active = Number(tab.dataset.storyboardTab) === index;
+    tab.classList.toggle('active', active);
+    tab.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+
+  const countEl = root.querySelector('[data-storyboard-scene-count]');
+  if (countEl) countEl.textContent = `Scene ${index + 1} of ${scenes.length}`;
+
+  const mermaidEl = root.querySelector('.storyboard-mermaid .mermaid');
+  if (mermaidEl) {
+    mermaidEl.textContent = scene.mermaid || '';
+    await renderMermaidElement(mermaidEl);
+    applyStoryboardFocus(mermaidEl, scene.focus);
+  }
+
+  const explanationEl = root.querySelector('[data-storyboard-explanation]');
+  if (explanationEl) {
+    explanationEl.innerHTML = scene.explanation
+      ? renderMarkdownLinks(escapeBodyParagraphs(scene.explanation))
+      : '';
+  }
+
+  const codeSlot = root.querySelector('[data-storyboard-code-slot]');
+  if (codeSlot) codeSlot.innerHTML = renderStoryboardCode(scene);
+}
+
+function applyStoryboardFocus(root, focus) {
+  if (!focus) return;
+  root.querySelectorAll('g.node').forEach((g) => {
+    const matched = g.id.includes(`-${focus}-`) || g.id.endsWith(`-${focus}`);
+    g.classList.toggle('active', matched);
+  });
+}
+
+async function initStoryboards() {
+  const roots = Array.from(document.querySelectorAll('[data-storyboard]'));
+  await Promise.all(roots.map(async (root) => {
+    root.querySelectorAll('[data-storyboard-tab]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        setStoryboardScene(root, Number(tab.dataset.storyboardTab));
+      });
+    });
+    await setStoryboardScene(root, 0);
+  }));
+}
+
 /* ------- Zoomable diagram overlay ------- */
 function initZoomOverlay() {
   const overlay = document.querySelector('.zoom-overlay');
@@ -292,7 +444,7 @@ function initZoomOverlay() {
 
   document.querySelectorAll('[data-zoom-trigger]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const fig = btn.closest('.figure, .unit-diagram');
+      const fig = btn.closest('.figure, .unit-diagram, .storyboard-stage');
       const svg = fig && fig.querySelector('svg');
       if (svg) openZoom(svg);
     });
