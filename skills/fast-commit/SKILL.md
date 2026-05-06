@@ -7,8 +7,6 @@ description: Use when asked to quickly stage all current changes and commit them
 
 Stage all current changes, analyze the diff, generate three commit message candidates, choose the best one, and commit without asking the user to pick.
 
-Converted from `.opencode/commands/fast-commit.md`.
-
 ## Workflow
 
 ### 1. Stage All Changes

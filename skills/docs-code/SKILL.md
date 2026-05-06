@@ -7,8 +7,6 @@ description: Use when asked to analyze code and add explanatory code annotations
 
 Analyze a codebase, get confirmation on the module map, then add high-value comments without changing code behavior.
 
-Converted from `.opencode/commands/docs-code.md`.
-
 ## Argument Handling
 
 This skill accepts an optional target path:

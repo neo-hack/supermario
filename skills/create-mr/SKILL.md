@@ -7,8 +7,6 @@ description: Use when creating a GitHub pull request or merge request from the c
 
 Create a GitHub pull request from the current branch by reading the repository state, respecting any PR template, and verifying the created PR.
 
-Converted from `.opencode/commands/create-mr.md`.
-
 ## Workflow
 
 ### 1. Detect PR Template
