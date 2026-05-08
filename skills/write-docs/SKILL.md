@@ -7,6 +7,25 @@ description: Use when asked to create, rewrite, audit, or maintain README, ARCHI
 
 Write useful project documentation by reading the repository first. Default to improving existing docs before creating new files.
 
+<required_reading>
+Before drafting or editing any document, read:
+- `references/elements-of-style.md`
+- the matching document reference for the target type
+
+Required mapping:
+- `README.md` -> `references/readme.md`
+- `ARCHITECTURE.md` -> `references/architecture.md`
+- `CONTRIBUTING.md` -> `references/contributing.md`
+- `TUTORIAL.md` -> `references/tutorial.md`
+
+For unsupported document types, read `references/elements-of-style.md`,
+choose the closest supported reference, and tell the user which fallback
+reference was used.
+
+Do not draft until required reading is complete.
+The final response must list the references read.
+</required_reading>
+
 ## When to Use
 
 - "Write a README"
@@ -31,6 +50,19 @@ Agents without this skill tend to:
 - Link to mixed-case docs paths without checking the actual filenames.
 
 Treat those as red flags. Read repository facts first.
+
+## File Organization
+
+```text
+skills/write-docs/
+  SKILL.md                         # Main workflow, hard gates, reporting rules
+  references/
+    elements-of-style.md           # General writing rules for all docs
+    readme.md                      # README identity, badge rules, boundaries
+    architecture.md                # System boundary, modules, flows, decisions
+    contributing.md                # Setup, checks, PR workflow, option changes
+    tutorial.md                    # Goal-led teaching path
+```
 
 ## Supported Documents
 
@@ -92,7 +124,7 @@ Use `rg` and direct file reads before drafting. Look for:
 - Package, build, and runtime config.
 - Install, development, test, lint, build, and deploy commands.
 - Entry points and important source directories.
-- CI, license, package, or version sources for badges.
+- Badge sources: `package.json`, lockfiles, `LICENSE*`, `.github/workflows/*`, runtime/build config, existing docs, and package metadata.
 - Options, configuration, schema, or environment definitions.
 
 Useful searches:
@@ -108,6 +140,11 @@ Do not invent commands, defaults, paths, badges, options, types, examples, or ca
 ### Phase 4: Write or Edit
 
 Use the matching reference and `references/elements-of-style.md`.
+
+For README targets, obey the extra hard blocks in `references/readme.md`:
+
+- `<readme_identity>`
+- `<readme_boundaries>`
 
 When documenting repository options or configuration in a table, always use this column order:
 
@@ -127,7 +164,8 @@ Before finishing, check:
 - Sections serve reader tasks instead of a fixed template.
 - Generic filler, passive phrasing, and repeated setup prose are removed.
 - Every options table uses `Option | Type | Default | Example | Description`.
-- README badges are true and restrained.
+- README includes at least one verified plain Markdown Shields.io badge, or drafting stopped because no badge source could be verified.
+- README does not contain a `## Architecture` section.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
@@ -137,8 +175,11 @@ Before finishing, check:
 In the final response, say:
 
 - Which document changed.
+- References read.
 - Which repository facts supported the content.
-- Which details could not be verified.
+- Badge sources checked, when the target is README.
+- Missing facts that blocked required identity elements, when applicable.
+- Whether README boundaries were enforced, when the target is README.
 - Which checks or commands were run.
 
 If no file changed, say what blocked the edit and what facts were missing.

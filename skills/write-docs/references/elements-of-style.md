@@ -49,9 +49,10 @@ Use headings that name reader tasks:
 - Configuration
 - Development
 - Testing
-- Architecture
 - Release Process
 - Troubleshooting
+
+Document-specific references override this generic heading list. For example, `Architecture` is appropriate in `ARCHITECTURE.md`, but it is not a default README heading.
 
 Avoid headings that only name document chores:
 
