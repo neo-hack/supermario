@@ -166,3 +166,4 @@ dist
 # docs/codebase slidev project
 docs/codebase/node_modules/
 .gstack/
+.worktrees/
