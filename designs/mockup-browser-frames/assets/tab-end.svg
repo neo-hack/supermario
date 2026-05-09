@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 44 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="End">
+<rect id="Fade" width="44" height="34" fill="url(#paint0_linear_0_100)"/>
+<path id="Cross" d="M25 14L28 17M28 17L31 14M28 17L25 20M28 17L31 20" stroke="var(--stroke-0, #3D4043)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_100" x1="44" y1="17" x2="1.10149e-06" y2="17" gradientUnits="userSpaceOnUse">
+<stop offset="0.593356" stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>

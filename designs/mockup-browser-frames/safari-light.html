@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Safari Light Browser Mockup</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <nav class="preview-nav" aria-label="Mockup previews">
+      <a class="preview-link" href="./index.html">Chrome Light</a>
+      <a class="preview-link" href="./chrome-dark.html">Chrome Dark</a>
+      <a class="preview-link is-active" href="./safari-light.html">Safari Light</a>
+      <a class="preview-link" href="./safari-dark.html">Safari Dark</a>
+    </nav>
+    <main class="stage" aria-label="Safari light browser mockup">
+      <section class="browser safari safari-light" aria-label="Khazifire website in Safari light mode">
+        <header class="safari-toolbar">
+          <div class="window-controls safari-controls" aria-hidden="true">
+            <span class="control control-close"></span>
+            <span class="control control-minimize"></span>
+            <span class="control control-maximize"></span>
+          </div>
+
+          <button class="safari-sidebar" aria-label="Show sidebar">
+            <img class="safari-sidebar-icon" src="./assets/safari-light-sidebar.svg" alt="" />
+            <span class="safari-separator"></span>
+            <svg
+              class="safari-down"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          <button class="safari-back" aria-label="Back">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <button class="safari-forward" aria-label="Forward">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+
+          <div class="safari-address">
+            <img class="safari-shield" src="./assets/safari-light-shield.svg" alt="" />
+            <div class="safari-field" role="textbox" aria-label="Address">
+              <div class="safari-url">
+                <img src="./assets/safari-light-lock.svg" alt="" />
+                <span>khazifire.com</span>
+              </div>
+              <img class="safari-reload" src="./assets/safari-light-refresh.svg" alt="" />
+            </div>
+          </div>
+
+          <button class="safari-share" aria-label="Share">
+            <img src="./assets/safari-light-share.svg" alt="" />
+          </button>
+          <button class="safari-plus" aria-label="New tab">
+            <img src="./assets/safari-light-plus.svg" alt="" />
+          </button>
+          <button class="safari-grid" aria-label="Tab overview">
+            <img src="./assets/safari-light-grid.svg" alt="" />
+          </button>
+        </header>
+
+        <div class="safari-container">
+          <div class="safari-shadow" aria-hidden="true"></div>
+          <div class="screen">
+            <img
+              src="./assets/safari-light-screen.png"
+              alt="Khazifire portfolio homepage"
+            />
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

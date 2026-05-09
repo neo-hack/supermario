@@ -402,7 +402,7 @@ Use the story page when editing renderer UI, interaction behavior, or shared vis
 
 ## Design System
 
-Built-in Raycast-inspired dark theme. For the full design reference (CSS variables, typography, shadows, colors, spacing), read `references/design-system.md`.
+Built-in Raycast-inspired dark theme. For the full design reference (CSS variables, typography, shadows, colors, spacing), read `references/design-system.md` and `references/DESIGN.md`.
 
 ## Important Rules
 
