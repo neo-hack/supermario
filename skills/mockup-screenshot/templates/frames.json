@@ -1,0 +1,42 @@
+{
+  "chrome": {
+    "type": "browser",
+    "label": "Chrome",
+    "themes": ["light", "dark"],
+    "defaultViewport": [1440, 900],
+    "polishedCanvas": [1600, 1000],
+    "frameClass": "browser-frame browser-chrome",
+    "screenClass": "mockup-screen browser-screen",
+    "css": ["studio.css", "browser.css"]
+  },
+  "safari": {
+    "type": "browser",
+    "label": "Safari",
+    "themes": ["light", "dark"],
+    "defaultViewport": [1440, 900],
+    "polishedCanvas": [1600, 1000],
+    "frameClass": "browser-frame browser-safari",
+    "screenClass": "mockup-screen browser-screen",
+    "css": ["studio.css", "browser.css"]
+  },
+  "iphone": {
+    "type": "device",
+    "label": "iPhone 17 series",
+    "themes": ["light", "dark"],
+    "defaultViewport": [390, 844],
+    "polishedCanvas": [1200, 1200],
+    "frameClass": "device device-iphone-14-pro device-iphone-17-series device-purple",
+    "screenClass": "mockup-screen device-screen",
+    "css": ["studio.css", "device.css"]
+  },
+  "ipad": {
+    "type": "device",
+    "label": "iPad",
+    "themes": ["light", "dark"],
+    "defaultViewport": [820, 1180],
+    "polishedCanvas": [1400, 1200],
+    "frameClass": "device device-ipad-pro device-ipad",
+    "screenClass": "mockup-screen device-screen",
+    "css": ["studio.css", "device.css"]
+  }
+}

@@ -1,3 +1,6 @@
 [submodule "vendor/developer-roadmap"]
 	path = vendor/developer-roadmap
 	url = https://github.com/nilbuild/developer-roadmap.git
+[submodule "vendor/devices.css"]
+	path = vendor/devices.css
+	url = https://github.com/picturepan2/devices.css.git

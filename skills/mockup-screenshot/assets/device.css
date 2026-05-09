@@ -1,0 +1,225 @@
+/*
+ * Device frames are adapted from vendor/devices.css/dist/devices.css:
+ * - .device-iphone-14-pro is used as the base for our iPhone 17 series key.
+ * - .device-ipad-pro is used as the base for our iPad key.
+ * Changes are limited to aliases, image containment, and theme variants.
+ */
+
+.device {
+  position: relative;
+}
+
+.device-frame {
+  position: relative;
+  overflow: visible;
+}
+
+.device .frame-toolbar {
+  display: none;
+}
+
+.device-screen {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  z-index: 1;
+}
+
+.device-iphone-17-series {
+  height: 868px;
+  width: 428px;
+}
+
+.device-iphone-17-series .device-frame {
+  background: #010101;
+  border: 1px solid #1b1721;
+  border-radius: 68px;
+  box-shadow: inset 0 0 4px 2px #c0b7cd, inset 0 0 0 6px #342c3f;
+  height: 868px;
+  padding: 19px;
+  width: 428px;
+}
+
+.device-iphone-17-series .device-screen {
+  border-radius: 49px;
+  height: 830px;
+  width: 390px;
+}
+
+.device-iphone-17-series .device-header {
+  background: #010101;
+  border-radius: 20px;
+  height: 35px;
+  left: 50%;
+  margin-left: -60px;
+  position: absolute;
+  top: 29px;
+  width: 120px;
+  z-index: 10;
+}
+
+.device-iphone-17-series .device-sensors::after,
+.device-iphone-17-series .device-sensors::before {
+  content: "";
+  position: absolute;
+}
+
+.device-iphone-17-series .device-sensors::after {
+  background: #010101;
+  border-radius: 17px;
+  height: 33px;
+  left: 50%;
+  margin-left: -60px;
+  top: 30px;
+  width: 74px;
+  z-index: 11;
+}
+
+.device-iphone-17-series .device-sensors::before {
+  background: radial-gradient(farthest-corner at 20% 20%, #6074bf 0, transparent 40%),
+    radial-gradient(farthest-corner at 80% 80%, #513785 0, #24555e 20%, transparent 50%);
+  border-radius: 50%;
+  box-shadow: 0 0 1px 1px rgb(255 255 255 / 5%);
+  height: 9px;
+  left: 50%;
+  margin-left: 36px;
+  top: 42px;
+  width: 9px;
+  z-index: 12;
+}
+
+.device-iphone-17-series .device-btns {
+  background: #1b1721;
+  border-radius: 2px;
+  height: 32px;
+  left: -2px;
+  position: absolute;
+  top: 115px;
+  width: 3px;
+}
+
+.device-iphone-17-series .device-btns::after,
+.device-iphone-17-series .device-btns::before {
+  background: #1b1721;
+  border-radius: 2px;
+  content: "";
+  height: 62px;
+  left: 0;
+  position: absolute;
+  width: 3px;
+}
+
+.device-iphone-17-series .device-btns::after {
+  top: 60px;
+}
+
+.device-iphone-17-series .device-btns::before {
+  top: 140px;
+}
+
+.device-iphone-17-series .device-power {
+  background: #1b1721;
+  border-radius: 2px;
+  height: 100px;
+  position: absolute;
+  right: -2px;
+  top: 200px;
+  width: 3px;
+}
+
+.theme-dark .device-iphone-17-series .device-frame {
+  border-color: #5c5956;
+  box-shadow: inset 0 0 4px 2px white, inset 0 0 0 6px #76726f;
+}
+
+.theme-dark .device-iphone-17-series .device-btns,
+.theme-dark .device-iphone-17-series .device-btns::after,
+.theme-dark .device-iphone-17-series .device-btns::before,
+.theme-dark .device-iphone-17-series .device-power {
+  background: #5c5956;
+}
+
+.device-ipad {
+  height: 778px;
+  width: 560px;
+}
+
+.device-ipad .device-frame {
+  background: #0d0d0d;
+  border-radius: 36px;
+  box-shadow: inset 0 0 0 1px #babdbf, inset 0 0 1px 3px #e2e3e4;
+  height: 778px;
+  padding: 27px;
+  width: 560px;
+}
+
+.device-ipad .device-screen {
+  border: 2px solid #121212;
+  border-radius: 11px;
+  height: 724px;
+  width: 506px;
+}
+
+.device-ipad .device-btns::after,
+.device-ipad .device-btns::before {
+  background: #babdbf;
+  content: "";
+  position: absolute;
+}
+
+.device-ipad .device-btns::after {
+  height: 2px;
+  right: 40px;
+  top: -2px;
+  width: 36px;
+}
+
+.device-ipad .device-btns::before {
+  box-shadow: 0 37px #babdbf;
+  height: 32px;
+  right: -2px;
+  top: 63px;
+  width: 2px;
+}
+
+.device-ipad .device-sensors::after,
+.device-ipad .device-sensors::before {
+  content: "";
+  position: absolute;
+}
+
+.device-ipad .device-sensors::after {
+  background: #1a1a1a;
+  border-radius: 17px;
+  box-shadow: -20px 0 #1a1a1a, 70px 0 #1a1a1a;
+  height: 10px;
+  left: 50%;
+  margin-left: -30px;
+  top: 12px;
+  width: 10px;
+}
+
+.device-ipad .device-sensors::before {
+  background: radial-gradient(farthest-corner at 20% 20%, #6074bf 0, transparent 40%),
+    radial-gradient(farthest-corner at 80% 80%, #513785 0, #24555e 20%, transparent 50%);
+  border-radius: 50%;
+  box-shadow: 0 0 1px 1px rgb(255 255 255 / 5%);
+  height: 6px;
+  left: 50%;
+  margin-left: -3px;
+  top: 14px;
+  width: 6px;
+}
+
+.theme-dark .device-ipad .device-frame {
+  box-shadow: inset 0 0 0 1px #6a6d70, inset 0 0 1px 3px #83878a;
+}
+
+.theme-dark .device-ipad .device-btns::after,
+.theme-dark .device-ipad .device-btns::before {
+  background: #6a6d70;
+}
+
+.theme-dark .device-ipad .device-btns::before {
+  box-shadow: 0 37px #6a6d70;
+}

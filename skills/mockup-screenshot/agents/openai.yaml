@@ -1,0 +1,3 @@
+display_name: Mockup Screenshot
+short_description: Wrap screenshots or webpages in browser and device frames.
+default_prompt: Create a polished framed PNG mockup from an image, URL, or local HTML file.
