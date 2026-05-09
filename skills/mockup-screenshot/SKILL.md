@@ -1,23 +1,15 @@
 ---
 name: mockup-screenshot
-description: Use when asked to create product screenshot mockups, wrap an image or webpage in a browser/device frame, generate Chrome/Safari/iPhone 17 series/iPad framed PNGs, or produce polished/tight/transparent screenshot assets for docs, landing pages, READMEs, or social posts.
+description: Create framed PNG screenshot mockups from image files, URLs, or local HTML. Use when asked to wrap screenshots or webpages in Chrome, Safari, iPhone 17 series, or iPad frames; generate polished, tight, or transparent mockup assets; or prepare product screenshots for docs, landing pages, READMEs, and social posts.
 ---
 
 # Mockup Screenshot
 
-Generate framed screenshot mockups from either an image file or a webpage/local HTML input.
-
-## When to Use
-
-- "Put this screenshot in a Safari frame"
-- "Generate a product mockup PNG from this URL"
-- "Make a README-ready browser screenshot"
-- "Wrap this image in an iPhone 17 series or iPad frame"
-- "Export a transparent device mockup"
+Generate framed PNG screenshot mockups from image files, webpages, or local HTML files.
 
 ## Output
 
-Default output is a polished PNG: a full presentation canvas with background, centered frame, and shadow. Use `--mode tight` to crop to the frame itself. Use `--mode transparent` for a transparent background.
+Default output is a `polished` PNG: a presentation canvas with background, centered frame, and shadow. Use `tight` to crop to the frame. Use `transparent` for a transparent background.
 
 ## Supported Frames
 
@@ -31,12 +23,10 @@ Device frames:
 
 ## Workflow
 
-1. Identify the input:
-   - Existing image: pass the file path directly.
-   - URL or local HTML: pass the URL/path and let the renderer capture it.
-2. Choose a frame and theme.
-3. Choose output mode: `polished`, `tight`, or `transparent`.
-4. Run the renderer from the repository root:
+1. Identify the input: pass an existing image path, URL, or local HTML file.
+2. Choose a frame: `chrome`, `safari`, `iphone`, or `ipad`.
+3. Choose `--theme light|dark` and `--mode polished|tight|transparent`.
+4. Run `scripts/render-mockup.mjs` from the repository root:
 
 ```bash
 node skills/mockup-screenshot/scripts/render-mockup.mjs \
@@ -97,8 +87,9 @@ node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
 
 ## Implementation Notes
 
+- `scripts/render-mockup.mjs` validates CLI options, captures URL/local HTML inputs with Playwright, renders `assets/render.html`, and exports PNG output.
 - `assets/browser.css` owns browser chrome.
 - `assets/device.css` owns physical device shells.
 - `assets/studio.css` owns shared canvas modes.
-- `templates/frames.json` is the frame registry.
-- `templates/render.html` is the only HTML shell the script screenshots.
+- `assets/frames.json` is the frame registry.
+- `assets/render.html` is the only HTML shell the script screenshots.

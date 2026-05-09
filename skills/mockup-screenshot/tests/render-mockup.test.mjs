@@ -15,8 +15,23 @@ test('skill metadata files exist and name the mockup-screenshot skill', () => {
   assert.match(openai, /default_prompt:/);
 });
 
+test('skill follows Agent Skills directory and frontmatter constraints', () => {
+  const skill = fs.readFileSync(path.join(skillRoot, 'SKILL.md'), 'utf8');
+  const frontmatter = /^---\n([\s\S]*?)\n---/.exec(skill)?.[1] ?? '';
+  const description = /^description:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '';
+
+  assert.equal(path.basename(skillRoot), 'mockup-screenshot');
+  assert.match(frontmatter, /^name: mockup-screenshot$/m);
+  assert.ok(description.length > 0);
+  assert.ok(description.length <= 1024);
+  assert.ok(fs.existsSync(path.join(skillRoot, 'scripts/render-mockup.mjs')));
+  assert.ok(fs.existsSync(path.join(skillRoot, 'assets/render.html')));
+  assert.ok(fs.existsSync(path.join(skillRoot, 'assets/frames.json')));
+  assert.ok(!fs.existsSync(path.join(skillRoot, 'templates')));
+});
+
 test('frame registry includes browser and device frames with separated CSS', () => {
-  const frames = JSON.parse(fs.readFileSync(path.join(skillRoot, 'templates/frames.json'), 'utf8'));
+  const frames = JSON.parse(fs.readFileSync(path.join(skillRoot, 'assets/frames.json'), 'utf8'));
 
   assert.deepEqual(Object.keys(frames).sort(), ['chrome', 'ipad', 'iphone', 'safari']);
   assert.equal(frames.chrome.type, 'browser');
@@ -39,7 +54,7 @@ test('frame registry includes browser and device frames with separated CSS', () 
 });
 
 test('renderer template exposes config mount and screenshot slot', () => {
-  const template = fs.readFileSync(path.join(skillRoot, 'templates/render.html'), 'utf8');
+  const template = fs.readFileSync(path.join(skillRoot, 'assets/render.html'), 'utf8');
 
   assert.match(template, /<script type="application\/json" id="mockup-config">/);
   assert.match(template, /data-role="mockup-frame"/);
@@ -98,7 +113,7 @@ test('renderer helpers parse options and classify inputs', async () => {
 
 test('renderer validates unsupported frame, theme, and output mode', async () => {
   const mod = await import('../scripts/render-mockup.mjs');
-  const frames = mod.loadFrames(path.join(skillRoot, 'templates/frames.json'));
+  const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
 
   assert.throws(() => mod.resolveFrame(frames, 'firefox', 'light'), /Unsupported frame/);
   assert.throws(() => mod.resolveFrame(frames, 'safari', 'sepia'), /Unsupported theme/);
@@ -107,7 +122,7 @@ test('renderer validates unsupported frame, theme, and output mode', async () =>
 
 test('renderer builds HTML with escaped config, CSS links, frame classes, and screenshot source', async () => {
   const mod = await import('../scripts/render-mockup.mjs');
-  const frames = mod.loadFrames(path.join(skillRoot, 'templates/frames.json'));
+  const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
   const frame = mod.resolveFrame(frames, 'safari', 'dark');
   const html = mod.renderHtml({
     skillRoot,
@@ -135,7 +150,7 @@ test('renderer exposes Playwright dependency guidance', async () => {
 
 test('capture plan uses frame defaults unless viewport is provided', async () => {
   const mod = await import('../scripts/render-mockup.mjs');
-  const frames = mod.loadFrames(path.join(skillRoot, 'templates/frames.json'));
+  const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
   const chrome = mod.resolveFrame(frames, 'chrome', 'light');
 
   assert.deepEqual(mod.resolveViewport(chrome, undefined), [1440, 900]);

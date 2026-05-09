@@ -106,7 +106,7 @@ export function classifyInput(input) {
   throw new Error(`Unsupported input type for ${input}`);
 }
 
-export function loadFrames(framesPath = path.join(skillRoot, 'templates/frames.json')) {
+export function loadFrames(framesPath = path.join(skillRoot, 'assets/frames.json')) {
   return JSON.parse(fs.readFileSync(framesPath, 'utf8'));
 }
 
@@ -126,7 +126,7 @@ export function toFileUrl(filePath) {
 }
 
 export function renderHtml({ skillRoot: root, frame, frameName, theme, mode, screenshotSrc }) {
-  const templatePath = path.join(root, 'templates/render.html');
+  const templatePath = path.join(root, 'assets/render.html');
   const template = fs.readFileSync(templatePath, 'utf8');
   const cssLinks = frame.css
     .map((fileName) => `<link rel="stylesheet" href="${toFileUrl(path.join(root, 'assets', fileName))}" />`)
