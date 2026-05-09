@@ -1,9 +1,9 @@
 ---
-name: mockup-screenshot
+name: mockup
 description: Create framed PNG screenshot mockups from image files, URLs, or local HTML. Use when asked to wrap screenshots or webpages in Chrome, Safari, iPhone 17 series, or iPad frames; generate polished, tight, or transparent mockup assets; or prepare product screenshots for docs, landing pages, READMEs, and social posts.
 ---
 
-# Mockup Screenshot
+# Mockup
 
 Generate framed PNG screenshot mockups from image files, webpages, or local HTML files.
 
@@ -29,7 +29,7 @@ Device frames:
 4. Run `scripts/render-mockup.mjs` from the repository root:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input ./screenshot.png \
   --frame safari \
   --theme dark \
@@ -40,7 +40,7 @@ node skills/mockup-screenshot/scripts/render-mockup.mjs \
 For webpages:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input https://example.com \
   --viewport 1440x900 \
   --frame chrome \
@@ -53,7 +53,7 @@ node skills/mockup-screenshot/scripts/render-mockup.mjs \
 Use `--keep-html` when the PNG looks wrong:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input ./screenshot.png \
   --frame chrome \
   --theme light \
@@ -82,7 +82,7 @@ test -s ./mockup.png
 Run skill tests after changing renderer, CSS, or frame registry files:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 ## Implementation Notes

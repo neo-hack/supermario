@@ -169,7 +169,7 @@ function escapeHtml(value) {
 }
 
 export function writeTempHtml(html) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mockup-screenshot-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mockup-'));
   const htmlPath = path.join(dir, 'render.html');
   fs.writeFileSync(htmlPath, html);
   return htmlPath;

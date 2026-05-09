@@ -1,10 +1,10 @@
-# Mockup Screenshot Skill Implementation Plan
+# Mockup Skill Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a reusable `mockup-screenshot` skill that turns image files or webpages into polished framed PNG mockups.
+**Goal:** Build a reusable `mockup` skill that turns image files or webpages into polished framed PNG mockups.
 
-**Architecture:** Add a new repository skill under `skills/mockup-screenshot/`. The skill is script-backed: `render-mockup.mjs` validates CLI options, captures URL/local HTML inputs when needed, renders a frame template, and exports a PNG through Playwright. Visual frame code is split into `studio.css`, `browser.css`, and `device.css` so browser chrome and physical device frames evolve independently.
+**Architecture:** Add a new repository skill under `skills/mockup/`. The skill is script-backed: `render-mockup.mjs` validates CLI options, captures URL/local HTML inputs when needed, renders a frame template, and exports a PNG through Playwright. Visual frame code is split into `studio.css`, `browser.css`, and `device.css` so browser chrome and physical device frames evolve independently.
 
 **Tech Stack:** Node.js ESM, `node:test`, Playwright via dynamic import, vanilla HTML/CSS templates, repository skill conventions.
 
@@ -15,7 +15,7 @@
 Create this new tree:
 
 ```text
-skills/mockup-screenshot/
+skills/mockup/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
@@ -49,38 +49,38 @@ The script should export helper functions so tests can run without launching a b
 ## Task 1: Scaffold Skill Files and Metadata
 
 **Files:**
-- Create: `skills/mockup-screenshot/SKILL.md`
-- Create: `skills/mockup-screenshot/agents/openai.yaml`
-- Create: `skills/mockup-screenshot/assets/studio.css`
-- Create: `skills/mockup-screenshot/assets/browser.css`
-- Create: `skills/mockup-screenshot/assets/device.css`
-- Create: `skills/mockup-screenshot/templates/render.html`
-- Create: `skills/mockup-screenshot/templates/frames.json`
-- Create: `skills/mockup-screenshot/scripts/render-mockup.mjs`
-- Create: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Create: `skills/mockup/SKILL.md`
+- Create: `skills/mockup/agents/openai.yaml`
+- Create: `skills/mockup/assets/studio.css`
+- Create: `skills/mockup/assets/browser.css`
+- Create: `skills/mockup/assets/device.css`
+- Create: `skills/mockup/templates/render.html`
+- Create: `skills/mockup/templates/frames.json`
+- Create: `skills/mockup/scripts/render-mockup.mjs`
+- Create: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Create directories and empty files**
 
 Run:
 
 ```bash
-mkdir -p skills/mockup-screenshot/{agents,assets,scripts,templates,tests}
-touch skills/mockup-screenshot/SKILL.md
-touch skills/mockup-screenshot/agents/openai.yaml
-touch skills/mockup-screenshot/assets/studio.css
-touch skills/mockup-screenshot/assets/browser.css
-touch skills/mockup-screenshot/assets/device.css
-touch skills/mockup-screenshot/templates/render.html
-touch skills/mockup-screenshot/templates/frames.json
-touch skills/mockup-screenshot/scripts/render-mockup.mjs
-touch skills/mockup-screenshot/tests/render-mockup.test.mjs
+mkdir -p skills/mockup/{agents,assets,scripts,templates,tests}
+touch skills/mockup/SKILL.md
+touch skills/mockup/agents/openai.yaml
+touch skills/mockup/assets/studio.css
+touch skills/mockup/assets/browser.css
+touch skills/mockup/assets/device.css
+touch skills/mockup/templates/render.html
+touch skills/mockup/templates/frames.json
+touch skills/mockup/scripts/render-mockup.mjs
+touch skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: directories and files exist.
 
 - [ ] **Step 2: Write initial failing metadata test**
 
-Replace `skills/mockup-screenshot/tests/render-mockup.test.mjs` with:
+Replace `skills/mockup/tests/render-mockup.test.mjs` with:
 
 ```js
 import { test } from 'node:test';
@@ -88,15 +88,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const skillRoot = path.resolve('skills/mockup-screenshot');
+const skillRoot = path.resolve('skills/mockup');
 
-test('skill metadata files exist and name the mockup-screenshot skill', () => {
+test('skill metadata files exist and name the mockup skill', () => {
   const skill = fs.readFileSync(path.join(skillRoot, 'SKILL.md'), 'utf8');
   const openai = fs.readFileSync(path.join(skillRoot, 'agents/openai.yaml'), 'utf8');
 
-  assert.match(skill, /^name: mockup-screenshot/m);
+  assert.match(skill, /^name: mockup/m);
   assert.match(skill, /render-mockup\.mjs/);
-  assert.match(openai, /display_name: Mockup Screenshot/);
+  assert.match(openai, /display_name: Mockup/);
   assert.match(openai, /default_prompt:/);
 });
 ```
@@ -106,22 +106,22 @@ test('skill metadata files exist and name the mockup-screenshot skill', () => {
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
-Expected: FAIL with an assertion that `name: mockup-screenshot` is missing.
+Expected: FAIL with an assertion that `name: mockup` is missing.
 
 - [ ] **Step 4: Write `SKILL.md`**
 
-Replace `skills/mockup-screenshot/SKILL.md` with:
+Replace `skills/mockup/SKILL.md` with:
 
 ```markdown
 ---
-name: mockup-screenshot
+name: mockup
 description: Use when asked to create product screenshot mockups, wrap an image or webpage in a browser/device frame, generate Chrome/Safari/iPhone 17 series/iPad/Mac Pro framed PNGs, or produce polished/tight/transparent screenshot assets for docs, landing pages, READMEs, or social posts.
 ---
 
-# Mockup Screenshot
+# Mockup
 
 Generate framed screenshot mockups from either an image file or a webpage/local HTML input.
 
@@ -158,7 +158,7 @@ Device frames:
 4. Run the renderer from the repository root:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input ./screenshot.png \
   --frame safari \
   --theme dark \
@@ -169,7 +169,7 @@ node skills/mockup-screenshot/scripts/render-mockup.mjs \
 For webpages:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input https://example.com \
   --viewport 1440x900 \
   --frame mac-pro \
@@ -188,7 +188,7 @@ test -s ./mockup.png
 Run skill tests after changing renderer, CSS, or frame registry files:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 ## Implementation Notes
@@ -202,10 +202,10 @@ node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
 
 - [ ] **Step 5: Write `agents/openai.yaml`**
 
-Replace `skills/mockup-screenshot/agents/openai.yaml` with:
+Replace `skills/mockup/agents/openai.yaml` with:
 
 ```yaml
-display_name: Mockup Screenshot
+display_name: Mockup
 short_description: Wrap screenshots or webpages in browser and device frames.
 default_prompt: Create a polished framed PNG mockup from an image, URL, or local HTML file.
 ```
@@ -215,7 +215,7 @@ default_prompt: Create a polished framed PNG mockup from an image, URL, or local
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -225,19 +225,19 @@ Expected: PASS.
 Run:
 
 ```bash
-git add skills/mockup-screenshot/SKILL.md skills/mockup-screenshot/agents/openai.yaml skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/SKILL.md skills/mockup/agents/openai.yaml skills/mockup/tests/render-mockup.test.mjs
 git commit -m "feat: scaffold mockup screenshot skill"
 ```
 
 ## Task 2: Add Frame Registry and CSS Routing Tests
 
 **Files:**
-- Modify: `skills/mockup-screenshot/templates/frames.json`
-- Modify: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Modify: `skills/mockup/templates/frames.json`
+- Modify: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Add failing tests for frame registry**
 
-Append this to `skills/mockup-screenshot/tests/render-mockup.test.mjs`:
+Append this to `skills/mockup/tests/render-mockup.test.mjs`:
 
 ```js
 test('frame registry includes browser and device frames with separated CSS', () => {
@@ -271,14 +271,14 @@ test('frame registry includes browser and device frames with separated CSS', () 
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: FAIL with JSON parse or missing frame registry.
 
 - [ ] **Step 3: Write frame registry**
 
-Replace `skills/mockup-screenshot/templates/frames.json` with:
+Replace `skills/mockup/templates/frames.json` with:
 
 ```json
 {
@@ -340,7 +340,7 @@ Replace `skills/mockup-screenshot/templates/frames.json` with:
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -350,22 +350,22 @@ Expected: PASS.
 Run:
 
 ```bash
-git add skills/mockup-screenshot/templates/frames.json skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/templates/frames.json skills/mockup/tests/render-mockup.test.mjs
 git commit -m "feat: add mockup frame registry"
 ```
 
 ## Task 3: Implement Template and CSS Assets
 
 **Files:**
-- Modify: `skills/mockup-screenshot/templates/render.html`
-- Modify: `skills/mockup-screenshot/assets/studio.css`
-- Modify: `skills/mockup-screenshot/assets/browser.css`
-- Modify: `skills/mockup-screenshot/assets/device.css`
-- Modify: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Modify: `skills/mockup/templates/render.html`
+- Modify: `skills/mockup/assets/studio.css`
+- Modify: `skills/mockup/assets/browser.css`
+- Modify: `skills/mockup/assets/device.css`
+- Modify: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Add failing tests for template and CSS boundaries**
 
-Append this to `skills/mockup-screenshot/tests/render-mockup.test.mjs`:
+Append this to `skills/mockup/tests/render-mockup.test.mjs`:
 
 ```js
 test('renderer template exposes config mount and screenshot slot', () => {
@@ -408,14 +408,14 @@ test('CSS files keep studio, browser, and device responsibilities separate', () 
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: FAIL with missing template markers or CSS selectors.
 
 - [ ] **Step 3: Write renderer template**
 
-Replace `skills/mockup-screenshot/templates/render.html` with:
+Replace `skills/mockup/templates/render.html` with:
 
 ```html
 <!doctype html>
@@ -423,7 +423,7 @@ Replace `skills/mockup-screenshot/templates/render.html` with:
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mockup Screenshot Render</title>
+    <title>Mockup Render</title>
     __CSS_LINKS__
   </head>
   <body>
@@ -444,7 +444,7 @@ Replace `skills/mockup-screenshot/templates/render.html` with:
 
 - [ ] **Step 4: Write shared `studio.css`**
 
-Replace `skills/mockup-screenshot/assets/studio.css` with:
+Replace `skills/mockup/assets/studio.css` with:
 
 ```css
 :root {
@@ -524,7 +524,7 @@ body {
 
 - [ ] **Step 5: Write `browser.css`**
 
-Replace `skills/mockup-screenshot/assets/browser.css` with:
+Replace `skills/mockup/assets/browser.css` with:
 
 ```css
 .browser-frame {
@@ -623,7 +623,7 @@ Replace `skills/mockup-screenshot/assets/browser.css` with:
 
 - [ ] **Step 6: Write `device.css`**
 
-Replace `skills/mockup-screenshot/assets/device.css` with:
+Replace `skills/mockup/assets/device.css` with:
 
 ```css
 .device-frame {
@@ -733,7 +733,7 @@ Replace `skills/mockup-screenshot/assets/device.css` with:
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -743,19 +743,19 @@ Expected: PASS.
 Run:
 
 ```bash
-git add skills/mockup-screenshot/templates/render.html skills/mockup-screenshot/assets/studio.css skills/mockup-screenshot/assets/browser.css skills/mockup-screenshot/assets/device.css skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/templates/render.html skills/mockup/assets/studio.css skills/mockup/assets/browser.css skills/mockup/assets/device.css skills/mockup/tests/render-mockup.test.mjs
 git commit -m "feat: add mockup render template and frame styles"
 ```
 
 ## Task 4: Implement Renderer Helpers Without Browser Launch
 
 **Files:**
-- Modify: `skills/mockup-screenshot/scripts/render-mockup.mjs`
-- Modify: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Modify: `skills/mockup/scripts/render-mockup.mjs`
+- Modify: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Add failing tests for helper functions**
 
-Append this to `skills/mockup-screenshot/tests/render-mockup.test.mjs`:
+Append this to `skills/mockup/tests/render-mockup.test.mjs`:
 
 ```js
 test('renderer helpers parse options and classify inputs', async () => {
@@ -820,14 +820,14 @@ test('renderer builds HTML with escaped config, CSS links, frame classes, and sc
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: FAIL because `render-mockup.mjs` exports no helpers yet.
 
 - [ ] **Step 3: Write renderer helper implementation**
 
-Replace `skills/mockup-screenshot/scripts/render-mockup.mjs` with:
+Replace `skills/mockup/scripts/render-mockup.mjs` with:
 
 ```js
 #!/usr/bin/env node
@@ -964,7 +964,7 @@ function escapeHtml(value) {
 }
 
 export function writeTempHtml(html) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mockup-screenshot-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mockup-'));
   const htmlPath = path.join(dir, 'render.html');
   fs.writeFileSync(htmlPath, html);
   return htmlPath;
@@ -1002,7 +1002,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -1012,19 +1012,19 @@ Expected: PASS.
 Run:
 
 ```bash
-git add skills/mockup-screenshot/scripts/render-mockup.mjs skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/scripts/render-mockup.mjs skills/mockup/tests/render-mockup.test.mjs
 git commit -m "feat: add mockup renderer helpers"
 ```
 
 ## Task 5: Implement Playwright Capture and PNG Export
 
 **Files:**
-- Modify: `skills/mockup-screenshot/scripts/render-mockup.mjs`
-- Modify: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Modify: `skills/mockup/scripts/render-mockup.mjs`
+- Modify: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Add failing tests for browser dependency message and capture plan**
 
-Append this to `skills/mockup-screenshot/tests/render-mockup.test.mjs`:
+Append this to `skills/mockup/tests/render-mockup.test.mjs`:
 
 ```js
 test('renderer exposes Playwright dependency guidance', async () => {
@@ -1050,14 +1050,14 @@ test('capture plan uses frame defaults unless viewport is provided', async () =>
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: FAIL because `playwrightInstallHelp`, `resolveViewport`, and `resolveOutputViewport` are missing.
 
 - [ ] **Step 3: Patch renderer with Playwright capture/export functions**
 
-Modify `skills/mockup-screenshot/scripts/render-mockup.mjs`:
+Modify `skills/mockup/scripts/render-mockup.mjs`:
 
 1. Add these exports after `validateMode`:
 
@@ -1186,7 +1186,7 @@ export async function main(argv = process.argv.slice(2)) {
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS. These tests must not launch Playwright.
@@ -1196,63 +1196,63 @@ Expected: PASS. These tests must not launch Playwright.
 Create a tiny local image:
 
 ```bash
-mkdir -p /tmp/mockup-screenshot-smoke
-node -e "require('fs').writeFileSync('/tmp/mockup-screenshot-smoke/pixel.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=', 'base64'))"
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
-  --input /tmp/mockup-screenshot-smoke/pixel.png \
+mkdir -p /tmp/mockup-smoke
+node -e "require('fs').writeFileSync('/tmp/mockup-smoke/pixel.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=', 'base64'))"
+node skills/mockup/scripts/render-mockup.mjs \
+  --input /tmp/mockup-smoke/pixel.png \
   --frame safari \
   --theme light \
   --mode polished \
-  --out /tmp/mockup-screenshot-smoke/safari.png
-test -s /tmp/mockup-screenshot-smoke/safari.png
+  --out /tmp/mockup-smoke/safari.png
+test -s /tmp/mockup-smoke/safari.png
 ```
 
-Expected: command exits 0 and `/tmp/mockup-screenshot-smoke/safari.png` is non-empty. If Playwright is missing, expected output includes `npm install playwright` and `npx playwright install chromium`; install Playwright or use the repo’s existing Playwright environment before rerunning.
+Expected: command exits 0 and `/tmp/mockup-smoke/safari.png` is non-empty. If Playwright is missing, expected output includes `npm install playwright` and `npx playwright install chromium`; install Playwright or use the repo’s existing Playwright environment before rerunning.
 
 - [ ] **Step 6: Run local HTML smoke test**
 
 Create a local page and render it through a device frame:
 
 ```bash
-cat > /tmp/mockup-screenshot-smoke/page.html <<'HTML'
+cat > /tmp/mockup-smoke/page.html <<'HTML'
 <!doctype html>
 <html>
   <body style="margin:0;font-family:system-ui;background:#111;color:white">
     <main style="display:grid;place-items:center;width:100vw;height:100vh">
-      <h1>Mockup Screenshot</h1>
+      <h1>Mockup</h1>
     </main>
   </body>
 </html>
 HTML
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
-  --input /tmp/mockup-screenshot-smoke/page.html \
+node skills/mockup/scripts/render-mockup.mjs \
+  --input /tmp/mockup-smoke/page.html \
   --frame iphone \
   --theme dark \
   --mode transparent \
-  --out /tmp/mockup-screenshot-smoke/iphone-17-series.png
-test -s /tmp/mockup-screenshot-smoke/iphone-17-series.png
+  --out /tmp/mockup-smoke/iphone-17-series.png
+test -s /tmp/mockup-smoke/iphone-17-series.png
 ```
 
-Expected: command exits 0 and `/tmp/mockup-screenshot-smoke/iphone-17-series.png` is non-empty.
+Expected: command exits 0 and `/tmp/mockup-smoke/iphone-17-series.png` is non-empty.
 
 - [ ] **Step 7: Commit Playwright rendering**
 
 Run:
 
 ```bash
-git add skills/mockup-screenshot/scripts/render-mockup.mjs skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/scripts/render-mockup.mjs skills/mockup/tests/render-mockup.test.mjs
 git commit -m "feat: render mockup screenshots with playwright"
 ```
 
 ## Task 6: Add Final Skill Documentation Checks
 
 **Files:**
-- Modify: `skills/mockup-screenshot/SKILL.md`
-- Modify: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Modify: `skills/mockup/SKILL.md`
+- Modify: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Add failing documentation coverage test**
 
-Append this to `skills/mockup-screenshot/tests/render-mockup.test.mjs`:
+Append this to `skills/mockup/tests/render-mockup.test.mjs`:
 
 ```js
 test('skill docs mention every supported frame, mode, and CSS boundary', () => {
@@ -1276,14 +1276,14 @@ test('skill docs mention every supported frame, mode, and CSS boundary', () => {
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: FAIL if `--keep-html` or any frame/mode is undocumented.
 
 - [ ] **Step 3: Update `SKILL.md` with troubleshooting and debug HTML**
 
-Add this section before `## Verification` in `skills/mockup-screenshot/SKILL.md`:
+Add this section before `## Verification` in `skills/mockup/SKILL.md`:
 
 ```markdown
 ## Debugging
@@ -1291,7 +1291,7 @@ Add this section before `## Verification` in `skills/mockup-screenshot/SKILL.md`
 Use `--keep-html` when the PNG looks wrong:
 
 ```bash
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
+node skills/mockup/scripts/render-mockup.mjs \
   --input ./screenshot.png \
   --frame chrome \
   --theme light \
@@ -1315,7 +1315,7 @@ npx playwright install chromium
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -1325,27 +1325,27 @@ Expected: PASS.
 Run:
 
 ```bash
-git add skills/mockup-screenshot/SKILL.md skills/mockup-screenshot/tests/render-mockup.test.mjs
+git add skills/mockup/SKILL.md skills/mockup/tests/render-mockup.test.mjs
 git commit -m "docs: document mockup screenshot usage"
 ```
 
 ## Task 7: Final Verification and Repository Status
 
 **Files:**
-- Read: `skills/mockup-screenshot/SKILL.md`
-- Read: `skills/mockup-screenshot/templates/frames.json`
-- Read: `skills/mockup-screenshot/assets/browser.css`
-- Read: `skills/mockup-screenshot/assets/device.css`
-- Read: `skills/mockup-screenshot/assets/studio.css`
-- Read: `skills/mockup-screenshot/scripts/render-mockup.mjs`
-- Read: `skills/mockup-screenshot/tests/render-mockup.test.mjs`
+- Read: `skills/mockup/SKILL.md`
+- Read: `skills/mockup/templates/frames.json`
+- Read: `skills/mockup/assets/browser.css`
+- Read: `skills/mockup/assets/device.css`
+- Read: `skills/mockup/assets/studio.css`
+- Read: `skills/mockup/scripts/render-mockup.mjs`
+- Read: `skills/mockup/tests/render-mockup.test.mjs`
 
 - [ ] **Step 1: Run unit tests**
 
 Run:
 
 ```bash
-node --test skills/mockup-screenshot/tests/render-mockup.test.mjs
+node --test skills/mockup/tests/render-mockup.test.mjs
 ```
 
 Expected: PASS.
@@ -1355,10 +1355,10 @@ Expected: PASS.
 Run:
 
 ```bash
-rg -n "\\.browser-" skills/mockup-screenshot/assets/browser.css
-rg -n "\\.device-" skills/mockup-screenshot/assets/device.css
-! rg -n "\\.device-" skills/mockup-screenshot/assets/browser.css
-! rg -n "\\.browser-" skills/mockup-screenshot/assets/device.css
+rg -n "\\.browser-" skills/mockup/assets/browser.css
+rg -n "\\.device-" skills/mockup/assets/device.css
+! rg -n "\\.device-" skills/mockup/assets/browser.css
+! rg -n "\\.browser-" skills/mockup/assets/device.css
 ```
 
 Expected: first two commands print matches; last two commands print no matches and exit 0 because of the leading `!`.
@@ -1368,21 +1368,21 @@ Expected: first two commands print matches; last two commands print no matches a
 Run:
 
 ```bash
-find skills/mockup-screenshot -maxdepth 3 -type f | sort
+find skills/mockup -maxdepth 3 -type f | sort
 ```
 
 Expected:
 
 ```text
-skills/mockup-screenshot/SKILL.md
-skills/mockup-screenshot/agents/openai.yaml
-skills/mockup-screenshot/assets/browser.css
-skills/mockup-screenshot/assets/device.css
-skills/mockup-screenshot/assets/studio.css
-skills/mockup-screenshot/scripts/render-mockup.mjs
-skills/mockup-screenshot/templates/frames.json
-skills/mockup-screenshot/templates/render.html
-skills/mockup-screenshot/tests/render-mockup.test.mjs
+skills/mockup/SKILL.md
+skills/mockup/agents/openai.yaml
+skills/mockup/assets/browser.css
+skills/mockup/assets/device.css
+skills/mockup/assets/studio.css
+skills/mockup/scripts/render-mockup.mjs
+skills/mockup/templates/frames.json
+skills/mockup/templates/render.html
+skills/mockup/tests/render-mockup.test.mjs
 ```
 
 - [ ] **Step 4: Run image smoke test**
@@ -1390,15 +1390,15 @@ skills/mockup-screenshot/tests/render-mockup.test.mjs
 Run:
 
 ```bash
-mkdir -p /tmp/mockup-screenshot-smoke
-node -e "require('fs').writeFileSync('/tmp/mockup-screenshot-smoke/pixel.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=', 'base64'))"
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
-  --input /tmp/mockup-screenshot-smoke/pixel.png \
+mkdir -p /tmp/mockup-smoke
+node -e "require('fs').writeFileSync('/tmp/mockup-smoke/pixel.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=', 'base64'))"
+node skills/mockup/scripts/render-mockup.mjs \
+  --input /tmp/mockup-smoke/pixel.png \
   --frame safari \
   --theme light \
   --mode polished \
-  --out /tmp/mockup-screenshot-smoke/final-safari.png
-test -s /tmp/mockup-screenshot-smoke/final-safari.png
+  --out /tmp/mockup-smoke/final-safari.png
+test -s /tmp/mockup-smoke/final-safari.png
 ```
 
 Expected: image exists and is non-empty. If Playwright is not installed, install it with the command printed by the script and rerun this step.
@@ -1408,23 +1408,23 @@ Expected: image exists and is non-empty. If Playwright is not installed, install
 Run:
 
 ```bash
-cat > /tmp/mockup-screenshot-smoke/final-page.html <<'HTML'
+cat > /tmp/mockup-smoke/final-page.html <<'HTML'
 <!doctype html>
 <html>
   <body style="margin:0;background:#0066cc;color:white;font-family:system-ui">
     <main style="display:grid;place-items:center;width:100vw;height:100vh">
-      <h1>Framed by mockup-screenshot</h1>
+      <h1>Framed by mockup</h1>
     </main>
   </body>
 </html>
 HTML
-node skills/mockup-screenshot/scripts/render-mockup.mjs \
-  --input /tmp/mockup-screenshot-smoke/final-page.html \
+node skills/mockup/scripts/render-mockup.mjs \
+  --input /tmp/mockup-smoke/final-page.html \
   --frame mac-pro \
   --theme light \
   --mode polished \
-  --out /tmp/mockup-screenshot-smoke/final-mac-pro.png
-test -s /tmp/mockup-screenshot-smoke/final-mac-pro.png
+  --out /tmp/mockup-smoke/final-mac-pro.png
+test -s /tmp/mockup-smoke/final-mac-pro.png
 ```
 
 Expected: image exists and is non-empty. If Playwright is not installed, install it with the command printed by the script and rerun this step.
@@ -1444,7 +1444,7 @@ Expected: no unstaged changes for committed tasks, or only intentional uncommitt
 Run only if the task commits were skipped:
 
 ```bash
-git add skills/mockup-screenshot
+git add skills/mockup
 git commit -m "feat: add mockup screenshot skill"
 ```
 

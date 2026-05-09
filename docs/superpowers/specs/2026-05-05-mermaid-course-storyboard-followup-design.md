@@ -1,7 +1,7 @@
 # Mermaid Course — Storyboard Follow-up Design
 
 **Date:** 2026-05-05
-**Skill:** `skills/mermaid-course/`
+**Skill:** `skills/codemermaid/`
 **Status:** Draft for planning
 **Context:** Findings from reviewing `/Volumes/ORICO/Users/jiangwei/projects/claudeui/docs/codebase-course/` and the experimental storyboard replacement page `/Volumes/ORICO/Users/jiangwei/projects/claudeui/docs/codebase-course/plugin-lifecycle-storyboard.html`.
 

@@ -1,13 +1,13 @@
 # Mermaid Course Multi-Perspective Design
 
 **Date:** 2026-05-02
-**Skill:** `skills/mermaid-course/`
+**Skill:** `skills/codemermaid/`
 **Status:** Draft
-**Superseded (in part):** by `2026-05-03-mermaid-course-essay-design.md` — the multi-page output structure stays; the per-page click-explore template is replaced by scrollable essays.
+**Superseded (in part):** by `2026-05-03-codemermaid-essay-design.md` — the multi-page output structure stays; the per-page click-explore template is replaced by scrollable essays.
 
 ## Problem
 
-The current `mermaid-course` skill outputs a single HTML file with one Mermaid graph. This breaks down when:
+The current `codemermaid` skill outputs a single HTML file with one Mermaid graph. This breaks down when:
 
 1. **Large projects** — 10+ modules cannot fit meaningfully in one diagram
 2. **Single perspective** — only shows module dependencies, not data flow, state machines, request traces, etc.
@@ -192,7 +192,7 @@ Sub-page. Mermaid + detail panel + breadcrumb.
 ### File Organization
 
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                         ← Updated: 6-phase workflow + perspective system
   references/
     design-system.md               ← Unchanged

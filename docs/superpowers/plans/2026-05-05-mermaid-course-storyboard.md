@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add Mermaid storyboard units to `skills/mermaid-course` so generated essay pages can teach a system through compact multi-scene diagrams with optional paired code and per-line annotations.
+**Goal:** Add Mermaid storyboard units to `skills/codemermaid` so generated essay pages can teach a system through compact multi-scene diagrams with optional paired code and per-line annotations.
 
 **Architecture:** Keep the current zero-build essay architecture. Add `storyboard` as one more unit kind in the existing renderer, validator, CSS partial, and skill prompt; do not introduce React, canvas libraries, or a new template system. The storyboard runtime renders one active scene at a time, reuses Mermaid rendering and the existing zoom overlay, and uses a desktop-only Cinema Strip layout with a collapsible code drawer.
 
@@ -22,37 +22,37 @@ Locked direction: **Variant B · Cinema Strip** with **P3 aside-panel annotation
 
 ## File Structure
 
-- Modify `skills/mermaid-course/templates/template-essay.html`
+- Modify `skills/codemermaid/templates/template-essay.html`
   - Upgrade Mermaid from v10 to a v11 release that supports image/icon flowchart shapes.
-- Modify `skills/mermaid-course/templates/partials/_essay.js`
+- Modify `skills/codemermaid/templates/partials/_essay.js`
   - Add `storyboard` to `renderUnit()`.
   - Add `renderStoryboard(unit)`, `renderStoryboardCode(scene)`, `renderStoryboardAnnotationList(highlights)`, `initStoryboards()`, and `setStoryboardScene(root, index)`.
   - Extend `bootEssay()` so storyboard Mermaid diagrams render after scene changes and zoom triggers are rebound.
-- Modify `skills/mermaid-course/templates/partials/_essay.css`
+- Modify `skills/codemermaid/templates/partials/_essay.css`
   - Add Cinema Strip storyboard styling, desktop-only guard, drawer states, and line annotation affordances.
-- Modify `skills/mermaid-course/scripts/validate-units.js`
+- Modify `skills/codemermaid/scripts/validate-units.js`
   - Add schema validation for `storyboard` units and `code.highlights`.
   - Enforce `<= 3` storyboard units per page.
   - Enforce at least one non-storyboard text unit between storyboard units.
   - Reject remote Mermaid image URLs in storyboard scenes.
-- Modify `skills/mermaid-course/scripts/validate-units.test.js`
+- Modify `skills/codemermaid/scripts/validate-units.test.js`
   - Add tests for valid storyboard data and every new validation rule.
-- Modify `skills/mermaid-course/SKILL.md`
+- Modify `skills/codemermaid/SKILL.md`
   - Teach the generator when and how to write storyboard units.
   - Replace the old `highlightLines` storyboard draft with `code.highlights`.
-- Modify `skills/mermaid-course/references/units-examples.md`
+- Modify `skills/codemermaid/references/units-examples.md`
   - Add one complete storyboard example: Phase 6 pipeline with three scenes, a no-code scene, a collapsed-code scene, and an annotated code scene.
-- Create `skills/mermaid-course/references/storyboard-patterns.md`
+- Create `skills/codemermaid/references/storyboard-patterns.md`
   - Document recommended Mermaid scene patterns and the Cinema Strip schema.
 
 ## Task 1: Upgrade Mermaid CDN For Storyboard Image Shapes
 
 **Files:**
-- Modify: `skills/mermaid-course/templates/template-essay.html`
+- Modify: `skills/codemermaid/templates/template-essay.html`
 
 - [ ] **Step 1: Update the Mermaid script tag**
 
-Replace this line in `skills/mermaid-course/templates/template-essay.html`:
+Replace this line in `skills/codemermaid/templates/template-essay.html`:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -69,7 +69,7 @@ with:
 Run:
 
 ```bash
-rg "mermaid@" skills/mermaid-course/templates/template-essay.html
+rg "mermaid@" skills/codemermaid/templates/template-essay.html
 ```
 
 Expected output:
@@ -81,18 +81,18 @@ Expected output:
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/template-essay.html
-git commit -m "feat(mermaid-course): upgrade mermaid for storyboards"
+git add skills/codemermaid/templates/template-essay.html
+git commit -m "feat(codemermaid): upgrade mermaid for storyboards"
 ```
 
 ## Task 2: Add Storyboard Validator Tests
 
 **Files:**
-- Modify: `skills/mermaid-course/scripts/validate-units.test.js`
+- Modify: `skills/codemermaid/scripts/validate-units.test.js`
 
 - [ ] **Step 1: Add a reusable valid storyboard fixture**
 
-Insert this helper after the imports in `skills/mermaid-course/scripts/validate-units.test.js`:
+Insert this helper after the imports in `skills/codemermaid/scripts/validate-units.test.js`:
 
 ```javascript
 function validStoryboardUnit(overrides = {}) {
@@ -110,7 +110,7 @@ function validStoryboardUnit(overrides = {}) {
         name: 'Inline partials',
         mermaid: 'flowchart LR\n  A["_base.css"] --> C["HTML"]\n  B["_essay.js"] --> C',
         code: {
-          file: 'skills/mermaid-course/SKILL.md',
+          file: 'skills/codemermaid/SKILL.md',
           lang: 'markdown',
           source: '1. Read shell template\n2. Read partials\n3. Inline partials',
           highlights: [
@@ -128,7 +128,7 @@ function validStoryboardUnit(overrides = {}) {
 
 - [ ] **Step 2: Add passing validation tests**
 
-Append these tests to `skills/mermaid-course/scripts/validate-units.test.js`:
+Append these tests to `skills/codemermaid/scripts/validate-units.test.js`:
 
 ```javascript
 test('module: valid storyboard unit passes', () => {
@@ -161,7 +161,7 @@ test('perspective: valid storyboard unit passes', () => {
 
 - [ ] **Step 3: Add failing validation tests**
 
-Append these tests to `skills/mermaid-course/scripts/validate-units.test.js`:
+Append these tests to `skills/codemermaid/scripts/validate-units.test.js`:
 
 ```javascript
 test('storyboard: requires at least two scenes', () => {
@@ -286,7 +286,7 @@ test('storyboard: adjacent storyboard units require a text unit between them', (
 Run:
 
 ```bash
-node --test skills/mermaid-course/scripts/validate-units.test.js
+node --test skills/codemermaid/scripts/validate-units.test.js
 ```
 
 Expected: FAIL with messages that include `unknown unit kind 'storyboard'`.
@@ -294,19 +294,19 @@ Expected: FAIL with messages that include `unknown unit kind 'storyboard'`.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/mermaid-course/scripts/validate-units.test.js
-git commit -m "test(mermaid-course): cover storyboard validation"
+git add skills/codemermaid/scripts/validate-units.test.js
+git commit -m "test(codemermaid): cover storyboard validation"
 ```
 
 ## Task 3: Implement Storyboard Validation
 
 **Files:**
-- Modify: `skills/mermaid-course/scripts/validate-units.js`
-- Test: `skills/mermaid-course/scripts/validate-units.test.js`
+- Modify: `skills/codemermaid/scripts/validate-units.js`
+- Test: `skills/codemermaid/scripts/validate-units.test.js`
 
 - [ ] **Step 1: Add storyboard to the valid kind set**
 
-Change `VALID_KINDS` in `skills/mermaid-course/scripts/validate-units.js` to:
+Change `VALID_KINDS` in `skills/codemermaid/scripts/validate-units.js` to:
 
 ```javascript
 const VALID_KINDS = new Set([
@@ -438,7 +438,7 @@ In `commonChecks(page, kindLabel)`, after the loop that checks `VALID_KINDS`, in
 Run:
 
 ```bash
-node --test skills/mermaid-course/scripts/validate-units.test.js
+node --test skills/codemermaid/scripts/validate-units.test.js
 ```
 
 Expected: PASS with all existing and new tests passing.
@@ -446,18 +446,18 @@ Expected: PASS with all existing and new tests passing.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/mermaid-course/scripts/validate-units.js skills/mermaid-course/scripts/validate-units.test.js
-git commit -m "feat(mermaid-course): validate storyboard units"
+git add skills/codemermaid/scripts/validate-units.js skills/codemermaid/scripts/validate-units.test.js
+git commit -m "feat(codemermaid): validate storyboard units"
 ```
 
 ## Task 4: Add Storyboard Runtime Rendering
 
 **Files:**
-- Modify: `skills/mermaid-course/templates/partials/_essay.js`
+- Modify: `skills/codemermaid/templates/partials/_essay.js`
 
 - [ ] **Step 1: Add storyboard to the render dispatcher**
 
-Change `renderUnit(unit)` in `skills/mermaid-course/templates/partials/_essay.js` so the switch includes:
+Change `renderUnit(unit)` in `skills/codemermaid/templates/partials/_essay.js` so the switch includes:
 
 ```javascript
     case 'storyboard':   return renderStoryboard(unit);
@@ -674,7 +674,7 @@ with:
 Run:
 
 ```bash
-node --check skills/mermaid-course/templates/partials/_essay.js
+node --check skills/codemermaid/templates/partials/_essay.js
 ```
 
 Expected output: no output and exit code `0`.
@@ -682,14 +682,14 @@ Expected output: no output and exit code `0`.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_essay.js
-git commit -m "feat(mermaid-course): render storyboard units"
+git add skills/codemermaid/templates/partials/_essay.js
+git commit -m "feat(codemermaid): render storyboard units"
 ```
 
 ## Task 5: Add Cinema Strip CSS
 
 **Files:**
-- Modify: `skills/mermaid-course/templates/partials/_essay.css`
+- Modify: `skills/codemermaid/templates/partials/_essay.css`
 
 - [ ] **Step 1: Add storyboard CSS before the zoom overlay section**
 
@@ -904,7 +904,7 @@ Append this media query after the existing `@media (max-width: 880px)` block:
 Run:
 
 ```bash
-rg "storyboard" skills/mermaid-course/templates/partials/_essay.css
+rg "storyboard" skills/codemermaid/templates/partials/_essay.css
 ```
 
 Expected: output includes `.storyboard-shell`, `.storyboard-strip`, `.storyboard-code-drawer`, and `.storyboard-mobile-guard`.
@@ -914,7 +914,7 @@ Expected: output includes `.storyboard-shell`, `.storyboard-strip`, `.storyboard
 Run:
 
 ```bash
-rg "variant-B-cinema-strip|variant-B-states|P3 aside-panel" docs/superpowers/plans/2026-05-05-mermaid-course-storyboard.md
+rg "variant-B-cinema-strip|variant-B-states|P3 aside-panel" docs/superpowers/plans/2026-05-05-codemermaid-storyboard.md
 ```
 
 Expected: output includes the primary layout reference, the states reference, and the locked P3 aside-panel annotation direction.
@@ -922,20 +922,20 @@ Expected: output includes the primary layout reference, the states reference, an
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_essay.css
-git commit -m "feat(mermaid-course): style storyboard cinema strip"
+git add skills/codemermaid/templates/partials/_essay.css
+git commit -m "feat(codemermaid): style storyboard cinema strip"
 ```
 
 ## Task 6: Document Storyboard Authoring Rules In The Skill
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md`
-- Modify: `skills/mermaid-course/references/units-examples.md`
-- Create: `skills/mermaid-course/references/storyboard-patterns.md`
+- Modify: `skills/codemermaid/SKILL.md`
+- Modify: `skills/codemermaid/references/units-examples.md`
+- Create: `skills/codemermaid/references/storyboard-patterns.md`
 
 - [ ] **Step 1: Add storyboard to the unit kind list in SKILL.md**
 
-In the `### Unit kinds` code block in `skills/mermaid-course/SKILL.md`, add this line after the `diagram` unit:
+In the `### Unit kinds` code block in `skills/codemermaid/SKILL.md`, add this line after the `diagram` unit:
 
 ```javascript
 { kind: "storyboard", title, caption?, scenes: [{ name, mermaid, explanation?, code?, focus? }] } // multi-scene Mermaid player with optional paired code
@@ -965,7 +965,7 @@ Use `storyboard` when the reader needs to watch a system change across 2-5 scene
       name: "Inline partials",
       mermaid: "flowchart LR\n  A[_base.css] --> C[HTML]\n  B[_essay.js] --> C",
       code: {
-        file: "skills/mermaid-course/SKILL.md",
+        file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
         source: "1. Read the shell template\n2. Read the partials\n3. Inline the partials",
         highlights: [
@@ -995,7 +995,7 @@ Storyboard rules:
 
 - [ ] **Step 3: Create storyboard-patterns.md**
 
-Create `skills/mermaid-course/references/storyboard-patterns.md` with:
+Create `skills/codemermaid/references/storyboard-patterns.md` with:
 
 ````markdown
 # Storyboard Patterns
@@ -1068,7 +1068,7 @@ Use annotations only when the code explains something the diagram cannot. The di
 
 ```javascript
 code: {
-  file: "skills/mermaid-course/scripts/validate-units.js",
+  file: "skills/codemermaid/scripts/validate-units.js",
   lang: "js",
   source: "if (!result.ok) {\n  console.error('Validation failed:');\n  process.exit(1);\n}",
   highlights: [
@@ -1081,7 +1081,7 @@ code: {
 
 - [ ] **Step 4: Add storyboard example to units-examples.md**
 
-Append this section to `skills/mermaid-course/references/units-examples.md`:
+Append this section to `skills/codemermaid/references/units-examples.md`:
 
 ````markdown
 ---
@@ -1114,7 +1114,7 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
   D["_runtime.js"] --> C
   E["_essay.js"] --> C`,
       code: {
-        file: "skills/mermaid-course/SKILL.md",
+        file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
         source: "1. Read template-essay.html\n2. Read _base.css and _essay.css\n3. Read _runtime.js and _essay.js\n4. Replace template slots",
         highlights: [
@@ -1133,7 +1133,7 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
   B -->|ok| C["write HTML"]
   B -->|errors| D["stop"]`,
       code: {
-        file: "skills/mermaid-course/scripts/validate-units.js",
+        file: "skills/codemermaid/scripts/validate-units.js",
         lang: "js",
         source: "if (!result.ok) {\n  console.error('Validation failed:');\n  for (const e of result.errors) console.error(`  - ${e}`);\n  process.exit(1);\n}\nconsole.log('OK');",
         highlights: [
@@ -1154,7 +1154,7 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
 Run:
 
 ```bash
-rg "storyboard" skills/mermaid-course/SKILL.md skills/mermaid-course/references
+rg "storyboard" skills/codemermaid/SKILL.md skills/codemermaid/references
 ```
 
 Expected: output includes `Storyboard units`, `storyboard-patterns.md`, and `kind: "storyboard"`.
@@ -1162,25 +1162,25 @@ Expected: output includes `Storyboard units`, `storyboard-patterns.md`, and `kin
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md skills/mermaid-course/references/units-examples.md skills/mermaid-course/references/storyboard-patterns.md
-git commit -m "docs(mermaid-course): teach storyboard authoring"
+git add skills/codemermaid/SKILL.md skills/codemermaid/references/units-examples.md skills/codemermaid/references/storyboard-patterns.md
+git commit -m "docs(codemermaid): teach storyboard authoring"
 ```
 
 ## Task 7: Run Full Verification And Manual Smoke Check
 
 **Files:**
-- Verify: `skills/mermaid-course/templates/template-essay.html`
-- Verify: `skills/mermaid-course/templates/partials/_essay.js`
-- Verify: `skills/mermaid-course/templates/partials/_essay.css`
-- Verify: `skills/mermaid-course/scripts/validate-units.js`
-- Verify: `skills/mermaid-course/SKILL.md`
+- Verify: `skills/codemermaid/templates/template-essay.html`
+- Verify: `skills/codemermaid/templates/partials/_essay.js`
+- Verify: `skills/codemermaid/templates/partials/_essay.css`
+- Verify: `skills/codemermaid/scripts/validate-units.js`
+- Verify: `skills/codemermaid/SKILL.md`
 
 - [ ] **Step 1: Run validator tests**
 
 Run:
 
 ```bash
-node --test skills/mermaid-course/scripts/validate-units.test.js
+node --test skills/codemermaid/scripts/validate-units.test.js
 ```
 
 Expected: PASS.
@@ -1190,9 +1190,9 @@ Expected: PASS.
 Run:
 
 ```bash
-node --check skills/mermaid-course/templates/partials/_essay.js
-node --check skills/mermaid-course/templates/partials/_runtime.js
-node --check skills/mermaid-course/scripts/validate-units.js
+node --check skills/codemermaid/templates/partials/_essay.js
+node --check skills/codemermaid/templates/partials/_runtime.js
+node --check skills/codemermaid/scripts/validate-units.js
 ```
 
 Expected: each command exits with code `0`.
@@ -1221,7 +1221,7 @@ Create a temporary sample at `/tmp/mermaid-storyboard-page.json`:
           "name": "Inline partials",
           "mermaid": "flowchart LR\n  A[_base.css] --> C[HTML]\n  B[_essay.js] --> C",
           "code": {
-            "file": "skills/mermaid-course/SKILL.md",
+            "file": "skills/codemermaid/SKILL.md",
             "lang": "markdown",
             "source": "1. Read shell template\n2. Read partials\n3. Inline partials",
             "highlights": [
@@ -1242,7 +1242,7 @@ Create a temporary sample at `/tmp/mermaid-storyboard-page.json`:
 Then run:
 
 ```bash
-node skills/mermaid-course/scripts/validate-units.js /tmp/mermaid-storyboard-page.json
+node skills/codemermaid/scripts/validate-units.js /tmp/mermaid-storyboard-page.json
 ```
 
 Expected output:
@@ -1256,7 +1256,7 @@ OK
 Run:
 
 ```bash
-git diff -- skills/mermaid-course
+git diff -- skills/codemermaid
 ```
 
 Expected: diff only includes Mermaid v11 upgrade, storyboard renderer/CSS, validator/tests, and storyboard docs.
@@ -1277,8 +1277,8 @@ Expected: the implemented storyboard layout matches the Variant B structure: lar
 If any verification-only edits were needed, commit them:
 
 ```bash
-git add skills/mermaid-course
-git commit -m "chore(mermaid-course): verify storyboard support"
+git add skills/codemermaid
+git commit -m "chore(codemermaid): verify storyboard support"
 ```
 
 If no files changed during verification, do not create an empty commit.

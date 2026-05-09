@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const skillRoot = path.resolve('skills/mockup-screenshot');
+const skillRoot = path.resolve('skills/mockup');
 
-test('skill metadata files exist and name the mockup-screenshot skill', () => {
+test('skill metadata files exist and name the mockup skill', () => {
   const skill = fs.readFileSync(path.join(skillRoot, 'SKILL.md'), 'utf8');
   const openai = fs.readFileSync(path.join(skillRoot, 'agents/openai.yaml'), 'utf8');
 
-  assert.match(skill, /^name: mockup-screenshot/m);
+  assert.match(skill, /^name: mockup/m);
   assert.match(skill, /render-mockup\.mjs/);
-  assert.match(openai, /display_name: Mockup Screenshot/);
+  assert.match(openai, /display_name: Mockup/);
   assert.match(openai, /default_prompt:/);
 });
 
@@ -20,8 +20,8 @@ test('skill follows Agent Skills directory and frontmatter constraints', () => {
   const frontmatter = /^---\n([\s\S]*?)\n---/.exec(skill)?.[1] ?? '';
   const description = /^description:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '';
 
-  assert.equal(path.basename(skillRoot), 'mockup-screenshot');
-  assert.match(frontmatter, /^name: mockup-screenshot$/m);
+  assert.equal(path.basename(skillRoot), 'mockup');
+  assert.match(frontmatter, /^name: mockup$/m);
   assert.ok(description.length > 0);
   assert.ok(description.length <= 1024);
   assert.ok(fs.existsSync(path.join(skillRoot, 'scripts/render-mockup.mjs')));

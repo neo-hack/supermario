@@ -1,4 +1,4 @@
-// skills/mermaid-course/tests/validate-units.test.js
+// skills/codemermaid/tests/validate-units.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateModule, validatePerspective } from '../scripts/validate-units.js';
@@ -18,7 +18,7 @@ function validStoryboardUnit(overrides = {}) {
         name: 'Inline partials',
         mermaid: 'flowchart LR\n  A["_base.css"] --> C["HTML"]\n  B["_essay.js"] --> C',
         code: {
-          file: 'skills/mermaid-course/SKILL.md',
+          file: 'skills/codemermaid/SKILL.md',
           lang: 'markdown',
           source: '1. Read shell template\n2. Read partials\n3. Inline partials',
           highlights: [

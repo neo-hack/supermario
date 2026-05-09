@@ -1,5 +1,5 @@
-// skills/mermaid-course/scripts/validate-units.js
-// Pedagogy enforcement for mermaid-course pages.
+// skills/codemermaid/scripts/validate-units.js
+// Pedagogy enforcement for codemermaid pages.
 // Module pages (per-module deep dives) and Perspective pages (cross-module essays).
 
 const VALID_KINDS = new Set([

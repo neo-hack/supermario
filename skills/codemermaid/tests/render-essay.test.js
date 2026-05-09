@@ -7,6 +7,40 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 
+test('skill metadata follows Agent Skills spec constraints', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+  const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/)?.[1] || '';
+  const name = frontmatter.match(/^name:\s*(.+)$/m)?.[1].trim();
+  const description = frontmatter.match(/^description:\s*(.+)$/m)?.[1].trim();
+  const compatibility = frontmatter.match(/^compatibility:\s*(.+)$/m)?.[1].trim();
+
+  assert.equal(name, path.basename(root));
+  assert.match(name, /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/);
+  assert.doesNotMatch(name, /--/);
+  assert.ok(description && description.length <= 1024);
+  assert.match(description, /Mermaid|architecture|module dependency|repository/);
+  assert.match(description, /Use when/);
+  assert.ok(!compatibility || compatibility.length <= 500);
+});
+
+test('static templates live in spec-recommended assets directory', () => {
+  const assetFiles = [
+    'template-essay.html',
+    'template-index.html',
+    '_base.css',
+    '_essay.css',
+    '_index.css',
+    '_runtime.js',
+    '_essay.js',
+    '_index.js',
+  ];
+
+  for (const file of assetFiles) {
+    assert.ok(fs.existsSync(path.join(root, 'assets', file)), file);
+  }
+  assert.equal(fs.existsSync(path.join(root, 'templates')), false);
+});
+
 function loadRuntime() {
   const context = {
     mermaid: {
@@ -16,8 +50,8 @@ function loadRuntime() {
       },
     },
   };
-  const runtime = fs.readFileSync(path.join(root, 'templates/partials/_runtime.js'), 'utf8');
-  const essay = fs.readFileSync(path.join(root, 'templates/partials/_essay.js'), 'utf8');
+  const runtime = fs.readFileSync(path.join(root, 'assets/_runtime.js'), 'utf8');
+  const essay = fs.readFileSync(path.join(root, 'assets/_essay.js'), 'utf8');
   vm.runInNewContext(`${runtime}\n${essay}`, context);
   return context;
 }
@@ -55,8 +89,8 @@ test('compare and storyboard code use the shared numbered renderer', () => {
 });
 
 test('zoom controls and storyboard scene transport match follow-up spec', () => {
-  const template = fs.readFileSync(path.join(root, 'templates/template-essay.html'), 'utf8');
-  const essay = fs.readFileSync(path.join(root, 'templates/partials/_essay.js'), 'utf8');
+  const template = fs.readFileSync(path.join(root, 'assets/template-essay.html'), 'utf8');
+  const essay = fs.readFileSync(path.join(root, 'assets/_essay.js'), 'utf8');
   const controls = template.match(/<div class="zoom-controls">[\s\S]*?<\/div>/)?.[0] || '';
   const buttons = [...controls.matchAll(/<button\b[\s\S]*?<\/button>/g)].map((match) => match[0]);
 
@@ -68,7 +102,7 @@ test('zoom controls and storyboard scene transport match follow-up spec', () => 
 
 test('storyboard notes expose line mapping for code-to-note navigation', () => {
   const { renderStoryboardAnnotationList } = loadRuntime();
-  const essay = fs.readFileSync(path.join(root, 'templates/partials/_essay.js'), 'utf8');
+  const essay = fs.readFileSync(path.join(root, 'assets/_essay.js'), 'utf8');
   const html = renderStoryboardAnnotationList([
     { lines: [1, 2], note: 'range note' },
     { line: 6, note: 'single note' },
@@ -81,7 +115,7 @@ test('storyboard notes expose line mapping for code-to-note navigation', () => {
 });
 
 test('active Mermaid nodes force readable label contrast', () => {
-  const css = fs.readFileSync(path.join(root, 'templates/partials/_essay.css'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'assets/_essay.css'), 'utf8');
 
   assert.match(css, /\.mermaid g\.node\.active text,/);
   assert.match(css, /\.mermaid g\.node\.active \.nodeLabel/);
@@ -90,8 +124,8 @@ test('active Mermaid nodes force readable label contrast', () => {
 });
 
 test('global course chrome uses themed scrollbars', () => {
-  const baseCss = fs.readFileSync(path.join(root, 'templates/partials/_base.css'), 'utf8');
-  const css = fs.readFileSync(path.join(root, 'templates/partials/_essay.css'), 'utf8');
+  const baseCss = fs.readFileSync(path.join(root, 'assets/_base.css'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'assets/_essay.css'), 'utf8');
 
   assert.match(baseCss, /\*::-webkit-scrollbar/);
   assert.match(baseCss, /scrollbar-color: var\(--scrollbar-thumb\) var\(--scrollbar-track\)/);
@@ -112,7 +146,7 @@ test('split code-walk explanations render as scrollable cards', () => {
     highlightLines: [1],
     explanation: 'The transaction wraps the loop. Line 1: first detail. Lines 2-3: second detail.',
   });
-  const css = fs.readFileSync(path.join(root, 'templates/partials/_essay.css'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'assets/_essay.css'), 'utf8');
 
   assert.match(html, /class="side split-notes"/);
   assert.equal((html.match(/class="split-note-card/g) || []).length, 3);
@@ -123,7 +157,7 @@ test('split code-walk explanations render as scrollable cards', () => {
   assert.match(css, /max-height: clamp\(280px, 48vh, 520px\)/);
   assert.match(css, /overflow-y: auto/);
   assert.match(css, /\.split-note-card\.active/);
-  assert.match(fs.readFileSync(path.join(root, 'templates/partials/_essay.js'), 'utf8'), /function initSplitWalks/);
+  assert.match(fs.readFileSync(path.join(root, 'assets/_essay.js'), 'utf8'), /function initSplitWalks/);
 });
 
 test('guess-first renders as a single disclosure surface', () => {
@@ -137,7 +171,7 @@ test('guess-first renders as a single disclosure surface', () => {
       explanation: 'The active card is the source of truth.',
     },
   });
-  const css = fs.readFileSync(path.join(root, 'templates/partials/_essay.css'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'assets/_essay.css'), 'utf8');
 
   assert.match(html, /class="guess"/);
   assert.doesNotMatch(html, /unit-guess-first/);
@@ -153,7 +187,7 @@ test('shared runtime does not require Mermaid on index pages', async () => {
     document: { querySelectorAll: () => [] },
     Math,
   };
-  const runtime = fs.readFileSync(path.join(root, 'templates/partials/_runtime.js'), 'utf8');
+  const runtime = fs.readFileSync(path.join(root, 'assets/_runtime.js'), 'utf8');
 
   vm.runInNewContext(runtime, context);
   assert.equal(typeof context.renderIndex, 'undefined');
@@ -161,14 +195,14 @@ test('shared runtime does not require Mermaid on index pages', async () => {
 });
 
 test('index template loads Mermaid for shared runtime compatibility', () => {
-  const template = fs.readFileSync(path.join(root, 'templates/template-index.html'), 'utf8');
+  const template = fs.readFileSync(path.join(root, 'assets/template-index.html'), 'utf8');
 
   assert.match(template, /mermaid@11\.4\.1/);
 });
 
 test('story template and fixture provide stable component stories', () => {
   const template = fs.readFileSync(path.join(root, 'tests/fixtures/template-story.html'), 'utf8');
-  const essay = fs.readFileSync(path.join(root, 'templates/partials/_essay.js'), 'utf8');
+  const essay = fs.readFileSync(path.join(root, 'assets/_essay.js'), 'utf8');
   const storyData = JSON.parse(fs.readFileSync(path.join(root, 'tests/fixtures/story-page-data.json'), 'utf8'));
   const storyHtml = fs.readFileSync(path.join(root, 'tests/story.html'), 'utf8');
   const validator = path.join(root, 'scripts/validate-units.js');

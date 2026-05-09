@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace `mermaid-course`'s click-explore template with a scrollable essay template (C′), driven by typed pedagogical units, with shared CSS/JS partials reused across index/perspective/module pages.
+**Goal:** Replace `codemermaid`'s click-explore template with a scrollable essay template (C′), driven by typed pedagogical units, with shared CSS/JS partials reused across index/perspective/module pages.
 
 **Architecture:** Split the template source into composable partials (`_base.css`, `_essay.css`, `_index.css`, `_runtime.js`, `_essay.js`). Two shell templates (`template-essay.html`, `template-index.html`) declare slot markers (`{{COMMON_STYLES}}`, `{{PAGE_STYLES}}`, `{{COMMON_SCRIPTS}}`, `{{PAGE_SCRIPTS}}`) which Phase 6 fills by inlining partials. Each emitted HTML stays self-contained. A `validate-units.js` script enforces pedagogy rules. The reference implementation already exists at `docs/codebase-demo-mermaid-essay.html` — the templates are productized forks of it.
 
 **Tech Stack:** Vanilla JS (no React, no build tools), Mermaid 10 via CDN, Raycast dark theme tokens, Node.js (for validator script).
 
-**Spec:** `docs/superpowers/specs/2026-05-03-mermaid-course-essay-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-03-codemermaid-essay-design.md`
 **Reference implementation:** `docs/codebase-demo-mermaid-essay.html`
 
 ---
@@ -16,7 +16,7 @@
 ## File Structure
 
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                                # EDIT — Phase 3, 4, 6, Output, Common Mistakes
   references/
     design-system.md                      # unchanged
@@ -44,21 +44,21 @@ skills/mermaid-course/
 ## Task 1: Scaffold templates/ and partials/ directories
 
 **Files:**
-- Create: `skills/mermaid-course/templates/.gitkeep`
-- Create: `skills/mermaid-course/templates/partials/.gitkeep`
-- Create: `skills/mermaid-course/scripts/.gitkeep`
+- Create: `skills/codemermaid/templates/.gitkeep`
+- Create: `skills/codemermaid/templates/partials/.gitkeep`
+- Create: `skills/codemermaid/scripts/.gitkeep`
 
 - [ ] **Step 1: Create directories**
 
 ```bash
-mkdir -p skills/mermaid-course/templates/partials skills/mermaid-course/scripts
-touch skills/mermaid-course/templates/.gitkeep skills/mermaid-course/templates/partials/.gitkeep skills/mermaid-course/scripts/.gitkeep
+mkdir -p skills/codemermaid/templates/partials skills/codemermaid/scripts
+touch skills/codemermaid/templates/.gitkeep skills/codemermaid/templates/partials/.gitkeep skills/codemermaid/scripts/.gitkeep
 ```
 
 - [ ] **Step 2: Verify**
 
 ```bash
-ls -la skills/mermaid-course/templates/partials/ skills/mermaid-course/scripts/
+ls -la skills/codemermaid/templates/partials/ skills/codemermaid/scripts/
 ```
 
 Expected: each directory exists, contains a `.gitkeep`.
@@ -66,8 +66,8 @@ Expected: each directory exists, contains a `.gitkeep`.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/ skills/mermaid-course/scripts/
-git commit -m ":construction: feat(mermaid-course): scaffold templates and scripts dirs"
+git add skills/codemermaid/templates/ skills/codemermaid/scripts/
+git commit -m ":construction: feat(codemermaid): scaffold templates and scripts dirs"
 ```
 
 ---
@@ -77,7 +77,7 @@ git commit -m ":construction: feat(mermaid-course): scaffold templates and scrip
 Source: `docs/codebase-demo-mermaid-essay.html` lines 10–554 contains all CSS. Identify the *shared* portion: CSS variables (`:root`), typography (`html`, `body`, headings), layout container, hero block, anchor chips, footer. These are reused across both essay and index pages.
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_base.css`
+- Create: `skills/codemermaid/templates/partials/_base.css`
 
 - [ ] **Step 1: Read the demo CSS**
 
@@ -115,8 +115,8 @@ Open it in a browser test page (you can use a tiny `<style>@import url('_base.cs
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_base.css
-git commit -m ":sparkles: feat(mermaid-course): extract shared base CSS partial"
+git add skills/codemermaid/templates/partials/_base.css
+git commit -m ":sparkles: feat(codemermaid): extract shared base CSS partial"
 ```
 
 ---
@@ -124,7 +124,7 @@ git commit -m ":sparkles: feat(mermaid-course): extract shared base CSS partial"
 ## Task 3: Extract essay-specific CSS into `_essay.css`
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_essay.css`
+- Create: `skills/codemermaid/templates/partials/_essay.css`
 
 - [ ] **Step 1: Create `_essay.css` with essay-only rules**
 
@@ -143,8 +143,8 @@ From the demo CSS (lines 10–554), include:
 
 ```bash
 # Quick sanity check — no rule should exist in both files
-diff <(grep -oE '^\.[a-z][a-zA-Z0-9_-]+' skills/mermaid-course/templates/partials/_base.css | sort -u) \
-     <(grep -oE '^\.[a-z][a-zA-Z0-9_-]+' skills/mermaid-course/templates/partials/_essay.css | sort -u)
+diff <(grep -oE '^\.[a-z][a-zA-Z0-9_-]+' skills/codemermaid/templates/partials/_base.css | sort -u) \
+     <(grep -oE '^\.[a-z][a-zA-Z0-9_-]+' skills/codemermaid/templates/partials/_essay.css | sort -u)
 ```
 
 Expected: every selector appears in exactly one file.
@@ -152,8 +152,8 @@ Expected: every selector appears in exactly one file.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_essay.css
-git commit -m ":sparkles: feat(mermaid-course): extract essay-specific CSS partial"
+git add skills/codemermaid/templates/partials/_essay.css
+git commit -m ":sparkles: feat(codemermaid): extract essay-specific CSS partial"
 ```
 
 ---
@@ -161,11 +161,11 @@ git commit -m ":sparkles: feat(mermaid-course): extract essay-specific CSS parti
 ## Task 4: Create `_index.css` for card grid
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_index.css`
+- Create: `skills/codemermaid/templates/partials/_index.css`
 
 - [ ] **Step 1: Read existing index template CSS**
 
-Use the Read tool on `skills/mermaid-course/references/template-index.html`. Extract the `<style>` block.
+Use the Read tool on `skills/codemermaid/references/template-index.html`. Extract the `<style>` block.
 
 - [ ] **Step 2: Create `_index.css` with index-only rules**
 
@@ -180,8 +180,8 @@ Drop any rules that duplicate `_base.css` (typography, container, hero).
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_index.css
-git commit -m ":sparkles: feat(mermaid-course): extract index card-grid CSS partial"
+git add skills/codemermaid/templates/partials/_index.css
+git commit -m ":sparkles: feat(codemermaid): extract index card-grid CSS partial"
 ```
 
 ---
@@ -191,7 +191,7 @@ git commit -m ":sparkles: feat(mermaid-course): extract index card-grid CSS part
 Source: `docs/codebase-demo-mermaid-essay.html` lines 756–971 contains all JS.
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_runtime.js`
+- Create: `skills/codemermaid/templates/partials/_runtime.js`
 
 - [ ] **Step 1: Create `_runtime.js` with shared helpers**
 
@@ -267,8 +267,8 @@ Create `/tmp/runtime-smoke.html` that loads `_runtime.js`, calls `renderMarkdown
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_runtime.js
-git commit -m ":sparkles: feat(mermaid-course): extract shared runtime JS partial"
+git add skills/codemermaid/templates/partials/_runtime.js
+git commit -m ":sparkles: feat(codemermaid): extract shared runtime JS partial"
 ```
 
 ---
@@ -276,7 +276,7 @@ git commit -m ":sparkles: feat(mermaid-course): extract shared runtime JS partia
 ## Task 6: Extract essay-specific JS into `_essay.js`
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_essay.js`
+- Create: `skills/codemermaid/templates/partials/_essay.js`
 
 - [ ] **Step 1: Create `_essay.js` with essay runtime**
 
@@ -327,8 +327,8 @@ If any of these fail, fix in `_essay.js` (or `_essay.css`) until smoke passes. T
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_essay.js
-git commit -m ":sparkles: feat(mermaid-course): extract essay-specific JS partial"
+git add skills/codemermaid/templates/partials/_essay.js
+git commit -m ":sparkles: feat(codemermaid): extract essay-specific JS partial"
 ```
 
 ---
@@ -336,7 +336,7 @@ git commit -m ":sparkles: feat(mermaid-course): extract essay-specific JS partia
 ## Task 7: Create empty `_index.js` placeholder
 
 **Files:**
-- Create: `skills/mermaid-course/templates/partials/_index.js`
+- Create: `skills/codemermaid/templates/partials/_index.js`
 
 - [ ] **Step 1: Create `_index.js`**
 
@@ -348,8 +348,8 @@ git commit -m ":sparkles: feat(mermaid-course): extract essay-specific JS partia
 - [ ] **Step 2: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/partials/_index.js
-git commit -m ":sparkles: feat(mermaid-course): add _index.js placeholder"
+git add skills/codemermaid/templates/partials/_index.js
+git commit -m ":sparkles: feat(codemermaid): add _index.js placeholder"
 ```
 
 ---
@@ -357,7 +357,7 @@ git commit -m ":sparkles: feat(mermaid-course): add _index.js placeholder"
 ## Task 8: Build `template-essay.html` shell
 
 **Files:**
-- Create: `skills/mermaid-course/templates/template-essay.html`
+- Create: `skills/codemermaid/templates/template-essay.html`
 
 - [ ] **Step 1: Create the shell**
 
@@ -422,7 +422,7 @@ bootEssay(PAGE);
 - [ ] **Step 2: Verify slot markers**
 
 ```bash
-grep -oE '\{\{[A-Z_]+\}\}' skills/mermaid-course/templates/template-essay.html | sort -u
+grep -oE '\{\{[A-Z_]+\}\}' skills/codemermaid/templates/template-essay.html | sort -u
 ```
 
 Expected output (exact list):
@@ -446,8 +446,8 @@ Expected output (exact list):
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/template-essay.html
-git commit -m ":sparkles: feat(mermaid-course): add template-essay.html shell"
+git add skills/codemermaid/templates/template-essay.html
+git commit -m ":sparkles: feat(codemermaid): add template-essay.html shell"
 ```
 
 ---
@@ -455,13 +455,13 @@ git commit -m ":sparkles: feat(mermaid-course): add template-essay.html shell"
 ## Task 9: Move and update `template-index.html`
 
 **Files:**
-- Move: `skills/mermaid-course/references/template-index.html` → `skills/mermaid-course/templates/template-index.html`
-- Modify: `skills/mermaid-course/templates/template-index.html`
+- Move: `skills/codemermaid/references/template-index.html` → `skills/codemermaid/templates/template-index.html`
+- Modify: `skills/codemermaid/templates/template-index.html`
 
 - [ ] **Step 1: Move the file with git**
 
 ```bash
-git mv skills/mermaid-course/references/template-index.html skills/mermaid-course/templates/template-index.html
+git mv skills/codemermaid/references/template-index.html skills/codemermaid/templates/template-index.html
 ```
 
 - [ ] **Step 2: Edit it to use slot markers**
@@ -494,7 +494,7 @@ Add `renderIndex(INDEX)` function inline (or move to `_index.js` if non-trivial 
 - [ ] **Step 3: Verify slot markers**
 
 ```bash
-grep -oE '\{\{[A-Z_]+\}\}' skills/mermaid-course/templates/template-index.html | sort -u
+grep -oE '\{\{[A-Z_]+\}\}' skills/codemermaid/templates/template-index.html | sort -u
 ```
 
 Expected: `{{COMMON_SCRIPTS}}`, `{{COMMON_STYLES}}`, `{{INDEX_DATA}}`, `{{PAGE_SCRIPTS}}`, `{{PAGE_STYLES}}`, `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{LANGUAGE}}`, `{{FRAMEWORK}}`.
@@ -502,8 +502,8 @@ Expected: `{{COMMON_SCRIPTS}}`, `{{COMMON_STYLES}}`, `{{INDEX_DATA}}`, `{{PAGE_S
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/mermaid-course/templates/template-index.html
-git commit -m ":sparkles: feat(mermaid-course): move and slot-ify template-index.html"
+git add skills/codemermaid/templates/template-index.html
+git commit -m ":sparkles: feat(codemermaid): move and slot-ify template-index.html"
 ```
 
 ---
@@ -511,12 +511,12 @@ git commit -m ":sparkles: feat(mermaid-course): move and slot-ify template-index
 ## Task 10: Delete `template-course.html`
 
 **Files:**
-- Delete: `skills/mermaid-course/references/template-course.html`
+- Delete: `skills/codemermaid/references/template-course.html`
 
 - [ ] **Step 1: Verify nothing else in the skill references it**
 
 ```bash
-grep -rn "template-course" skills/mermaid-course/
+grep -rn "template-course" skills/codemermaid/
 ```
 
 Expected: only matches will be in `SKILL.md` (which we rewrite in Task 16) and the file itself.
@@ -524,13 +524,13 @@ Expected: only matches will be in `SKILL.md` (which we rewrite in Task 16) and t
 - [ ] **Step 2: Remove**
 
 ```bash
-git rm skills/mermaid-course/references/template-course.html
+git rm skills/codemermaid/references/template-course.html
 ```
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git commit -m ":fire: feat(mermaid-course): drop deprecated template-course.html"
+git commit -m ":fire: feat(codemermaid): drop deprecated template-course.html"
 ```
 
 ---
@@ -538,12 +538,12 @@ git commit -m ":fire: feat(mermaid-course): drop deprecated template-course.html
 ## Task 11: Write `validate-units.js` — failing tests first (TDD)
 
 **Files:**
-- Create: `skills/mermaid-course/scripts/validate-units.test.js`
+- Create: `skills/codemermaid/scripts/validate-units.test.js`
 
 - [ ] **Step 1: Write the failing tests**
 
 ```javascript
-// skills/mermaid-course/scripts/validate-units.test.js
+// skills/codemermaid/scripts/validate-units.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateModule, validatePerspective } from './validate-units.js';
@@ -636,7 +636,7 @@ test('perspective: valid passes', () => {
 - [ ] **Step 2: Run tests — expect failure (file doesn't exist yet)**
 
 ```bash
-node --test skills/mermaid-course/scripts/validate-units.test.js
+node --test skills/codemermaid/scripts/validate-units.test.js
 ```
 
 Expected: ERR_MODULE_NOT_FOUND for `./validate-units.js`.
@@ -644,8 +644,8 @@ Expected: ERR_MODULE_NOT_FOUND for `./validate-units.js`.
 - [ ] **Step 3: Commit the failing tests**
 
 ```bash
-git add skills/mermaid-course/scripts/validate-units.test.js
-git commit -m ":white_check_mark: test(mermaid-course): add validate-units failing tests"
+git add skills/codemermaid/scripts/validate-units.test.js
+git commit -m ":white_check_mark: test(codemermaid): add validate-units failing tests"
 ```
 
 ---
@@ -653,12 +653,12 @@ git commit -m ":white_check_mark: test(mermaid-course): add validate-units faili
 ## Task 12: Implement `validate-units.js` until tests pass
 
 **Files:**
-- Create: `skills/mermaid-course/scripts/validate-units.js`
+- Create: `skills/codemermaid/scripts/validate-units.js`
 
 - [ ] **Step 1: Write the implementation**
 
 ```javascript
-// skills/mermaid-course/scripts/validate-units.js
+// skills/codemermaid/scripts/validate-units.js
 const VALID_KINDS = new Set(['concept', 'code-walk', 'guess-first', 'compare', 'surprise', 'takeaway', 'diagram']);
 const MAX_UNITS = 10;
 const MAX_STEPPED_PER_MODULE = 1;
@@ -734,7 +734,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 - [ ] **Step 2: Run tests — expect pass**
 
 ```bash
-node --test skills/mermaid-course/scripts/validate-units.test.js
+node --test skills/codemermaid/scripts/validate-units.test.js
 ```
 
 Expected: all 8 tests pass.
@@ -743,14 +743,14 @@ Expected: all 8 tests pass.
 
 ```bash
 echo '{"module":"a","learningPromise":"p","units":[{"kind":"concept","body":"x"},{"kind":"surprise","body":"s"},{"kind":"takeaway","body":"t"}]}' > /tmp/page.json
-node skills/mermaid-course/scripts/validate-units.js /tmp/page.json
+node skills/codemermaid/scripts/validate-units.js /tmp/page.json
 ```
 
 Expected: prints `OK`, exit 0.
 
 ```bash
 echo '{"module":"a","units":[{"kind":"concept","body":"x"}]}' > /tmp/bad.json
-node skills/mermaid-course/scripts/validate-units.js /tmp/bad.json
+node skills/codemermaid/scripts/validate-units.js /tmp/bad.json
 echo "exit=$?"
 ```
 
@@ -759,8 +759,8 @@ Expected: prints validation errors, `exit=1`.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/mermaid-course/scripts/validate-units.js
-git commit -m ":sparkles: feat(mermaid-course): implement validate-units pedagogy enforcement"
+git add skills/codemermaid/scripts/validate-units.js
+git commit -m ":sparkles: feat(codemermaid): implement validate-units pedagogy enforcement"
 ```
 
 ---
@@ -768,7 +768,7 @@ git commit -m ":sparkles: feat(mermaid-course): implement validate-units pedagog
 ## Task 13: Write `references/units-examples.md`
 
 **Files:**
-- Create: `skills/mermaid-course/references/units-examples.md`
+- Create: `skills/codemermaid/references/units-examples.md`
 
 - [ ] **Step 1: Write the file with 2–3 examples per unit kind**
 
@@ -817,8 +817,8 @@ Each example should be a complete JS object literal that would pass through `ren
 - [ ] **Step 2: Commit**
 
 ```bash
-git add skills/mermaid-course/references/units-examples.md
-git commit -m ":memo: docs(mermaid-course): add units-examples reference"
+git add skills/codemermaid/references/units-examples.md
+git commit -m ":memo: docs(codemermaid): add units-examples reference"
 ```
 
 ---
@@ -826,11 +826,11 @@ git commit -m ":memo: docs(mermaid-course): add units-examples reference"
 ## Task 14: Write `references/voice-examples.md`
 
 **Files:**
-- Create: `skills/mermaid-course/references/voice-examples.md`
+- Create: `skills/codemermaid/references/voice-examples.md`
 
 - [ ] **Step 1: Write the file**
 
-Port the three flat-vs-pointed pairs from the spec (`docs/superpowers/specs/2026-05-03-mermaid-course-essay-design.md`, "Voice" section):
+Port the three flat-vs-pointed pairs from the spec (`docs/superpowers/specs/2026-05-03-codemermaid-essay-design.md`, "Voice" section):
 
 ```markdown
 # Voice Examples
@@ -870,8 +870,8 @@ The voice is a teacher pointing at the thing. Not neutral docs prose. Signposted
 - [ ] **Step 2: Commit**
 
 ```bash
-git add skills/mermaid-course/references/voice-examples.md
-git commit -m ":memo: docs(mermaid-course): add voice-examples reference"
+git add skills/codemermaid/references/voice-examples.md
+git commit -m ":memo: docs(codemermaid): add voice-examples reference"
 ```
 
 ---
@@ -879,7 +879,7 @@ git commit -m ":memo: docs(mermaid-course): add voice-examples reference"
 ## Task 15: Rewrite SKILL.md Phase 3
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md` (Phase 3 section, lines 116–177)
+- Modify: `skills/codemermaid/SKILL.md` (Phase 3 section, lines 116–177)
 
 - [ ] **Step 1: Replace the entire Phase 3 section**
 
@@ -964,7 +964,7 @@ A teacher pointing at the thing. Signposted, opinionated, comparing to familiar 
 
 ### Pedagogy enforcement (mandatory)
 
-Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/scripts/validate-units.js path/to/page.json` after assembly; the build fails on violation:
+Every generated page MUST satisfy these rules. Run `node skills/codemermaid/scripts/validate-units.js path/to/page.json` after assembly; the build fails on violation:
 
 - Every module MUST have a non-empty `learningPromise`.
 - Every module's `units[]` MUST contain ≥ 1 `guess-first` OR ≥ 1 `surprise`.
@@ -981,7 +981,7 @@ Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/s
 - [ ] **Step 2: Verify**
 
 ```bash
-grep -n "## Phase" skills/mermaid-course/SKILL.md
+grep -n "## Phase" skills/codemermaid/SKILL.md
 ```
 
 Expected: Phases 1, 2, 3, 4, 5, 6 all present in order, no orphan headings.
@@ -989,8 +989,8 @@ Expected: Phases 1, 2, 3, 4, 5, 6 all present in order, no orphan headings.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
-git commit -m ":memo: docs(mermaid-course): rewrite Phase 3 around units schema"
+git add skills/codemermaid/SKILL.md
+git commit -m ":memo: docs(codemermaid): rewrite Phase 3 around units schema"
 ```
 
 ---
@@ -998,7 +998,7 @@ git commit -m ":memo: docs(mermaid-course): rewrite Phase 3 around units schema"
 ## Task 16: Rewrite SKILL.md Phase 4
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md` (Phase 4 section)
+- Modify: `skills/codemermaid/SKILL.md` (Phase 4 section)
 
 - [ ] **Step 1: Replace Phase 4**
 
@@ -1063,8 +1063,8 @@ The same module uses the same node ID across all pages it appears on (e.g., `aut
 - [ ] **Step 2: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
-git commit -m ":memo: docs(mermaid-course): rewrite Phase 4 with two Mermaid roles"
+git add skills/codemermaid/SKILL.md
+git commit -m ":memo: docs(codemermaid): rewrite Phase 4 with two Mermaid roles"
 ```
 
 ---
@@ -1072,7 +1072,7 @@ git commit -m ":memo: docs(mermaid-course): rewrite Phase 4 with two Mermaid rol
 ## Task 17: Rewrite SKILL.md Phase 5 and Phase 6
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md` (Phase 5 and Phase 6 sections)
+- Modify: `skills/codemermaid/SKILL.md` (Phase 5 and Phase 6 sections)
 
 - [ ] **Step 1: Replace Phase 5**
 
@@ -1112,7 +1112,7 @@ For each page in the file list (Phase 5):
    - `{{COMMON_SCRIPTS}}` ← contents of `_runtime.js`
    - `{{PAGE_SCRIPTS}}` ← contents of `_essay.js` or `_index.js`
 4. **Fill page-specific slots** (see below).
-5. **Validate** by piping the page-data object as JSON to `node skills/mermaid-course/scripts/validate-units.js -`. Abort the build on failure.
+5. **Validate** by piping the page-data object as JSON to `node skills/codemermaid/scripts/validate-units.js -`. Abort the build on failure.
 6. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
 
 Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `partials/` for DRY authoring; the output is independent files.
@@ -1146,8 +1146,8 @@ Every emitted HTML stays self-contained — partials are inlined at assembly tim
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
-git commit -m ":memo: docs(mermaid-course): rewrite Phases 5 and 6 for partial-based assembly"
+git add skills/codemermaid/SKILL.md
+git commit -m ":memo: docs(codemermaid): rewrite Phases 5 and 6 for partial-based assembly"
 ```
 
 ---
@@ -1155,7 +1155,7 @@ git commit -m ":memo: docs(mermaid-course): rewrite Phases 5 and 6 for partial-b
 ## Task 18: Update SKILL.md remaining sections
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md`
+- Modify: `skills/codemermaid/SKILL.md`
 
 - [ ] **Step 1: Update the top-of-file description and "When to Use"**
 
@@ -1220,7 +1220,7 @@ Replace the table:
 ## File Organization
 
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                            # This file (6-phase workflow)
   references/
     design-system.md                  # CSS/typography/shadow reference
@@ -1245,8 +1245,8 @@ skills/mermaid-course/
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
-git commit -m ":memo: docs(mermaid-course): update intro, rules, mistakes, file map"
+git add skills/codemermaid/SKILL.md
+git commit -m ":memo: docs(codemermaid): update intro, rules, mistakes, file map"
 ```
 
 ---
@@ -1263,7 +1263,7 @@ mkdir -p /tmp/smoke
 cat > /tmp/smoke/perspective.json <<'EOF'
 {
   "perspective": "architecture",
-  "learningPromise": "After reading, you'll see why mermaid-course splits scan from render.",
+  "learningPromise": "After reading, you'll see why codemermaid splits scan from render.",
   "prereqs": ["JavaScript modules"],
   "diagram": "graph TD\n  Scan[\"Scan\"]\n  Render[\"Render\"]\n  Scan -->|feeds| Render",
   "units": [
@@ -1278,7 +1278,7 @@ EOF
 - [ ] **Step 2: Validate the fixture**
 
 ```bash
-node skills/mermaid-course/scripts/validate-units.js /tmp/smoke/perspective.json
+node skills/codemermaid/scripts/validate-units.js /tmp/smoke/perspective.json
 ```
 
 Expected: prints `OK`.
@@ -1291,7 +1291,7 @@ Use a quick shell script to inline partials and slot in the page data:
 cat > /tmp/smoke/assemble.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-SKILL=skills/mermaid-course
+SKILL=skills/codemermaid
 T=$SKILL/templates/template-essay.html
 P=$SKILL/templates/partials
 DATA=$(cat /tmp/smoke/perspective.json)
@@ -1303,7 +1303,7 @@ const map = {
   PAGE_STYLES:   fs.readFileSync('$P/_essay.css', 'utf8'),
   COMMON_SCRIPTS: fs.readFileSync('$P/_runtime.js', 'utf8'),
   PAGE_SCRIPTS:  fs.readFileSync('$P/_essay.js', 'utf8'),
-  PROJECT_NAME: 'mermaid-course',
+  PROJECT_NAME: 'codemermaid',
   PAGE_TITLE: 'Architecture',
   LEARNING_PROMISE: 'After reading, you...',
   LEARNING_PROMISE_RECAP: 'Scan vs render.',
@@ -1349,20 +1349,20 @@ No git changes from this task. If smoke fails and you fix a partial, that's a se
 ## Task 20: Update the existing multi-perspective spec to point at this one
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-05-02-mermaid-course-multi-perspective-design.md`
+- Modify: `docs/superpowers/specs/2026-05-02-codemermaid-multi-perspective-design.md`
 
 - [ ] **Step 1: Add a status banner near the top**
 
 Insert after the existing `**Status:** Draft` line:
 
 ```markdown
-**Superseded (in part):** by `2026-05-03-mermaid-course-essay-design.md` — the multi-page output structure stays; the per-page click-explore template is replaced by scrollable essays.
+**Superseded (in part):** by `2026-05-03-codemermaid-essay-design.md` — the multi-page output structure stays; the per-page click-explore template is replaced by scrollable essays.
 ```
 
 - [ ] **Step 2: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-05-02-mermaid-course-multi-perspective-design.md
+git add docs/superpowers/specs/2026-05-02-codemermaid-multi-perspective-design.md
 git commit -m ":memo: docs(specs): cross-link multi-perspective spec to essay redesign"
 ```
 
@@ -1370,7 +1370,7 @@ git commit -m ":memo: docs(specs): cross-link multi-perspective spec to essay re
 
 ## Self-Review Checklist (perform before handing off)
 
-- [ ] Spec coverage — every section of `2026-05-03-mermaid-course-essay-design.md` maps to a task above (Page Shape→Task 8; Schema→Task 15; Mermaid two roles→Tasks 6+16; Voice→Task 14; Budgets→Task 15 table; Pedagogy enforcement→Tasks 11+12; Locked decisions→Tasks 10, 15, 16; SKILL.md changes→Tasks 15-18; File changes→all of Tasks 1-12).
+- [ ] Spec coverage — every section of `2026-05-03-codemermaid-essay-design.md` maps to a task above (Page Shape→Task 8; Schema→Task 15; Mermaid two roles→Tasks 6+16; Voice→Task 14; Budgets→Task 15 table; Pedagogy enforcement→Tasks 11+12; Locked decisions→Tasks 10, 15, 16; SKILL.md changes→Tasks 15-18; File changes→all of Tasks 1-12).
 - [ ] No placeholders — every step contains real code, real commands, real expected output.
 - [ ] Type consistency — `validateModule`/`validatePerspective` names match between Tasks 11 and 12; slot marker names (`{{COMMON_STYLES}}`, `{{PAGE_STYLES}}`, etc.) match between Tasks 8, 9, and 17.
 - [ ] Reuse goal — partials structure is established in Tasks 2–7, applied in shells in Tasks 8–9, documented in SKILL.md in Task 17.

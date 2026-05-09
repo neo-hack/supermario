@@ -24,7 +24,7 @@ Update `write-docs` so README generation reliably:
 - Keeps README as an entry point, not an architecture document.
 - Reports the references and badge sources used.
 
-The change should also improve the skill's own discoverability by adding a `## File Organization` section modeled after `skills/mermaid-course/SKILL.md`.
+The change should also improve the skill's own discoverability by adding a `## File Organization` section modeled after `skills/codemermaid/SKILL.md`.
 
 ## Non-Goals
 
@@ -130,7 +130,7 @@ This does not forbid short orientation material. README may still include a conc
 
 ## Skill File Organization
 
-Add a `## File Organization` section to `skills/write-docs/SKILL.md`, modeled after `skills/mermaid-course/SKILL.md`.
+Add a `## File Organization` section to `skills/write-docs/SKILL.md`, modeled after `skills/codemermaid/SKILL.md`.
 
 Recommended content:
 
