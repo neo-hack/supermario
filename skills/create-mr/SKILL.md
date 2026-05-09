@@ -100,6 +100,12 @@ After creation, run:
 gh pr view <number>
 ```
 
+For machine-readable verification, prefer:
+
+```bash
+gh pr view <number> --json number,title,url,state,headRefName,baseRefName
+```
+
 Report the PR URL to the user.
 
 ## Common Mistakes
