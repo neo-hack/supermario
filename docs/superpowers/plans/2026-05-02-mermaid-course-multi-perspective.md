@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Upgrade mermaid-course skill from single-file to multi-file output with index page router and flexible perspective system.
+**Goal:** Upgrade codemermaid skill from single-file to multi-file output with index page router and flexible perspective system.
 
 **Architecture:** Two HTML templates — `template-index.html` (card navigation, no Mermaid) and `template-course.html` (Mermaid + detail panel, renamed from template.html with breadcrumb added). SKILL.md updated to 6-phase workflow with perspective system and new data structures (INDEX, PERSPECTIVE).
 
 **Tech Stack:** HTML/CSS/JS (vanilla), Mermaid v11, no build tools.
 
-**Spec:** `docs/superpowers/specs/2026-05-02-mermaid-course-multi-perspective-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-02-codemermaid-multi-perspective-design.md`
 
 ---
 
@@ -19,7 +19,7 @@
 | Rename | `references/template.html` → `references/template-course.html` | Sub-page template (Mermaid + detail panel) |
 | Create | `references/template-index.html` | Entry page template (card navigation) |
 | Modify | `references/template-course.html` | Add breadcrumb + `{{BREADCRUMB_TITLE}}` + `{{BACK_LINK}}` |
-| Modify | `skills/mermaid-course/SKILL.md` | 6-phase workflow, perspective system, new data structures |
+| Modify | `skills/codemermaid/SKILL.md` | 6-phase workflow, perspective system, new data structures |
 | Delete | `references/template.html` | Replaced by `template-course.html` |
 
 ---
@@ -27,19 +27,19 @@
 ### Task 1: Rename template.html to template-course.html
 
 **Files:**
-- Rename: `skills/mermaid-course/references/template.html` → `skills/mermaid-course/references/template-course.html`
+- Rename: `skills/codemermaid/references/template.html` → `skills/codemermaid/references/template-course.html`
 
 - [ ] **Step 1: Rename the file**
 
 ```bash
-cd skills/mermaid-course/references
+cd skills/codemermaid/references
 mv template.html template-course.html
 ```
 
 - [ ] **Step 2: Verify rename**
 
 ```bash
-ls -la skills/mermaid-course/references/
+ls -la skills/codemermaid/references/
 ```
 
 Expected: `template-course.html`, `design-system.md` present. No `template.html`.
@@ -47,7 +47,7 @@ Expected: `template-course.html`, `design-system.md` present. No `template.html`
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/references/
+git add skills/codemermaid/references/
 git commit -m "refactor: rename template.html to template-course.html"
 ```
 
@@ -56,7 +56,7 @@ git commit -m "refactor: rename template.html to template-course.html"
 ### Task 2: Add breadcrumb to template-course.html
 
 **Files:**
-- Modify: `skills/mermaid-course/references/template-course.html`
+- Modify: `skills/codemermaid/references/template-course.html`
 
 - [ ] **Step 1: Add breadcrumb CSS**
 
@@ -114,7 +114,7 @@ Open `template-course.html` directly in browser. Expected: breadcrumb bar visibl
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/mermaid-course/references/template-course.html
+git add skills/codemermaid/references/template-course.html
 git commit -m "feat: add breadcrumb navigation to template-course.html"
 ```
 
@@ -123,11 +123,11 @@ git commit -m "feat: add breadcrumb navigation to template-course.html"
 ### Task 3: Create template-index.html
 
 **Files:**
-- Create: `skills/mermaid-course/references/template-index.html`
+- Create: `skills/codemermaid/references/template-index.html`
 
 - [ ] **Step 1: Write the complete template-index.html**
 
-Create `skills/mermaid-course/references/template-index.html` with this content:
+Create `skills/codemermaid/references/template-index.html` with this content:
 
 ```html
 <!DOCTYPE html>
@@ -299,7 +299,7 @@ Create a quick test: copy the file to `/tmp/test-index.html`, replace placeholde
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/references/template-index.html
+git add skills/codemermaid/references/template-index.html
 git commit -m "feat: add template-index.html entry page template"
 ```
 
@@ -308,7 +308,7 @@ git commit -m "feat: add template-index.html entry page template"
 ### Task 4: Update SKILL.md — Phase 2 (Analyze), Phase 3 (Build Data)
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md`
+- Modify: `skills/codemermaid/SKILL.md`
 
 - [ ] **Step 1: Update description in frontmatter**
 
@@ -394,7 +394,7 @@ const PERSPECTIVE = {
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
+git add skills/codemermaid/SKILL.md
 git commit -m "feat: add perspective system and multi-page data structures to SKILL.md"
 ```
 
@@ -403,7 +403,7 @@ git commit -m "feat: add perspective system and multi-page data structures to SK
 ### Task 5: Update SKILL.md — Phase 4 (Build Graphs), Phase 5 (Generate Page List), Phase 6 (Assemble)
 
 **Files:**
-- Modify: `skills/mermaid-course/SKILL.md`
+- Modify: `skills/codemermaid/SKILL.md`
 
 - [ ] **Step 1: Update Phase 4 — clarify one graph per page**
 
@@ -498,7 +498,7 @@ Find the Important Rules section. Add these rules:
 Find:
 ```markdown
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                     # This file
   references/
     design-system.md           # Full CSS/typography/shadow reference
@@ -509,7 +509,7 @@ skills/mermaid-course/
 Replace with:
 ```markdown
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                       # This file (6-phase workflow)
   references/
     design-system.md             # Full CSS/typography/shadow reference
@@ -521,7 +521,7 @@ skills/mermaid-course/
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/mermaid-course/SKILL.md
+git add skills/codemermaid/SKILL.md
 git commit -m "feat: update SKILL.md with 6-phase workflow and perspective system"
 ```
 
@@ -530,7 +530,7 @@ git commit -m "feat: update SKILL.md with 6-phase workflow and perspective syste
 ### Task 6: Add perspective mode to template-course.html runtime
 
 **Files:**
-- Modify: `skills/mermaid-course/references/template-course.html`
+- Modify: `skills/codemermaid/references/template-course.html`
 
 - [ ] **Step 1: Add PAGE_MODE constant**
 
@@ -571,7 +571,7 @@ This block must be inserted right after `const d = COURSE[currentId];` and befor
 - [ ] **Step 3: Commit**
 
 ```bash
-git add skills/mermaid-course/references/template-course.html
+git add skills/codemermaid/references/template-course.html
 git commit -m "feat: add perspective mode to template-course.html runtime"
 ```
 
@@ -580,17 +580,17 @@ git commit -m "feat: add perspective mode to template-course.html runtime"
 ### Task 7: Verify all templates work together
 
 **Files:**
-- All templates in `skills/mermaid-course/references/`
+- All templates in `skills/codemermaid/references/`
 
 - [ ] **Step 1: Create a test output directory**
 
 ```bash
-mkdir -p /tmp/mermaid-course-test
+mkdir -p /tmp/codemermaid-test
 ```
 
 - [ ] **Step 2: Create test index.html**
 
-Copy `template-index.html` to `/tmp/mermaid-course-test/index.html` and replace placeholders with:
+Copy `template-index.html` to `/tmp/codemermaid-test/index.html` and replace placeholders with:
 
 - `{{PROJECT_NAME}}` → `Test Project`
 - `{{PROJECT_DESCRIPTION}}` → `A test project to verify templates`
@@ -600,7 +600,7 @@ Copy `template-index.html` to `/tmp/mermaid-course-test/index.html` and replace 
 
 - [ ] **Step 3: Create test architecture.html**
 
-Copy `template-course.html` to `/tmp/mermaid-course-test/architecture.html` and replace placeholders with:
+Copy `template-course.html` to `/tmp/codemermaid-test/architecture.html` and replace placeholders with:
 
 - `{{BREADCRUMB_TITLE}}` → `Architecture`
 - `{{BACK_LINK}}` → `index.html`
@@ -609,12 +609,12 @@ Copy `template-course.html` to `/tmp/mermaid-course-test/architecture.html` and 
 
 - [ ] **Step 4: Create test module page**
 
-Copy `template-course.html` to `/tmp/mermaid-course-test/module-auth.html` and replace with module-mode `COURSE` data (existing behavior).
+Copy `template-course.html` to `/tmp/codemermaid-test/module-auth.html` and replace with module-mode `COURSE` data (existing behavior).
 
 - [ ] **Step 5: Open and verify all three pages**
 
 ```bash
-open /tmp/mermaid-course-test/index.html
+open /tmp/codemermaid-test/index.html
 ```
 
 Expected behavior:

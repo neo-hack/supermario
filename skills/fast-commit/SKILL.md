@@ -78,11 +78,22 @@ Commit immediately:
 git commit -m "<title>" -m "<body>"
 ```
 
-If the `OPENCODE` environment variable is set, append this trailer to the commit body:
+Append AI co-author trailers when the matching environment is detected.
+
+If the `OPENCODE` environment variable is set, append:
 
 ```text
 Co-authored-by: opencode <opencode@ai>
 ```
+
+If `CODEX_SHELL` or `CODEX_CI` is set, append:
+
+```text
+Co-authored-by: Codex <codex@openai.com>
+```
+
+Use `CODEX_SHELL` or `CODEX_CI` for Codex detection. Do not rely on
+`CODEX_THREAD_ID`; it is session metadata, not the environment signal.
 
 ## Common Mistakes
 
@@ -92,3 +103,4 @@ Co-authored-by: opencode <opencode@ai>
 | Committing without reading diff | Inspect `git diff --cached` first. |
 | Using actual emoji characters | Use gitmoji text codes like `:memo:`. |
 | Forgetting deleted files | Use `git add -A`. |
+| Missing AI co-author trailers | Check `OPENCODE`, `CODEX_SHELL`, and `CODEX_CI` before committing. |

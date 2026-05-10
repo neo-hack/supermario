@@ -1,9 +1,10 @@
 ---
-name: mermaid-course
-description: Use when asked to generate an interactive codebase course, visual architecture walkthrough, or module dependency tutorial as a multi-page HTML site. Produces a directory with index page, multiple perspective views (architecture, data flow, state machines, etc.), and per-module deep dive pages — all with Mermaid diagrams and step-by-step code explanations.
+name: codemermaid
+description: Generates interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, state-machine views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
+compatibility: Requires Node.js 18+ for validation scripts. Generated HTML uses external Mermaid and Google Fonts CDNs unless vendored by the caller.
 ---
 
-# Mermaid Interactive Codebase Course
+# CodeMermaid
 
 Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid diagrams as anchors, typed pedagogical units (concept, code-walk, guess-first, compare, surprise, takeaway, diagram) carrying the lesson. Zero build tools, zero npm. Each output page is self-contained.
 
@@ -22,14 +23,14 @@ Generate a multi-page interactive HTML site that teaches a codebase as scrollabl
 
 ## Output
 
-Directory: `docs/codebase-course/`
+Directory: `docs/codebase/`
 
   index.html                    <- Entry page (perspective + module cards)
   architecture.html             <- Architecture perspective (essay)
   <perspective>.html            <- Other perspectives (essays)
   module-<name>.html            <- Per-module deep dives (essays)
 
-Each file is fully self-contained — CSS/JS inlined at build time from `templates/partials/`.
+Each file is fully self-contained — CSS/JS inlined at build time from `assets/`.
 
 ## Parallel Generation Mode
 
@@ -199,7 +200,7 @@ A teacher pointing at the thing. Signposted, opinionated, comparing to familiar 
 
 ### Pedagogy enforcement (mandatory)
 
-Every generated page MUST satisfy these rules. Run `node skills/mermaid-course/scripts/validate-units.js path/to/page.json` after assembly; the build fails on violation:
+Every generated page MUST satisfy these rules. Run `node skills/codemermaid/scripts/validate-units.js path/to/page.json` after assembly; the build fails on violation:
 
 - Every module MUST have a non-empty `learningPromise`.
 - Every module's `units[]` MUST contain ≥ 1 `guess-first` OR ≥ 1 `surprise`.
@@ -247,7 +248,7 @@ Read `references/storyboard-patterns.md` before writing storyboard units. Follow
       name: "Inline partials",
       mermaid: "flowchart LR\n  A[_base.css] --> C[HTML]\n  B[_essay.js] --> C",
       code: {
-        file: "skills/mermaid-course/SKILL.md",
+        file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
         source: "1. Read the shell template\n2. Read the partials\n3. Inline the partials",
         highlights: [
@@ -346,32 +347,32 @@ Do not generate `story.html` when executing this skill for a target codebase. `s
 
 For each page in the file list (Phase 5):
 
-1. **Read the shell template**: `templates/template-essay.html` or `templates/template-index.html`.
+1. **Read the shell template**: `assets/template-essay.html` or `assets/template-index.html`.
 2. **Read the partials**:
-   - `templates/partials/_base.css` (always)
-   - `templates/partials/_essay.css` OR `_index.css` (per page kind)
-   - `templates/partials/_runtime.js` (always)
-   - `templates/partials/_essay.js` OR `_index.js` (per page kind)
+   - `assets/_base.css` (always)
+   - `assets/_essay.css` OR `_index.css` (per page kind)
+   - `assets/_runtime.js` (always)
+   - `assets/_essay.js` OR `_index.js` (per page kind)
 3. **Inline the partials** by replacing slot markers in the shell:
    - `{{COMMON_STYLES}}` ← contents of `_base.css`
    - `{{PAGE_STYLES}}` ← contents of `_essay.css` or `_index.css`
    - `{{COMMON_SCRIPTS}}` ← contents of `_runtime.js`
    - `{{PAGE_SCRIPTS}}` ← contents of `_essay.js` or `_index.js`
 4. **Fill page-specific slots** (see below).
-5. **Validate** by piping the page-data object as JSON to `node skills/mermaid-course/scripts/validate-units.js -`. Abort the build on failure.
+5. **Validate** by piping the page-data object as JSON to `node skills/codemermaid/scripts/validate-units.js -`. Abort the build on failure.
 6. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
 
-Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `partials/` for DRY authoring; the output is independent files.
+Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `assets/` for DRY authoring; the output is independent files.
 
 ## Maintainer story page
 
-This skill repository keeps a local component fixture at `tests/story.html`. It is for maintaining and testing the `mermaid-course` renderer itself, not for normal skill execution against a user's codebase.
+This skill repository keeps a local component fixture at `tests/story.html`. It is for maintaining and testing the `codemermaid` renderer itself, not for normal skill execution against a user's codebase.
 
 Maintainer-only sources:
 
 - `tests/fixtures/template-story.html` — shell for the maintainer story page.
 - `tests/fixtures/story-page-data.json` — stable fixture data covering major unit kinds and interaction states.
-- `templates/partials/_base.css`, `_essay.css`, `_runtime.js`, `_essay.js` — the same renderer partials used by real course pages.
+- `assets/_base.css`, `_essay.css`, `_runtime.js`, `_essay.js` — the same renderer partials used by real course pages.
 
 Use the story page when editing renderer UI, interaction behavior, or shared visual rules. It should expose stable `data-story-id` selectors for future e2e tests. Update `tests/fixtures/story-page-data.json` whenever adding a unit kind, interaction state, or reusable visual rule. Keep this fixture in the `supermario` repo; do not copy it into generated target-codebase output unless explicitly doing maintainer QA.
 
@@ -408,7 +409,7 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 
 1. **Real code only** — never invent, simplify, or modify code snippets.
 2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Self-contained output** — each emitted HTML inlines all CSS/JS. Partials live in the skill's `templates/partials/` for DRY authoring, not at runtime.
+3. **Self-contained output** — each emitted HTML inlines all CSS/JS. Partials live in the skill's `assets/` for DRY authoring, not at runtime.
 4. **Vanilla JS only** — no React, no build tools.
 5. **No Mermaid click directives** on essay pages. Anchor-diagram navigation comes from `_essay.js` reading `anchorNode` bindings on units.
 6. **Validate before writing** — `node scripts/validate-units.js` must pass for every page.
@@ -433,7 +434,7 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 ## File Organization
 
 ```
-skills/mermaid-course/
+skills/codemermaid/
   SKILL.md                            # This file (6-phase workflow)
   references/
     design-system.md                  # CSS/typography/shadow reference
@@ -441,16 +442,15 @@ skills/mermaid-course/
     subagent-generation.md            # Optional parallel generation protocol
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
-  templates/
+  assets/
     template-essay.html               # Shell for perspective and module pages
     template-index.html               # Shell for the entry page
-    partials/
-      _base.css                       # Shared tokens, typography, layout, hero
-      _essay.css                      # Anchor diagram, units, zoom overlay
-      _index.css                      # Card grid
-      _runtime.js                     # Mermaid init, markdown link parser, helpers
-      _essay.js                       # Scroll-link, stepped-walk, zoom controls
-      _index.js                       # Index runtime (currently minimal)
+    _base.css                         # Shared tokens, typography, layout, hero
+    _essay.css                        # Anchor diagram, units, zoom overlay
+    _index.css                        # Card grid
+    _runtime.js                       # Mermaid init, markdown link parser, helpers
+    _essay.js                         # Scroll-link, stepped-walk, zoom controls
+    _index.js                         # Index runtime (currently minimal)
   scripts/
     validate-units.js                 # Pedagogy enforcement
   tests/
@@ -463,5 +463,5 @@ skills/mermaid-course/
 
 ## Relationship to Other Skills
 
-- **presentation** — Slidev-based slides (slide deck). Use `mermaid-course` for interactive exploration, `presentation` for linear slide-based talks.
-- **Slidev skill** — Syntax reference for Slidev. `mermaid-course` does NOT use Slidev.
+- **presentation** — Slidev-based slides (slide deck). Use `codemermaid` for interactive exploration, `presentation` for linear slide-based talks.
+- **Slidev skill** — Syntax reference for Slidev. `codemermaid` does NOT use Slidev.

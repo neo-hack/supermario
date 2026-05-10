@@ -14,7 +14,7 @@
 
 The spec covers one existing skill and three files. It does not need decomposition.
 
-Important workspace constraint: the repo may already contain unrelated changes in `DESIGN.md`, `skills/mermaid-course/SKILL.md`, `mockup/`, and `skills/mermaid-course/references/DESIGN.md`. Do not edit, stage, commit, or revert those files.
+Important workspace constraint: the repo may already contain unrelated changes in `DESIGN.md`, `skills/codemermaid/SKILL.md`, `mockup/`, and `skills/codemermaid/references/DESIGN.md`. Do not edit, stage, commit, or revert those files.
 
 ## File Structure
 
@@ -489,7 +489,7 @@ git diff --cached --name-only
 git status --short
 ```
 
-Expected before final commit: staged files, if any, are only under `skills/write-docs/`. Existing unrelated paths such as `DESIGN.md`, `skills/mermaid-course/SKILL.md`, `mockup/`, and `skills/mermaid-course/references/DESIGN.md` must not be staged by this plan.
+Expected before final commit: staged files, if any, are only under `skills/write-docs/`. Existing unrelated paths such as `DESIGN.md`, `skills/codemermaid/SKILL.md`, `mockup/`, and `skills/codemermaid/references/DESIGN.md` must not be staged by this plan.
 
 - [ ] **Step 5: Run pressure scenario manually or with a subagent**
 

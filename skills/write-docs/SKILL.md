@@ -107,17 +107,29 @@ If multiple documents are requested, handle them in this order unless the user g
 
 ### Phase 2: Audit Existing Docs
 
-Before writing, search for existing documentation:
+Before writing, search for existing documentation.
+
+**Git projects** — use `git ls-files` to respect `.gitignore`:
 
 ```bash
-rg --files -g 'README*' -g 'ARCHITECTURE*' -g 'CONTRIBUTING*' -g 'TUTORIAL*' -g 'docs/**'
+git ls-files 'README*' 'ARCHITECTURE*' 'CONTRIBUTING*' 'TUTORIAL*' 'docs/**'
 ```
+
+**Non-git projects** — use `rg --files` with common exclusion globs:
+
+```bash
+rg --files -g 'README*' -g 'ARCHITECTURE*' -g 'CONTRIBUTING*' -g 'TUTORIAL*' -g 'docs/**' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
+```
+
+If a `.gitignore` exists, read it and add its top-level directory patterns as `-g '!<pattern>'` globs to the `rg` command.
 
 Read any existing target document. Preserve accurate project-specific content. Remove or rewrite content that conflicts with current repository facts.
 
 ### Phase 3: Scan Repository Facts
 
-Use `rg` and direct file reads before drafting. Look for:
+Use file listing and direct file reads before drafting. Do not traverse `node_modules`, `vendor`, `.git`, `dist`, `build`, `coverage`, or any path listed in `.gitignore`.
+
+Look for:
 
 - Top-level directory structure.
 - Existing docs and docs navigation.
@@ -129,10 +141,20 @@ Use `rg` and direct file reads before drafting. Look for:
 
 Useful searches:
 
+**Git projects:**
+
 ```bash
-rg --files -g 'package.json' -g 'pnpm-lock.yaml' -g 'package-lock.json' -g 'yarn.lock' -g 'pyproject.toml' -g 'Cargo.toml' -g 'go.mod' -g 'Makefile' -g '.env.example' -g 'LICENSE*'
+git ls-files 'package.json' 'pnpm-lock.yaml' 'package-lock.json' 'yarn.lock' 'pyproject.toml' 'Cargo.toml' 'go.mod' 'Makefile' '.env.example' 'LICENSE*'
+git ls-files | rg 'scripts|dev|test|lint|build|start|serve|deploy'
+git ls-files | rg 'options|config|schema|default|env'
+```
+
+**Non-git projects:**
+
+```bash
+rg --files -g 'package.json' -g 'pnpm-lock.yaml' -g 'package-lock.json' -g 'yarn.lock' -g 'pyproject.toml' -g 'Cargo.toml' -g 'go.mod' -g 'Makefile' -g '.env.example' -g 'LICENSE*' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 rg -n "scripts|dev|test|lint|build|start|serve|deploy" package.json Makefile pyproject.toml Cargo.toml go.mod 2>/dev/null
-rg -n "options|config|schema|default|env" .
+rg -n "options|config|schema|default|env" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 ```
 
 Do not invent commands, defaults, paths, badges, options, types, examples, or capabilities. If repository facts are unavailable, say what cannot be verified instead of filling the gap from convention.
@@ -164,8 +186,6 @@ Before finishing, check:
 - Sections serve reader tasks instead of a fixed template.
 - Generic filler, passive phrasing, and repeated setup prose are removed.
 - Every options table uses `Option | Type | Default | Example | Description`.
-- README includes at least one verified plain Markdown Shields.io badge, or drafting stopped because no badge source could be verified.
-- README does not contain a `## Architecture` section.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
@@ -194,3 +214,4 @@ If no file changed, say what blocked the edit and what facts were missing.
 | Badge looks nice but has no source | Remove it or replace it with a verified fact badge. |
 | README signature is not a cat signature | Use only the README cat signature rule. |
 | Docs links have casual casing | Match real filenames exactly. |
+

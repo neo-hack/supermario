@@ -68,7 +68,7 @@ Use annotations only when the code explains something the diagram cannot. The di
 
 ```javascript
 code: {
-  file: "skills/mermaid-course/scripts/validate-units.js",
+  file: "skills/codemermaid/scripts/validate-units.js",
   lang: "js",
   source: "if (!result.ok) {\n  console.error('Validation failed:');\n  process.exit(1);\n}",
   highlights: [

@@ -66,7 +66,7 @@ After workers return, reject any handoff that lacks source evidence, validation,
 ## Module Worker Prompt
 
 ```markdown
-You are generating one assigned mermaid-course module page.
+You are generating one assigned codemermaid module page.
 
 Scope:
 - Module: <module name>
@@ -87,7 +87,7 @@ Return the output contract below.
 ## Perspective Worker Prompt
 
 ```markdown
-You are drafting one assigned mermaid-course perspective.
+You are drafting one assigned codemermaid perspective.
 
 Scope:
 - Perspective: <name>
@@ -104,7 +104,7 @@ Rules:
 ## Scan Worker Prompt
 
 ```markdown
-You are scanning assigned codebase paths for mermaid-course.
+You are scanning assigned codebase paths for codemermaid.
 
 Scope:
 - Paths: <paths>
@@ -146,7 +146,7 @@ Every worker returns:
 
 ## Validation
 
-- Command: `node skills/mermaid-course/scripts/validate-units.js <path-or-stdin>`
+- Command: `node skills/codemermaid/scripts/validate-units.js <path-or-stdin>`
 - Result: PASS | FAIL | NOT_RUN
 - Notes: <exact errors if failed>
 

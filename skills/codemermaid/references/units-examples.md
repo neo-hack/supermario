@@ -2,7 +2,7 @@
 
 These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples; each is a complete JS object literal that would pass through `renderUnit()` unmodified. Voice rules live separately in `voice-examples.md`.
 
-> Source: examples drawn from the reference implementation at `docs/codebase-demo-mermaid-essay.html` and from the spec voice pairs (`docs/superpowers/specs/2026-05-03-mermaid-course-essay-design.md`). Don't invent codebases — only use repos you've actually scanned.
+> Source: examples drawn from the reference implementation at `docs/codebase-demo-mermaid-essay.html` and from the spec voice pairs (`docs/superpowers/specs/2026-05-03-codemermaid-essay-design.md`). Don't invent codebases — only use repos you've actually scanned.
 
 ---
 
@@ -397,7 +397,7 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
   D["_runtime.js"] --> C
   E["_essay.js"] --> C`,
       code: {
-        file: "skills/mermaid-course/SKILL.md",
+        file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
         source: "1. Read template-essay.html\n2. Read _base.css and _essay.css\n3. Read _runtime.js and _essay.js\n4. Replace template slots",
         highlights: [
@@ -416,7 +416,7 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
   B -->|ok| C["write HTML"]
   B -->|errors| D["stop"]`,
       code: {
-        file: "skills/mermaid-course/scripts/validate-units.js",
+        file: "skills/codemermaid/scripts/validate-units.js",
         lang: "js",
         source: "if (!result.ok) {\n  console.error('Validation failed:');\n  for (const e of result.errors) console.error(`  - ${e}`);\n  process.exit(1);\n}\nconsole.log('OK');",
         highlights: [

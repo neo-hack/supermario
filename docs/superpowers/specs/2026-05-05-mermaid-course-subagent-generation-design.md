@@ -1,13 +1,13 @@
 # Mermaid Course — Subagent Generation Design
 
 **Date:** 2026-05-05
-**Skill:** `skills/mermaid-course/`
+**Skill:** `skills/codemermaid/`
 **Status:** Approved for planning
-**Supersedes:** Nothing. This extends the existing 6-phase `mermaid-course` workflow with an optional parallel generation path.
+**Supersedes:** Nothing. This extends the existing 6-phase `codemermaid` workflow with an optional parallel generation path.
 
 ## Problem
 
-`mermaid-course` now produces richer pages: scrollable essays, typed pedagogical units, Mermaid diagrams, storyboards, validators, and self-contained HTML. The quality bar is higher, but the generation workflow is still written as a single-agent serial process:
+`codemermaid` now produces richer pages: scrollable essays, typed pedagogical units, Mermaid diagrams, storyboards, validators, and self-contained HTML. The quality bar is higher, but the generation workflow is still written as a single-agent serial process:
 
 1. Scan the whole repo.
 2. Analyze architecture.
@@ -20,7 +20,7 @@ That serial shape is reliable but slow on larger repos. The expensive parts are 
 
 ## Goal
 
-Add an optional **Parallel Generation Mode** to `mermaid-course`:
+Add an optional **Parallel Generation Mode** to `codemermaid`:
 
 - Keep the existing 6-phase workflow as the canonical path.
 - If subagents are available and the repo is large enough to benefit, use subagents to accelerate independent work.
@@ -39,8 +39,8 @@ Add an optional **Parallel Generation Mode** to `mermaid-course`:
 
 Use a two-file documentation change:
 
-1. Add a short `Parallel Generation Mode` section near the top of `skills/mermaid-course/SKILL.md`.
-2. Add `skills/mermaid-course/references/subagent-generation.md` for detailed worker roles, prompt templates, output contracts, merge rules, and failure handling.
+1. Add a short `Parallel Generation Mode` section near the top of `skills/codemermaid/SKILL.md`.
+2. Add `skills/codemermaid/references/subagent-generation.md` for detailed worker roles, prompt templates, output contracts, merge rules, and failure handling.
 
 This keeps `SKILL.md` discoverable without making the main workflow bloated. Agents that do not have subagents can ignore the reference and run the normal serial workflow.
 
@@ -148,7 +148,7 @@ Every worker returns a structured handoff:
 
 ## Validation
 
-- Command: `node skills/mermaid-course/scripts/validate-units.js <path-or-stdin>`
+- Command: `node skills/codemermaid/scripts/validate-units.js <path-or-stdin>`
 - Result: PASS | FAIL | NOT_RUN
 - Notes: <exact errors if failed>
 
@@ -225,7 +225,7 @@ Add `references/subagent-generation.md` to the file organization list.
 
 ## Reference Document Shape
 
-Create `skills/mermaid-course/references/subagent-generation.md` with:
+Create `skills/codemermaid/references/subagent-generation.md` with:
 
 - When to use subagents.
 - Coordinator checklist.
@@ -242,9 +242,9 @@ Create `skills/mermaid-course/references/subagent-generation.md` with:
 
 This is a documentation/process change, so verification is textual plus existing validator safety:
 
-- `rg "Parallel Generation Mode|subagent-generation" skills/mermaid-course/SKILL.md`
-- `rg "module-<name>.html|Output Contract|Coordinator" skills/mermaid-course/references/subagent-generation.md`
-- `node --test skills/mermaid-course/scripts/validate-units.test.js`
+- `rg "Parallel Generation Mode|subagent-generation" skills/codemermaid/SKILL.md`
+- `rg "module-<name>.html|Output Contract|Coordinator" skills/codemermaid/references/subagent-generation.md`
+- `node --test skills/codemermaid/scripts/validate-units.test.js`
 
 Optional review:
 

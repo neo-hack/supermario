@@ -1,13 +1,13 @@
 # Mermaid Course — Scrollable Essay Redesign (C′)
 
 **Date:** 2026-05-03
-**Skill:** `skills/mermaid-course/`
+**Skill:** `skills/codemermaid/`
 **Status:** Approved
-**Supersedes (partially):** `2026-05-02-mermaid-course-multi-perspective-design.md` — keeps the multi-page output structure, replaces the per-page click-explore template with a scrollable essay template.
+**Supersedes (partially):** `2026-05-02-codemermaid-multi-perspective-design.md` — keeps the multi-page output structure, replaces the per-page click-explore template with a scrollable essay template.
 
 ## Problem
 
-The current `mermaid-course` skill produces multi-page interactive HTML: index page, perspective pages with click-to-explore Mermaid graphs, per-module deep dives. Output renders cleanly and the Raycast theme is sharp, but reading a generated course feels like documentation, not a course:
+The current `codemermaid` skill produces multi-page interactive HTML: index page, perspective pages with click-to-explore Mermaid graphs, per-module deep dives. Output renders cleanly and the Raycast theme is sharp, but reading a generated course feels like documentation, not a course:
 
 - Diagrams describe; code panels carry neutral "what this does" prose.
 - No pedagogical voice, no pacing, no setup→payoff, no surprise-spotting.
@@ -160,13 +160,13 @@ Both prompt-level (taught in `SKILL.md` Phase 3) **and** generator-side validato
 
 | Path | Change |
 |------|--------|
-| `skills/mermaid-course/templates/template-essay.html` | **NEW** — vanilla JS, scrollable layout, renders all unit kinds, scroll-linked anchor diagram, zoomable diagram units |
-| `skills/mermaid-course/templates/template-course.html` | **DELETE** |
-| `skills/mermaid-course/templates/template-index.html` | **EDIT** — `steps` → `unitCount` |
-| `skills/mermaid-course/SKILL.md` | **EDIT** — Phases 3, 4, 6 rewritten |
-| `skills/mermaid-course/references/units-examples.md` | **NEW** — 2–3 examples per unit kind |
-| `skills/mermaid-course/references/voice-examples.md` | **NEW** — flat-vs-pointed prose pairs from this spec |
-| `skills/mermaid-course/scripts/validate-units.{js,ts}` | **NEW** — runs the pedagogy-enforcement rules; fails the build on violation |
+| `skills/codemermaid/templates/template-essay.html` | **NEW** — vanilla JS, scrollable layout, renders all unit kinds, scroll-linked anchor diagram, zoomable diagram units |
+| `skills/codemermaid/templates/template-course.html` | **DELETE** |
+| `skills/codemermaid/templates/template-index.html` | **EDIT** — `steps` → `unitCount` |
+| `skills/codemermaid/SKILL.md` | **EDIT** — Phases 3, 4, 6 rewritten |
+| `skills/codemermaid/references/units-examples.md` | **NEW** — 2–3 examples per unit kind |
+| `skills/codemermaid/references/voice-examples.md` | **NEW** — flat-vs-pointed prose pairs from this spec |
+| `skills/codemermaid/scripts/validate-units.{js,ts}` | **NEW** — runs the pedagogy-enforcement rules; fails the build on violation |
 
 Reference implementation already exists at `docs/codebase-demo-mermaid-essay.html` — uses every unit kind, both Mermaid roles, all three `code-walk` layouts, and the zoom overlay. The template is a productized fork of this demo.
 
