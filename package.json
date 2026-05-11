@@ -1,0 +1,14 @@
+{
+  "name": "supermario",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent skills for documentation, code annotation, visual mockups, and development workflows.",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "changeset": "changeset",
+    "changeset:status": "changeset status"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7"
+  }
+}

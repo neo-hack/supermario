@@ -8,6 +8,7 @@ A collection of agent skills for documentation, code annotation, visual mockups,
 
 | Skill | Description |
 | --- | --- |
+| [changeset](skills/changeset/SKILL.md) | Create Changesets release note files from verified package metadata, semver impact, and actual diffs. |
 | [codemermaid](skills/codemermaid/SKILL.md) | Generate interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, and module dependency tutorials. |
 | [create-mr](skills/create-mr/SKILL.md) | Create a GitHub pull request from the current branch, respecting project PR templates. |
 | [docs-code](skills/docs-code/SKILL.md) | Analyze code and add explanatory annotations, file headers, doc comments, and inline comments. |
