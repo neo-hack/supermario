@@ -4,18 +4,15 @@
 
 const VALID_KINDS = new Set([
   'concept',
-  'code-walk',
   'guess-first',
   'compare',
   'surprise',
   'takeaway',
   'diagram',
   'storyboard',
+  'code-walk',
 ]);
-const MAX_UNITS = 10;
-const MAX_STEPPED_PER_MODULE = 1;
-const MAX_STORYBOARDS_PER_PAGE = 3;
-const TEXT_UNIT_KINDS = new Set(['concept', 'code-walk', 'guess-first', 'compare', 'surprise', 'takeaway', 'diagram']);
+const TEXT_UNIT_KINDS = new Set(['concept', 'guess-first', 'compare', 'surprise', 'takeaway', 'diagram', 'code-walk']);
 
 function isPositiveIntegerArray(value) {
   return Array.isArray(value) && value.length > 0 && value.every((n) => Number.isInteger(n) && n > 0);
@@ -85,16 +82,12 @@ function validateStoryboardPlacement(units, kindLabel, name) {
     .map((unit, index) => unit.kind === 'storyboard' ? index : -1)
     .filter((index) => index !== -1);
 
-  if (storyboardIndexes.length > MAX_STORYBOARDS_PER_PAGE) {
-    errors.push(`${kindLabel} '${name}' has too many storyboard units (${storyboardIndexes.length} > ${MAX_STORYBOARDS_PER_PAGE})`);
-  }
-
   for (let i = 1; i < storyboardIndexes.length; i++) {
     const previous = storyboardIndexes[i - 1];
     const current = storyboardIndexes[i];
     const between = units.slice(previous + 1, current);
     if (!between.some((unit) => TEXT_UNIT_KINDS.has(unit.kind))) {
-      errors.push(`${kindLabel} '${name}' must include a text unit between storyboard units`);
+      errors.push(`${kindLabel} '${name}' should include a text unit between consecutive storyboard units for pacing`);
     }
   }
 
@@ -111,9 +104,6 @@ function commonChecks(page, kindLabel) {
   if (units.length === 0) {
     errors.push(`${kindLabel} '${name}' has no units`);
   }
-  if (units.length > MAX_UNITS) {
-    errors.push(`${kindLabel} '${name}' exceeds unit budget (${units.length} > ${MAX_UNITS})`);
-  }
   for (const u of units) {
     if (!VALID_KINDS.has(u.kind)) {
       errors.push(`unknown unit kind '${u.kind}'`);
@@ -125,10 +115,6 @@ function commonChecks(page, kindLabel) {
     }
   });
   errors.push(...validateStoryboardPlacement(units, kindLabel, name));
-  const stepped = units.filter((u) => u.kind === 'code-walk' && u.layout === 'stepped').length;
-  if (stepped > MAX_STEPPED_PER_MODULE) {
-    errors.push(`too many stepped code-walks (${stepped}); max is ${MAX_STEPPED_PER_MODULE} per page`);
-  }
   return errors;
 }
 

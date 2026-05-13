@@ -2,7 +2,7 @@
   "module": "component-stories",
   "learningPromise": "A self-contained component catalog for the Mermaid course renderer.",
   "prereqs": ["Renderer fixture", "Stable selectors", "Zero build"],
-  "diagram": "graph LR\n  C[Concept] --> S[Stacked code]\n  S --> P[Split code]\n  P --> T[Stepped code]\n  T --> B[Storyboard]\n  B --> Z[Zoomable diagram]",
+  "diagram": "graph LR\n  C[Concept] --> D1[Diagram 1]\n  D1 --> S1[Storyboard 1]\n  S1 --> S2[Storyboard 2]\n  S2 --> D2[Diagram 2]\n  D2 --> Z[Zoomable diagram]",
   "units": [
     {
       "kind": "concept",
@@ -11,38 +11,53 @@
       "body": "Concept units are quiet prose blocks for setting context before a visual or code-heavy interaction. This fixture keeps the paragraph long enough to exercise typography, line height, and width without turning into a real lesson."
     },
     {
-      "kind": "code-walk",
-      "storyId": "codewalk-stacked",
-      "title": "Stacked Code Walk",
-      "file": "stories/example.ts",
-      "layout": "stacked",
-      "code": "export function createStory(id) {\n  const status = registry.get(id)\n  if (!status) return 'missing'\n  return status.active ? 'active' : 'idle'\n}",
-      "highlightLines": [2, 4],
-      "explanation": "A stacked code-walk keeps the code and explanation in the normal page flow. Use it when one compact explanation is enough and there is no need for synchronized scrolling."
+      "kind": "diagram",
+      "storyId": "diagram-intro",
+      "title": "Request Flow",
+      "mermaid": "flowchart LR\n  A[Client] --> B[Server]\n  B --> C[Client]",
+      "caption": "A simple request-response cycle."
     },
     {
-      "kind": "code-walk",
-      "storyId": "codewalk-split-active",
-      "title": "Split Code Walk",
-      "file": "stories/commands.ts",
-      "layout": "split",
-      "code": "const commands = profiles\n  .filter((profile) => profile.name !== active)\n  .map((profile, index) => ({\n    id: `activate-${profile.name}`,\n    label: `Activate ${profile.name}`,\n    shortcut: index < 3 ? `⌘${index + 1}` : undefined,\n    category: 'Profile',\n    action: () => activate(profile.name),\n  }))\n\nconst navigation = [\n  { id: 'timeline', label: 'Timeline', shortcut: 'g t' },\n  { id: 'settings', label: 'Settings', shortcut: 'g s' }\n]",
-      "highlightLines": [1, 2, 6, 11, 12, 13],
-      "explanation": "Split code-walks put the code on the left and scrollable explanation cards on the right. Lines 1-2: live profile data determines which commands exist. Line 6: only the first three commands receive keyboard shortcuts. Lines 11-13: navigation commands live beside generated commands, so the palette can show one merged list."
-    },
-    {
-      "kind": "code-walk",
-      "storyId": "codewalk-stepped",
-      "title": "Stepped Code Walk",
-      "file": "stories/render-unit.ts",
-      "layout": "stepped",
-      "code": "function renderUnit(unit) {\n  switch (unit.kind) {\n    case 'concept':\n      return renderConcept(unit)\n    case 'code-walk':\n      return renderCodeWalk(unit)\n    case 'storyboard':\n      return renderStoryboard(unit)\n  }\n}",
-      "steps": [
-        { "highlightLines": [1, 2], "beat": "Start with the dispatcher. It owns the decision about which renderer handles the unit." },
-        { "highlightLines": [3, 4], "beat": "Concepts become prose-first sections with no interactive state." },
-        { "highlightLines": [5, 6], "beat": "Code-walks are where line highlighting and scroll sync start to matter." },
-        { "highlightLines": [7, 8], "beat": "Storyboards hand off to the Cinema Strip player." }
+      "kind": "storyboard",
+      "storyId": "storyboard-commands",
+      "title": "Command Palette Storyboard",
+      "caption": "A multi-scene storyboard showing how the command palette is built and used.",
+      "scenes": [
+        {
+          "name": "Filter",
+          "mermaid": "flowchart LR\n  A[Profiles] --> B[Filter active]\n  B --> C[Commands]",
+          "explanation": "Live profile data determines which commands exist.",
+          "code": {
+            "file": "stories/commands.ts",
+            "language": "ts",
+            "source": "const commands = profiles\n  .filter((profile) => profile.name !== active)\n  .map((profile, index) => ({\n    id: `activate-${profile.name}`,\n    label: `Activate ${profile.name}`,\n    shortcut: index < 3 ? `⌘${index + 1}` : undefined,\n    category: 'Profile',\n    action: () => activate(profile.name),\n  }))",
+            "highlights": [
+              { "line": 2, "note": "Filter out the currently active profile." },
+              { "line": 5, "note": "Only the first three commands get keyboard shortcuts." }
+            ]
+          }
+        },
+        {
+          "name": "Navigate",
+          "mermaid": "flowchart LR\n  D[Navigation] --> E[Merge]\n  C[Commands] --> E\n  E --> F[Palette]",
+          "explanation": "Navigation commands merge with generated commands for a unified palette.",
+          "code": {
+            "file": "stories/commands.ts",
+            "language": "ts",
+            "source": "const navigation = [\n  { id: 'timeline', label: 'Timeline', shortcut: 'g t' },\n  { id: 'settings', label: 'Settings', shortcut: 'g s' }\n]",
+            "highlights": [
+              { "line": 2, "note": "Static navigation entries with shortcuts." }
+            ]
+          }
+        }
       ]
+    },
+    {
+      "kind": "diagram",
+      "storyId": "diagram-dispatcher",
+      "title": "Dispatcher Flow",
+      "mermaid": "flowchart LR\n  A[Unit] --> B{kind?}\n  B --> C[concept]\n  B --> D[storyboard]\n  B --> E[diagram]\n  C --> F[Prose]\n  D --> G[Cinema Strip]\n  E --> H[Figure]",
+      "caption": "The dispatcher routes each unit kind to its specialized renderer."
     },
     {
       "kind": "guess-first",
@@ -66,7 +81,7 @@
         "label": "after",
         "code": "const safe = escapeHtml(text)\nsetHtml(safe)"
       },
-      "lesson": "Compare units make a contrast visible. The code blocks share the same numbered renderer as code-walks, so line treatment stays consistent."
+      "lesson": "Compare units make a contrast visible. The code blocks share the same numbered renderer as storyboards, so line treatment stays consistent."
     },
     {
       "kind": "diagram",
@@ -76,42 +91,11 @@
       "caption": "A diagram story exercises Mermaid rendering, active-node contrast, and the zoom overlay controls."
     },
     {
-      "kind": "storyboard",
-      "storyId": "unit-storyboard",
-      "title": "Storyboard Unit",
-      "caption": "Cinema Strip with scene tabs, Mermaid focus, explanation text, and optional code notes.",
-      "scenes": [
-        {
-          "name": "Collect",
-          "mermaid": "flowchart LR\n  A[Fixture data] --> B[PAGE object]\n  B --> C[Unit list]",
-          "focus": ["B"],
-          "explanation": "The story page starts with fixed fixture data so every run exercises the same states.",
-          "code": {
-            "file": "stories/story-data.json",
-            "language": "json",
-            "source": "\"units\": [\n  { \"kind\": \"concept\" },\n  { \"kind\": \"code-walk\" }\n]",
-            "highlights": [
-              { "lines": [1, 2], "note": "The fixture names each unit kind explicitly." },
-              { "line": 3, "note": "Code-walks cover the interactive renderer path." }
-            ]
-          }
-        },
-        {
-          "name": "Render",
-          "mermaid": "flowchart LR\n  A[Unit list] --> B[renderUnit]\n  B --> C[DOM stories]\n  C --> D[data-story-id]",
-          "focus": ["C", "D"],
-          "explanation": "The renderer emits stable story ids that e2e tests can locate without depending on text.",
-          "code": {
-            "file": "assets/_essay.js",
-            "language": "js",
-            "source": "const storyAttr = unit.storyId\n  ? ` data-story-id=\"${unit.storyId}\"`\n  : ''\nreturn `<section${storyAttr}>...</section>`",
-            "highlights": [
-              { "lines": [1, 2], "note": "Story ids are optional but stable when provided." },
-              { "line": 4, "note": "The section becomes the e2e anchor." }
-            ]
-          }
-        }
-      ]
+      "kind": "diagram",
+      "storyId": "diagram-renderer",
+      "title": "Renderer Pipeline",
+      "mermaid": "flowchart LR\n  A[Fixture data] --> B[PAGE object]\n  B --> C[Unit list]\n  C --> D[renderUnit]\n  D --> E[DOM stories]\n  E --> F[data-story-id]",
+      "caption": "The renderer pipeline from fixture data to stable DOM selectors."
     },
     {
       "kind": "surprise",

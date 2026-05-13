@@ -1,11 +1,10 @@
 /* _essay.js — essay page runtime.
-   renderUnit dispatcher, bootEssay, anchor-diagram scroll-link, stepped-walk highlight migration,
+   renderUnit dispatcher, bootEssay, anchor-diagram scroll-link, storyboard player,
    zoomable diagram overlay. Depends on helpers from _runtime.js. */
 
 function renderUnit(unit) {
   switch (unit.kind) {
     case 'concept':     return renderConcept(unit);
-    case 'code-walk':   return renderCodeWalk(unit);
     case 'guess-first': return renderGuessFirst(unit);
     case 'compare':     return renderCompare(unit);
     case 'surprise':    return renderSurprise(unit);
@@ -43,98 +42,6 @@ function escapeBodyParagraphs(text) {
     .join('')
     // Restore [label](href) tokens that escapeHtml has not damaged (brackets/parens are not escaped).
     ;
-}
-
-function renderSplitExplanationCards(text) {
-  const blocks = String(text || '')
-    .trim()
-    .split(/\n{2,}/)
-    .flatMap((block) => {
-      const trimmed = block.trim();
-      if (!trimmed) return [];
-      const lineParts = trimmed
-        .split(/(?=\bLines? \d+(?:[-–]\d+)?(?:, \d+(?:[-–]\d+)?)*:)/g)
-        .map((part) => part.trim())
-        .filter(Boolean);
-      return lineParts.length > 1 ? lineParts : [trimmed];
-    });
-
-  if (blocks.length === 0) return '';
-  return blocks.map((block, index) => `
-    <article class="split-note-card${index === 0 ? ' active' : ''}" data-note-index="${index + 1}" data-lines="${escapeHtml(extractLineRefs(block).join(','))}">
-      <span class="step-num">${String(index + 1).padStart(2, '0')}</span>
-      ${renderMarkdownLinks(`<p>${escapeHtml(block)}</p>`)}
-      ${extractLineRefs(block).length ? `<span class="lines">L${escapeHtml(formatLineRefs(block))}</span>` : ''}
-    </article>
-  `).join('');
-}
-
-function extractLineRefs(text) {
-  const refs = [];
-  const match = String(text || '').match(/\bLines? ([0-9,\s\-–]+)/);
-  if (!match) return refs;
-  match[1].split(',').forEach((part) => {
-    const range = part.trim().match(/^(\d+)(?:[-–](\d+))?$/);
-    if (!range) return;
-    const start = Number(range[1]);
-    const end = Number(range[2] || range[1]);
-    for (let n = start; n <= end; n += 1) refs.push(n);
-  });
-  return refs;
-}
-
-function formatLineRefs(text) {
-  const match = String(text || '').match(/\bLines? ([0-9,\s\-–]+)/);
-  return match ? match[1].trim() : '';
-}
-
-function renderCodeWalk(u) {
-  const layout = u.layout || 'stacked';
-  const headLabel = u.file ? escapeHtml(u.file) : '';
-  const titleHtml = u.title ? `<h2>${escapeHtml(u.title)}</h2>` : '';
-
-  if (layout === 'stepped') {
-    const steps = (u.steps || []);
-    const allLines = steps[0] ? steps[0].highlightLines : [];
-    return `
-      <span class="unit-kind">code-walk · stepped</span>${titleHtml}
-      <div class="layout-stepped wide" data-stepped>
-        <div class="codewalk">
-          <div class="codewalk-head"><span>${headLabel}</span><span>stepped</span></div>
-          ${renderCode(u.code || '', allLines)}
-        </div>
-        <div class="steps">
-          ${steps.map((s, i) => `
-            <div class="step${i === 0 ? ' active' : ''}" data-lines="${(s.highlightLines || []).join(',')}">
-              <span class="step-num">${String(i + 1).padStart(2, '0')}</span>
-              ${renderMarkdownLinks(escapeHtml(s.beat || ''))}
-              <span class="lines">L${(s.highlightLines || []).join(', ')}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
-  }
-
-  if (layout === 'split') {
-    return `
-      <span class="unit-kind">code-walk · split</span>${titleHtml}
-      <div class="layout-split wide" data-split-walk data-default-lines="${escapeHtml((u.highlightLines || []).join(','))}">
-        <div class="codewalk">
-          <div class="codewalk-head"><span>${headLabel}</span><span>split</span></div>
-          ${renderCode(u.code || '', u.highlightLines || [])}
-        </div>
-        <div class="side split-notes">${renderSplitExplanationCards(u.explanation || '')}</div>
-      </div>`;
-  }
-
-  // stacked
-  return `
-    <span class="unit-kind">code-walk</span>${titleHtml}
-    <div class="codewalk">
-      <div class="codewalk-head"><span>${headLabel}</span><span>stacked</span></div>
-      ${renderCode(u.code || '', u.highlightLines || [])}
-    </div>
-    <div class="explain">${renderMarkdownLinks(escapeBodyParagraphs(u.explanation || ''))}</div>`;
 }
 
 function renderGuessFirst(u) {
@@ -314,8 +221,6 @@ async function bootEssay(page) {
   }
 
   await renderMermaid('.unit-diagram .mermaid, .figure .mermaid');
-  initSteppedWalks();
-  initSplitWalks();
   await initStoryboards();
   initZoomOverlay();
   startScrollLoop();
@@ -360,116 +265,6 @@ function pickActiveUnit() {
     const key = best.dataset.anchor;
     _anchorState.nodeIndex.forEach((g, k) => g.classList.toggle('active', k === key));
   }
-}
-
-/* ------- Split code-walk note sync ------- */
-function initSplitWalks() {
-  document.querySelectorAll('[data-split-walk]').forEach((root) => {
-    const codeEl = root.querySelector('.code-block');
-    const notes = Array.from(root.querySelectorAll('.split-note-card'));
-    if (!codeEl || notes.length === 0) return;
-
-    const lineEls = new Map();
-    codeEl.querySelectorAll('.line').forEach((el) => {
-      lineEls.set(el.dataset.line, el);
-    });
-
-    function highlight(linesAttr) {
-      const raw = String(linesAttr || '').trim() || root.dataset.defaultLines || '';
-      const wanted = new Set(raw.split(',').map((s) => s.trim()).filter(Boolean));
-      lineEls.forEach((el, k) => {
-        const hasCode = (el.querySelector('.code-text')?.textContent || '').trim() !== '';
-        el.classList.toggle('line-hl', wanted.has(k) && hasCode);
-      });
-    }
-
-    function activate(note) {
-      if (!note) return;
-      notes.forEach((entry) => entry.classList.toggle('active', entry === note));
-      highlight(note.dataset.lines);
-    }
-
-    notes.forEach((note) => {
-      note.addEventListener('click', () => {
-        note.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        activate(note);
-      });
-    });
-
-    activate(notes[0]);
-
-    let activeNote = null;
-    root._pickActiveSplitNote = function pickActiveSplitNote() {
-      const viewport = root.querySelector('.split-notes') || root;
-      const vr = viewport.getBoundingClientRect();
-      const center = (Math.max(vr.top, 0) + Math.min(vr.bottom, window.innerHeight)) / 2;
-      let best = null, bestDist = Infinity;
-      for (const note of notes) {
-        const r = note.getBoundingClientRect();
-        if (r.bottom < vr.top || r.top > vr.bottom) continue;
-        const mid = (r.top + r.bottom) / 2;
-        const d = Math.abs(mid - center);
-        if (d < bestDist) { bestDist = d; best = note; }
-      }
-      if (best && best !== activeNote) {
-        activeNote = best;
-        activate(best);
-      }
-    };
-
-    const scroller = root.querySelector('.split-notes');
-    if (scroller) scroller.addEventListener('scroll', () => root._pickActiveSplitNote(), { passive: true });
-  });
-}
-
-/* ------- Stepped code-walk highlight migration ------- */
-function initSteppedWalks() {
-  document.querySelectorAll('[data-stepped]').forEach((root) => {
-    const codeEl = root.querySelector('.code-block');
-    if (!codeEl) return;
-    const lineEls = new Map();
-    codeEl.querySelectorAll('.line').forEach((el) => {
-      lineEls.set(el.dataset.line, el);
-    });
-    const steps = Array.from(root.querySelectorAll('.step'));
-
-    function highlight(linesAttr) {
-      const wanted = new Set(String(linesAttr || '').split(',').map((s) => s.trim()).filter(Boolean));
-      lineEls.forEach((el, k) => el.classList.toggle('line-hl', wanted.has(k)));
-    }
-
-    function activateStep(s) {
-      if (!s) return;
-      steps.forEach((x) => x.classList.toggle('active', x === s));
-      highlight(s.dataset.lines);
-    }
-
-    steps.forEach((s) => {
-      s.addEventListener('click', () => {
-        s.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        activateStep(s);
-      });
-    });
-
-    activateStep(steps[0]);
-
-    let activeStep = null;
-    root._pickActiveStep = function pickActiveStep() {
-      const center = window.innerHeight / 2;
-      let best = null, bestDist = Infinity;
-      for (const s of steps) {
-        const r = s.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > window.innerHeight) continue;
-        const mid = (r.top + r.bottom) / 2;
-        const d = Math.abs(mid - center);
-        if (d < bestDist) { bestDist = d; best = s; }
-      }
-      if (best && best !== activeStep) {
-        activeStep = best;
-        activateStep(best);
-      }
-    };
-  });
 }
 
 /* ------- Storyboard scene player ------- */
@@ -664,8 +459,6 @@ function startScrollLoop() {
     ticking = true;
     requestAnimationFrame(() => {
       pickActiveUnit();
-      document.querySelectorAll('[data-stepped]').forEach((r) => r._pickActiveStep && r._pickActiveStep());
-      document.querySelectorAll('[data-split-walk]').forEach((r) => r._pickActiveSplitNote && r._pickActiveSplitNote());
       ticking = false;
     });
   }

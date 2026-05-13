@@ -373,6 +373,13 @@ Architecture / sequence / state figure. Inline in `units[]`. Renders with a Zoom
 
 Multi-scene Mermaid player with optional paired code. Use when a static diagram would hide the sequence of moves.
 
+Use storyboard for:
+- **Multi-step sequences**: state transitions, request lifecycles, build pipelines
+- **Cross-file interactions**: showing how components, hooks, or modules call each other
+- **Single-file drilling**: examining different aspects of one file across multiple scenes (Props → State → Handlers)
+
+### Example 1 — Single-file: Phase 6 assembly
+
 ```javascript
 {
   kind: "storyboard",
@@ -392,17 +399,14 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
       name: "Inline partials",
       mermaid:
 `flowchart LR
-  A["_base.css"] --> C["self-contained HTML"]
-  B["_essay.css"] --> C
-  D["_runtime.js"] --> C
-  E["_essay.js"] --> C`,
+  A["template-essay.html"] --> C["output HTML"]
+  B["_runtime.js"] --> C`,
       code: {
         file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
-        source: "1. Read template-essay.html\n2. Read _base.css and _essay.css\n3. Read _runtime.js and _essay.js\n4. Replace template slots",
+        source: "1. Read template-essay.html\n2. Read _runtime.js and _essay.js\n3. Replace template slots",
         highlights: [
-          { line: 2, note: "CSS partials define the Raycast-themed reading surface." },
-          { line: 3, note: "Runtime partials keep each output page interactive without a build step." }
+          { line: 2, note: "Runtime partials keep each output page interactive without a build step." }
         ]
       },
       explanation:
@@ -426,6 +430,68 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
       },
       explanation:
         "Bad pedagogy fails before the page is written. That keeps the generator honest when it starts producing richer units."
+    }
+  ]
+}
+```
+
+### Example 2 — Cross-file: Component calls Hook
+
+```javascript
+{
+  kind: "storyboard",
+  title: "ChatPanel uses useAutoScroll",
+  caption: "How the top-level component initializes scrolling behavior via a custom hook.",
+  scenes: [
+    {
+      name: "Component Setup",
+      mermaid:
+`flowchart LR
+  A["ChatPanel.tsx"] --> B["useAutoScroll hook"]`,
+      code: {
+        file: "src/components/ChatPanel.tsx",
+        lang: "tsx",
+        source: "const containerRef = useRef<HTMLDivElement>(null);\nconst { autoScroll, scrollToBottom } = useAutoScroll(containerRef);",
+        highlights: [
+          { line: 1, note: "ChatPanel creates a ref to pass into the hook." },
+          { line: 2, note: "The hook returns both state and an imperative scroll function." }
+        ]
+      },
+      explanation:
+        "ChatPanel needs auto-scroll for new messages. It creates a ref and passes it to useAutoScroll, which manages the scroll state."
+    },
+    {
+      name: "Hook Internals",
+      mermaid:
+`flowchart LR
+  B["useAutoScroll hook"] --> C["scrollToBottom()"]`,
+      code: {
+        file: "src/hooks/useAutoScroll.ts",
+        lang: "ts",
+        source: "export function useAutoScroll(containerRef: RefObject<HTMLElement>) {\n  const [autoScroll, setAutoScroll] = useState(true);\n  // ...\n  const scrollToBottom = () => {\n    if (containerRef.current) {\n      containerRef.current.scrollTop = containerRef.current.scrollHeight;\n    }\n  };\n  return { autoScroll, scrollToBottom };\n}",
+        highlights: [
+          { line: 5, note: "The hook provides an imperative scroll function." },
+          { line: 8, note: "Returns state and controls to the caller." }
+        ]
+      },
+      explanation:
+        "The hook encapsulates scroll logic. It returns state so ChatPanel can show an indicator, and a function so ChatPanel can trigger scrolling."
+    },
+    {
+      name: "Back to Component",
+      mermaid:
+`flowchart LR
+  C["scrollToBottom()"] --> D["Message renders"]`,
+      code: {
+        file: "src/components/ChatPanel.tsx",
+        lang: "tsx",
+        source: "useEffect(() => {\n  if (autoScroll) scrollToBottom();\n}, [messages]);",
+        highlights: [
+          { line: 2, note: "Whenever messages change, auto-scroll if enabled." }
+        ]
+      },
+      explanation:
+        "ChatPanel wires the hook's return value into its effect. New messages trigger auto-scroll, but the user can disable it by toggling the state."
     }
   ]
 }

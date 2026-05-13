@@ -1,6 +1,6 @@
 # Subagent Generation
 
-Use this reference only when subagents are available and the repo has enough independent modules or directories to make parallel work useful. Serial generation remains valid.
+Use this reference when subagents are available and the repo has enough independent modules or directories to make parallel work useful. Multiple subagents may run concurrently on disjoint module assignments. Serial generation remains valid.
 
 ## Coordinator Owns
 
@@ -21,13 +21,13 @@ Do not delegate global architecture decisions or final consistency checks.
 
 ## Safe To Parallelize
 
-| Phase | Worker task |
-| --- | --- |
-| Scan | Read assigned directories and report source facts |
-| Analyze | Draft layer, pattern, and dependency observations |
-| Page data | Draft assigned module `COURSE` data or perspective drafts |
-| Mermaid | Draft local diagrams for assigned pages |
-| Assemble | Generate assigned `module-<name>.html` files after coordinator provides exact rules |
+| Phase | Worker task | Max concurrency |
+| --- | --- | --- |
+| Scan | Read assigned directories and report source facts | 4–6 |
+| Analyze | Draft layer, pattern, and dependency observations | 3–4 |
+| Page data | Draft assigned module `COURSE` data or perspective drafts | 4–8 |
+| Mermaid | Draft local diagrams for assigned pages | 4–8 |
+| Assemble | Generate assigned `module-<name>.html` files after coordinator provides exact rules | 4–8 |
 
 Coordinator-owned work stays serial: final module list, perspective list, filename map, node id map, `index.html`, cross-page links, and final validation.
 
@@ -36,9 +36,10 @@ Coordinator-owned work stays serial: final module list, perspective list, filena
 Workers may:
 
 - Scan assigned paths.
+- Scan related files discovered via imports/exports of assigned source (for cross-file storyboards).
 - Draft assigned page data.
 - Generate assigned `docs/codebase-course/module-<name>.html` files.
-- Draft local Mermaid diagrams, code-walks, and storyboards for assigned scope.
+- Draft local Mermaid diagrams and storyboards for assigned scope.
 
 Workers must not:
 
@@ -61,7 +62,7 @@ Before dispatching workers, prepare:
 - Voice examples, unit examples, and storyboard rules.
 - Validation command.
 
-After workers return, reject any handoff that lacks source evidence, validation, assigned-path discipline, registry-safe links, unique filenames, or valid unit/storyboard budgets.
+After workers return, reject any handoff that lacks source evidence, validation, assigned-path discipline, registry-safe links, unique filenames, or valid unit/storyboard budgets. Accept cross-file storyboards when workers provide import/export evidence.
 
 ## Module Worker Prompt
 
@@ -74,10 +75,11 @@ Scope:
 - Output file: docs/codebase-course/module-<name>.html
 
 Rules:
-- Read only assigned source plus provided references.
+- Read assigned source files and their direct dependencies (via imports/exports).
 - Use exact real code snippets.
 - Follow global node ids and filename registry exactly.
-- Use storyboard for sequence-heavy lessons.
+- Use storyboard units for multi-step sequences, state transitions, and cross-file interactions.
+- Use code-walk units for single-file deep dives.
 - Do not write index.html or unassigned files.
 - Validate before reporting.
 

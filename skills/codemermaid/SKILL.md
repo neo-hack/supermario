@@ -6,7 +6,7 @@ compatibility: Requires Node.js 18+ for validation scripts. Generated HTML uses 
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid diagrams as anchors, typed pedagogical units (concept, code-walk, guess-first, compare, surprise, takeaway, diagram) carrying the lesson. Zero build tools, zero npm. Each output page is self-contained.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid diagrams as anchors, typed pedagogical units (concept, guess-first, compare, surprise, takeaway, diagram, storyboard) carrying the lesson. Zero build tools, zero npm. Each output page is self-contained.
 
 ## When to Use
 
@@ -127,25 +127,29 @@ Each per-module and per-perspective page is one JS object with `learningPromise`
 
 ```javascript
 const COURSE = {
-  module: "auth",
-  learningPromise: "After reading, you'll understand how token validation flows through middleware before any handler runs.",
-  prereqs: ["HTTP middleware", "JWT structure"],
-  diagram: "graph TD ...",  // optional anchor diagram
+  module: "auth",              // required — the module identifier
+  learningPromise: "...",      // required
+  prereqs: ["..."],            // optional
+  diagram: "graph TD ...",     // optional anchor diagram
   units: [ /* see UNIT shapes below */ ]
 };
 ```
+
+**Schema rule:** Module pages MUST use the property name `module` (not `name` or `title`). The validator checks for `page.module` to determine the page type.
 
 ### PERSPECTIVE (per-perspective page, e.g. `architecture.html`)
 
 ```javascript
 const PERSPECTIVE = {
-  perspective: "architecture",
-  learningPromise: "After reading, you'll see why this codebase splits responsibilities into 5 layers and what each one's actually for.",
-  prereqs: ["MVC pattern"],
-  diagram: "graph TD ...",  // REQUIRED for perspective pages
+  perspective: "architecture", // required — the perspective identifier
+  learningPromise: "...",      // required
+  prereqs: ["..."],            // optional
+  diagram: "graph TD ...",     // REQUIRED for perspective pages
   units: [ /* same UNIT shapes; cross-module refs are inline markdown links in body fields */ ]
 };
 ```
+
+**Schema rule:** Perspective pages MUST use the property name `perspective` (not `name` or `title`). The validator checks for `page.perspective` to determine the page type.
 
 ### INDEX (entry page, `index.html`)
 
@@ -161,42 +165,32 @@ const INDEX = {
 
 ```javascript
 { kind: "concept",     title, body }                                           // 60-150 words
-{ kind: "code-walk",   title, file, code, highlightLines, explanation, layout?, steps?, anchorNode? }
 { kind: "guess-first", question, reveal: { code?, explanation } }              // collapsed
 { kind: "compare",     title, left: { label, code }, right: { label, code }, lesson }
 { kind: "surprise",    title, body }                                           // 1-3 sentences callout
 { kind: "takeaway",    body }                                                  // recap card
 { kind: "diagram",     title, mermaid, caption, zoomable? }                    // architecture/sequence figure; zoomable defaults true
 { kind: "storyboard",  title, caption?, scenes: [{ name, mermaid, explanation?, code?, focus? }] } // multi-scene Mermaid player with optional paired code
+{ kind: "code-walk",   title, file, code, highlightLines, explanation, layout? } // single-file code with explanation (stacked, split, or stepped)
 ```
-
-### code-walk layouts
-
-| Layout    | Shape                                                                 | Use when                                                       |
-|-----------|-----------------------------------------------------------------------|----------------------------------------------------------------|
-| `stacked` (default) | Single column: code, then prose                              | One short explanation, no per-line beats                       |
-| `split`             | Sticky code left, scrollable explanation cards right (collapses < 880px) | Multiple beats tied to specific lines, would otherwise scroll-back |
-| `stepped`           | Sticky code left, ordered `steps[]` right; scroll-driven highlight migration | One narrative walk through a function in 3-5 beats |
-
-For `split`, write `explanation` as a compact intro followed by `Line ...:` / `Lines ...:` beats. The renderer splits those beats into fixed-height, scrollable cards, keeps the active card styled like `stepped`, and syncs the code highlight as the reader scrolls the card column.
-
-`stepped` requires `steps: [{ highlightLines, beat }]` instead of flat `highlightLines + explanation`. **Hard cap: at most one `stepped` code-walk per module.**
 
 ### Voice rules
 
 A teacher pointing at the thing. Signposted, opinionated, comparing to familiar mental models. See `references/voice-examples.md` for flat-vs-pointed pairs the AI MUST imitate. Anti-patterns: neutral description, academic filler ("it is important to note"), passive voice ("as we can see").
 
-### Per-unit budgets
+### Unit quality guidelines (soft limits)
 
-| Unit | Limit |
-|------|-------|
+| Unit | Suggested scope |
+|------|-----------------|
 | `concept` | 60–150 words |
-| `code-walk` | 8–15 lines code + 50–150 words explanation |
 | `guess-first` | question ≤ 2 sentences, reveal ≤ 150 words |
 | `compare` | ≤ 12 lines per side, lesson ≤ 80 words |
 | `surprise` | 1–3 sentences |
 | `takeaway` | 2–4 sentences |
-| **Per page** | **4–8 units (hard max 10)** |
+| `storyboard` | 2–5 scenes, 1–3 sentences per scene |
+| `code-walk` | 8–15 lines code + 50–150 words explanation |
+
+There is **no fixed unit budget**. A module page should include as many units as needed to teach its content thoroughly. If a page exceeds ~15 units, consider splitting into sub-modules.
 
 ### Pedagogy enforcement (mandatory)
 
@@ -206,13 +200,28 @@ Every generated page MUST satisfy these rules. Run `node skills/codemermaid/scri
 - Every module's `units[]` MUST contain ≥ 1 `guess-first` OR ≥ 1 `surprise`.
 - Every module's `units[]` MUST end with a `takeaway`.
 - Every perspective's `units[]` MUST start with a `concept` and end with a `takeaway`.
-- ≤ 1 `stepped` code-walk per page.
-- ≤ 3 `storyboard` units per page, with at least one non-storyboard text unit between storyboard units.
-- ≤ 10 units per page.
+- Storyboard units SHOULD be separated by at least one non-storyboard text unit for pacing.
+- There is no hard cap on unit count or storyboard count; quality of explanation determines the length.
 
 ### Real code only
 
-`code-walk.code` must be exact copies from real source files. Never invent or simplify. If a function exceeds 15 lines, show the important slice with `// ...` to mark elision.
+All `code` values must be **exact, unmodified copies** from real source files. This includes:
+- `storyboard.scenes[].code.source`
+- `code-walk.code`
+- `guess-first.reveal.code`
+- `compare.left.code` and `compare.right.code`
+
+**Prohibited:**
+- Inventing code that does not exist in the source
+- Simplifying logic (e.g., removing a ternary, reordering statements)
+- Changing prop names, variable names, or function signatures
+- Adding comments that don't exist in the source
+- Using `...` ellipsis to hide lines inside a snippet (use `// ...` comment only at the top level to mark elision)
+
+**Allowed:**
+- Extracting a contiguous slice of a function with `// ...` at top/bottom to show it's truncated
+- Removing import statements and surrounding boilerplate to focus on the logic
+- Normalizing indentation to match the snippet's context
 
 ### Code presentation rules
 
@@ -221,15 +230,17 @@ Keep teaching snippets tight:
 - Trim leading and trailing blank lines from every `code`, `left.code`, `right.code`, and `code.source` value.
 - Collapse repeated interior blank lines to one blank line.
 - Prefer `// ...` or `# ...` elision comments over airy blank rows when skipping irrelevant source.
-- Highlight numbers are 1-based and must match the visible line numbers after trimming.
+- Highlight numbers are 1-based and must match the visible line numbers **within the extracted snippet** after trimming.
+- **Verification rule:** Before finalizing a page, manually count lines in every `code.source`, `left.code`, and `right.code` value. Ensure every `highlightLines` entry and every `highlights[].line` / `highlights[].lines` points to a line that actually exists in that snippet and contains meaningful code (not a blank line or closing brace alone).
+- **Common pitfall:** When extracting a 15-line function from a 200-line file, the highlights must reference line numbers 1–15 (the snippet), NOT the original file's line numbers 186–200. The renderer only sees the snippet.
 - Do not highlight blank separator lines; move `highlightLines` to the nearest meaningful source line.
-- Scrollbar styling is global in `_base.css`; components may set overflow and `scrollbar-gutter`, but must not add page-local scrollbar colors or WebKit scrollbar selectors.
+- **Annotation-note alignment:** The note text must describe what happens on the highlighted line(s). If the note says "mergeMessage dedupes by id" but the highlighted line is `...state,`, the highlight is on the wrong line.
 
 ### Storyboard units
 
-Use `storyboard` when the reader needs to watch a system change across 2-5 scenes. Good fits: template assembly, request lifecycle, state transitions, build pipelines, parser phases, data synchronization. Bad fits: one static architecture overview, long prose explanations, or anything that needs arbitrary 2D canvas layout.
+Use `storyboard` when the reader needs to watch a system change across 2-5 scenes. Good fits: template assembly, request lifecycle, state transitions, build pipelines, parser phases, data synchronization, and cross-file interactions. Bad fits: one static architecture overview, long prose explanations, or anything that needs arbitrary 2D canvas layout.
 
-Do not explain sequence-heavy lessons with a disguised `code-walk`. If the lesson is "first this state exists, then this merge happens, then this output flushes," use `storyboard` so the generated page visibly renders the Cinema Strip.
+Use `storyboard` for multi-step sequences, state transitions, and cross-file interactions. Use `code-walk` for single-file deep dives where the lesson is about reading one focused piece of code.
 
 Read `references/storyboard-patterns.md` before writing storyboard units. Follow the approved Variant B Cinema Strip shape: large Mermaid stage, scene strip, collapsible code drawer, and P3 aside-panel annotations.
 
@@ -246,7 +257,7 @@ Read `references/storyboard-patterns.md` before writing storyboard units. Follow
     },
     {
       name: "Inline partials",
-      mermaid: "flowchart LR\n  A[_base.css] --> C[HTML]\n  B[_essay.js] --> C",
+      mermaid: "flowchart LR\n  A[template-essay.html] --> C[output HTML]\n  B[_runtime.js] --> C",
       code: {
         file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
@@ -274,7 +285,39 @@ Storyboard rules:
 - A multi-line annotation uses `{ lines: [start, ...end], note }`.
 - Cap annotations at 5 per scene; split the scene when more are needed.
 - Use Mermaid image nodes only for local paths or data URLs. Do not use remote image URLs.
-- Page budget: at most 3 storyboard units per page, with at least one text unit between storyboard units.
+- Separate consecutive storyboard units with at least one non-storyboard text unit for pacing.
+
+### Code-walk units
+
+Use `code-walk` for single-file deep dives. Good fits: examining a single hook, a utility function, a type definition, or one coherent block of logic. Bad fits: multi-step sequences, cross-file interactions, or state transitions (use `storyboard` for those).
+
+```javascript
+{
+  kind: "code-walk",
+  title: "Token check before any handler",
+  file: "src/middleware/auth.ts",
+  code: `export const auth: Middleware = async (c, next) => {
+  const token = c.req.header('Authorization')?.slice(7);
+  if (!token) { c.set('user', null); return next(); }
+  try {
+    const user = await verify(token);
+    c.set('user', user);
+  } catch {
+    c.set('user', null);
+  }
+  return next();
+};`,
+  highlightLines: [3, 6, 9],
+  explanation: "Watch what they do here — the token check happens before any handler runs, but they don't throw on a malformed token, they `next()` with a null user. That's the move. Downstream handlers decide whether `null user` is OK for them, instead of the middleware deciding for everyone."
+}
+```
+
+Code-walk rules:
+
+- `code` is the exact, unmodified source snippet.
+- `highlightLines` uses 1-based indexing within the snippet.
+- `explanation` is 1-3 sentences explaining why the highlighted lines matter.
+- `layout` is optional: `stacked` (default, code above explanation), `split` (code left, explanation right), or `stepped` (scroll-synced beats). Only `code-walk` honors `layout`.
 
 ## Phase 4: Build Mermaid Graphs
 
@@ -292,6 +335,20 @@ The page-level `diagram` field on COURSE/PERSPECTIVE. Job: orientation, not navi
 
 To enable scroll-linked highlighting, set `anchorNode: "<mermaidNodeId>"` on the unit(s) you want bound. The reader's scroll position drives which node lights up; tap a node to scroll back. Units without `anchorNode` are ignored.
 
+**Node ID naming rule:** The `anchorNode` value MUST exactly match the Mermaid node ID. Use descriptive, kebab-case IDs instead of single letters:
+
+```javascript
+// ✅ Good — node IDs match anchorNode values exactly
+{ kind: "concept", anchorNode: "chat-panel", title: "..." }
+// diagram: 'graph TD\n  chat-panel[ChatPanel] --> message-router[MessageRouter]'
+
+// ❌ Bad — generic IDs break scroll-link
+{ kind: "concept", anchorNode: "panel", title: "..." }
+// diagram: 'graph TD\n  A[ChatPanel] --> B[MessageRouter]'  // "panel" never matches "A" or "B"
+```
+
+**Enforcement:** Before writing any page, verify that every `anchorNode` value appears as a node ID in the page's `diagram`. Run this mental check: for each `anchorNode`, can I find that exact string as a node name in the Mermaid source? If not, rename the Mermaid node or the `anchorNode` value until they match.
+
 ### Role 2 — Architecture / sequence / state figure
 
 The new `diagram` unit kind. Lives inline in `units[]`.
@@ -302,7 +359,6 @@ The new `diagram` unit kind. Lives inline in `units[]`.
 
 - Nodes represent real components, message flows, states, dependencies — independent of reading order.
 - No scroll-linking. No `anchorNode`. Just a captioned figure.
-- Counts toward the 4–8 unit budget.
 - `zoomable` defaults to `true`; set `false` only for tiny figures where zoom would be theater.
 - Other diagram types fit naturally here: `sequenceDiagram` (request flow), `classDiagram` (data models), `stateDiagram-v2` (lifecycle).
 
@@ -332,12 +388,12 @@ The same module uses the same node ID across all pages it appears on (e.g., `aut
 
 ## Phase 5: Generate Page List
 
-| File | Shell template | Page CSS partial | Page JS partial | Data | Condition |
-|------|----------------|------------------|-----------------|------|-----------|
-| `index.html`            | `template-index.html` | `_index.css` | `_index.js` | `INDEX`       | Always |
-| `architecture.html`     | `template-essay.html` | `_essay.css` | `_essay.js` | `PERSPECTIVE` | Always |
-| `<perspective>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `PERSPECTIVE` | One per non-architecture perspective |
-| `module-<name>.html`    | `template-essay.html` | `_essay.css` | `_essay.js` | `COURSE`      | One per discovered module |
+| File | Shell template | Page JS partial | Data | Condition |
+|------|----------------|-----------------|------|-----------|
+| `index.html`            | `template-index.html` | `_index.js` | `INDEX`       | Always |
+| `architecture.html`     | `template-essay.html` | `_essay.js` | `PERSPECTIVE` | Always |
+| `<perspective>.html`    | `template-essay.html` | `_essay.js` | `PERSPECTIVE` | One per non-architecture perspective |
+| `module-<name>.html`    | `template-essay.html` | `_essay.js` | `COURSE`      | One per discovered module |
 
 All generated course files go in the target repo's `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
 
@@ -347,22 +403,26 @@ Do not generate `story.html` when executing this skill for a target codebase. `s
 
 For each page in the file list (Phase 5):
 
-1. **Read the shell template**: `assets/template-essay.html` or `assets/template-index.html`.
+1. **Read the shell template**: `assets/template-essay.html` or `assets/template-index.html`. Styles and scripts are already inlined in the template.
 2. **Read the partials**:
-   - `assets/_base.css` (always)
-   - `assets/_essay.css` OR `_index.css` (per page kind)
-   - `assets/_runtime.js` (always)
-   - `assets/_essay.js` OR `_index.js` (per page kind)
-3. **Inline the partials** by replacing slot markers in the shell:
-   - `{{COMMON_STYLES}}` ← contents of `_base.css`
-   - `{{PAGE_STYLES}}` ← contents of `_essay.css` or `_index.css`
+   - `assets/_runtime.js` (shared helpers)
+   - `assets/_essay.js` OR `_index.js` (per page kind runtime)
+3. **Inline the scripts** by replacing slot markers in the shell:
    - `{{COMMON_SCRIPTS}}` ← contents of `_runtime.js`
    - `{{PAGE_SCRIPTS}}` ← contents of `_essay.js` or `_index.js`
 4. **Fill page-specific slots** (see below).
-5. **Validate** by piping the page-data object as JSON to `node skills/codemermaid/scripts/validate-units.js -`. Abort the build on failure.
-6. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
+5. **Pre-flight verification** (mandatory — do not skip):
+   - [ ] Every `anchorNode` value appears as a node ID in the page's `diagram`
+   - [ ] Every `highlightLines` / `highlights[].line` points to an existing, non-blank line in its snippet
+   - [ ] Every code snippet is an exact copy from source (no invented lines, no reordered statements)
+   - [ ] No `href="#"` placeholders — all back/next links point to real files
+   - [ ] No `**bold**` markdown — use `<strong></strong>` instead
+   - [ ] `module` pages use `module: "name"`; `perspective` pages use `perspective: "name"`
+   - [ ] Mermaid diagrams contain no references to undefined nodes (e.g., `style A` when `A` is not declared)
+6. **Validate** by piping the page-data object as JSON to `node skills/codemermaid/scripts/validate-units.js -`. Abort the build on failure.
+7. **Write** the resolved HTML to `docs/codebase-course/<filename>.html`.
 
-Every emitted HTML stays self-contained — partials are inlined at assembly time, not loaded at runtime. Shared CSS/JS lives in the skill's `assets/` for DRY authoring; the output is independent files.
+Every emitted HTML is fully self-contained — all CSS is baked into the template, and JS partials are inlined at assembly time. No external stylesheets or runtime asset loading.
 
 ## Maintainer story page
 
@@ -372,7 +432,7 @@ Maintainer-only sources:
 
 - `tests/fixtures/template-story.html` — shell for the maintainer story page.
 - `tests/fixtures/story-page-data.json` — stable fixture data covering major unit kinds and interaction states.
-- `assets/_base.css`, `_essay.css`, `_runtime.js`, `_essay.js` — the same renderer partials used by real course pages.
+- `assets/_runtime.js`, `_essay.js` — shared renderer partials inlined at assembly time.
 
 Use the story page when editing renderer UI, interaction behavior, or shared visual rules. It should expose stable `data-story-id` selectors for future e2e tests. Update `tests/fixtures/story-page-data.json` whenever adding a unit kind, interaction state, or reusable visual rule. Keep this fixture in the `supermario` repo; do not copy it into generated target-codebase output unless explicitly doing maintainer QA.
 
@@ -390,6 +450,10 @@ Use the story page when editing renderer UI, interaction behavior, or shared vis
 | `{{NEXT_LINK}}` | next page in reading order, or `index.html` |
 | `{{NEXT_LABEL}}` | name of the next page |
 | `{{PAGE_DATA}}` | the COURSE or PERSPECTIVE object as a valid JS literal (NOT a JSON string) |
+
+**Link completeness rule:** `{{BACK_LINK}}` and `{{NEXT_LINK}}` must always point to an existing HTML file in the output directory. Never use `#` or empty string as a placeholder. If the page is the first or last in the sequence, link back to `index.html`.
+
+**Markdown support note:** The renderer only supports `[label](href)` link syntax. `**bold**`, `*italic*`, and other Markdown features are NOT supported in body text. Use HTML tags (`<strong>`, `<em>`) if formatting is needed, or rely on the CSS styling of unit kinds (concept, surprise, takeaway already have distinct visual treatment).
 
 ### Page-specific slots — `template-index.html`
 
@@ -409,7 +473,7 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 
 1. **Real code only** — never invent, simplify, or modify code snippets.
 2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Self-contained output** — each emitted HTML inlines all CSS/JS. Partials live in the skill's `assets/` for DRY authoring, not at runtime.
+3. **Self-contained output** — each emitted HTML has all CSS baked into the template and JS inlined at assembly time. No external stylesheets or runtime asset loading.
 4. **Vanilla JS only** — no React, no build tools.
 5. **No Mermaid click directives** on essay pages. Anchor-diagram navigation comes from `_essay.js` reading `anchorNode` bindings on units.
 6. **Validate before writing** — `node scripts/validate-units.js` must pass for every page.
@@ -421,14 +485,19 @@ Built-in Raycast-inspired dark theme. For the full design reference (CSS variabl
 
 | Mistake | Fix |
 |---------|-----|
-| Anchor highlight doesn't migrate | Check unit has `anchorNode` matching a node ID in the page's `diagram` |
-| Stepped code-walk highlight stuck | Each `steps[]` item must have `highlightLines` (array, 1-based) and `beat` (prose) |
-| Zoomed Mermaid SVG looks blurry | Ensure `_essay.css` has NO `will-change: transform` on `.zoom-stage`; keep `shape-rendering: geometricPrecision` |
+| Anchor highlight doesn't migrate | Check unit has `anchorNode` matching a node ID in the page's `diagram`. Use descriptive IDs (e.g., `chat-panel`) instead of single letters (`A`, `B`). |
+| Highlight points to blank line or wrong logic | Count lines within the extracted snippet, not the original source file. The note must describe what happens on the highlighted line. |
+| Code snippet has invented or reordered lines | Paste the snippet back into a temp file and run the type checker. If it fails, you modified the source. |
+| `style A` in Mermaid but node `A` is undefined | Every node referenced in `style`, `class`, or `click` must be declared in the diagram body. |
+| `href="#"` in back/next links | Replace with actual relative paths (`./index.html`, `./module-foo.html`). Never leave placeholder links. |
+| `**bold**` renders as literal asterisks | The renderer only supports `[label](href)` links. Use `<strong>text</strong>` for bold. |
+| PAGE uses `name` or `title` instead of `module`/`perspective` | Module pages MUST use `module: "..."`. Perspective pages MUST use `perspective: "..."`. The validator relies on this. |
+| Zoomed Mermaid SVG looks blurry | Ensure template CSS has NO `will-change: transform` on `.zoom-stage`; keep `shape-rendering: geometricPrecision` |
 | Zoom opens to empty stage | SVG clone must get explicit `width`/`height` attributes from `getBoundingClientRect()` of the source |
-| Validator fails on a module | Read the error — usually missing `guess-first`/`surprise`, missing trailing `takeaway`, or > 1 stepped walk |
+| Validator fails on a module | Read the error — usually missing `guess-first`/`surprise`, missing trailing `takeaway`, or too many storyboards |
 | Storyboard drawer feels noisy | Use fewer annotations, cap at 5 notes per scene, and split crowded scenes into two smaller scenes |
 | Storyboard image fails validation | Mermaid image nodes must use local paths or data URLs, never remote URLs |
-| Code block unreadable | `_base.css` sets `font-family: Geist Mono, line-height: 1.7` on `pre.code-block` |
+| Code block unreadable | Template CSS sets `font-family: Geist Mono, line-height: 1.7` on `pre.code-block` |
 | Cross-module link in body doesn't render | Use markdown link syntax `[label](module-foo.html)`; `renderMarkdownLinks()` parses it |
 
 ## File Organization
@@ -443,13 +512,10 @@ skills/codemermaid/
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
   assets/
-    template-essay.html               # Shell for perspective and module pages
-    template-index.html               # Shell for the entry page
-    _base.css                         # Shared tokens, typography, layout, hero
-    _essay.css                        # Anchor diagram, units, zoom overlay
-    _index.css                        # Card grid
-    _runtime.js                       # Mermaid init, markdown link parser, helpers
-    _essay.js                         # Scroll-link, stepped-walk, zoom controls
+    template-essay.html               # Shell for perspective and module pages (styles inlined)
+    template-index.html               # Shell for the entry page (styles inlined)
+    _runtime.js                       # Shared Mermaid init, markdown link parser, helpers
+    _essay.js                         # Scroll-link, storyboard player, zoom controls
     _index.js                         # Index runtime (currently minimal)
   scripts/
     validate-units.js                 # Pedagogy enforcement
