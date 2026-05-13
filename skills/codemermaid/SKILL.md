@@ -17,7 +17,7 @@ Generate a multi-page interactive HTML site that teaches a codebase as scrollabl
 
 ## Output
 
-Directory: `docs/codebase-course/`
+Directory: `docs/codemermaid/`
 
 ```
 style.css                     <- Copied from assets/style.css
@@ -412,11 +412,11 @@ Key rules:
 | `<perspective>.html`    | `skeleton-essay.html` | One per non-architecture perspective |
 | `module-<name>.html`    | `skeleton-essay.html` | One per discovered module |
 
-All generated course files go in `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
+All generated course files go in `docs/codemermaid/`. Filenames are kebab-case except the fixed `index.html`.
 
 Before generating HTML pages, copy shared assets to the output directory:
-1. Copy `assets/style.css` → `docs/codebase-course/style.css`
-2. Copy `assets/runtime.js` → `docs/codebase-course/runtime.js`
+1. Copy `assets/style.css` → `docs/codemermaid/style.css`
+2. Copy `assets/runtime.js` → `docs/codemermaid/runtime.js`
 
 These are linked by every generated HTML page.
 
@@ -439,7 +439,7 @@ For each page in the file list (Phase 5):
    - [ ] No double HTML entity escaping — scan for `&amp;#` or `&amp;lt;` or `&amp;gt;` patterns and fix them
    - [ ] Mermaid syntax is valid — no unclosed brackets, no missing quotes in edge labels
 5. **Dispatch a subagent reviewer** to validate the generated HTML
-6. **Write** the completed HTML to `docs/codebase-course/<filename>.html`
+6. **Write** the completed HTML to `docs/codemermaid/<filename>.html`
 
 ### Essay page slots
 

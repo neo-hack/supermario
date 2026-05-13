@@ -38,7 +38,7 @@ Workers may:
 - Scan assigned paths.
 - Scan related files discovered via imports/exports of assigned source (for cross-file storyboards).
 - Draft assigned page data.
-- Generate assigned `docs/codebase-course/module-<name>.html` files.
+- Generate assigned `docs/codemermaid/module-<name>.html` files.
 - Draft local Mermaid diagrams and storyboards for assigned scope.
 
 Workers must not:
@@ -72,7 +72,7 @@ You are generating one assigned codemermaid module page.
 Scope:
 - Module: <module name>
 - Source files: <paths>
-- Output file: docs/codebase-course/module-<name>.html
+- Output file: docs/codemermaid/module-<name>.html
 
 Rules:
 - Read assigned source files and their direct dependencies (via imports/exports).
@@ -143,7 +143,7 @@ Every worker returns:
 
 - Page data kind: COURSE | PERSPECTIVE_DRAFT | SCAN_REPORT
 - Generated files:
-  - `docs/codebase-course/module-auth.html`
+  - `docs/codemermaid/module-auth.html`
 - Draft-only files:
   - none
 
