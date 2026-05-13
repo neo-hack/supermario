@@ -151,6 +151,7 @@ Every worker returns:
 - Command: `node skills/codemermaid/scripts/validate-units.js <path-or-stdin>`
 - Result: PASS | FAIL | NOT_RUN
 - Notes: <exact errors if failed>
+- Double-escape self-check: scan generated HTML for `&amp;#`, `&amp;lt;`, `&amp;gt;`, `&amp;mdash;`, `&amp;nbsp;` patterns. If any found, the output has been double-escaped. Fix by replacing with the single-escaped forms (`&#39;`, `&lt;`, `&gt;`, `&mdash;`, `&nbsp;`). This is a common subagent artifact where already-escaped content gets escaped again.
 
 ## Links And Assumptions
 
@@ -185,4 +186,5 @@ If global inconsistencies appear, fix the coordinator-owned registry first, then
 | Worker invents a module | Reject; coordinator owns module registry |
 | Worker uses unregistered links | Reject until links match filename registry |
 | Worker skips validation | Reject generated pages without validation |
+| Double-escaped entities in output | Worker must self-check for `&amp;#`, `&amp;lt;`, `&amp;gt;` patterns and fix before reporting. Caused by escaping already-escaped content. |
 | Multiple workers edit same output | Assign disjoint files only |

@@ -2,7 +2,7 @@
 
 These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples; each is a complete JS object literal that would pass through `renderUnit()` unmodified. Voice rules live separately in `voice-examples.md`.
 
-> Source: examples drawn from the reference implementation at `docs/codebase-demo-mermaid-essay.html` and from the spec voice pairs (`docs/superpowers/specs/2026-05-03-codemermaid-essay-design.md`). Don't invent codebases — only use repos you've actually scanned.
+> Source: examples drawn from scanned codebases. Don't invent codebases — only use repos you've actually scanned.
 
 ---
 
@@ -34,17 +34,16 @@ Plain prose, 60–150 words. The teacher pointing at a thing before showing code
 
 ---
 
-## code-walk (stacked)
+## code-walk (split)
 
-Default layout. Code first, then explanation. Use when prose is one paragraph.
+Sticky code on the left, annotation cards on the right. Each annotation references a specific code line. Use when explanation has 2+ beats tied to specific lines.
 
-### Example 1 — Auth middleware (stacked)
+### Example 1 — Auth middleware (split)
 
 ```javascript
 {
   kind: "code-walk",
   title: "Token check before any handler",
-  layout: "stacked",
   file: "src/middleware/auth.ts",
   code:
 `export const auth: Middleware = async (c, next) => {
@@ -58,47 +57,20 @@ Default layout. Code first, then explanation. Use when prose is one paragraph.
   }
   return next();
 };`,
-  highlightLines: [3, 6, 9],
-  explanation:
-    "Watch what they do here — the token check happens before any handler runs, but they don't throw on a malformed token, they `next()` with a null user. That's the move. Downstream handlers decide whether `null user` is OK for them, instead of the middleware deciding for everyone."
+  highlights: [
+    { line: 2, note: "Optional chaining — no crash if header is missing." },
+    { line: 5, note: "verify() throws on malformed tokens — caught below." },
+    { line: 8, note: "Does NOT throw — sets null user, continues. Downstream decides." }
+  ]
 }
 ```
 
-### Example 2 — Repository read (stacked)
-
-```javascript
-{
-  kind: "code-walk",
-  title: "Read-through cache pattern",
-  layout: "stacked",
-  file: "src/repo/user.ts",
-  code:
-`export async function findUser(id: string) {
-  const cached = cache.get(id);
-  if (cached) return cached;
-  const row = await db.users.findById(id);
-  cache.set(id, row, { ttl: 60_000 });
-  return row;
-}`,
-  highlightLines: [2, 3, 5],
-  explanation:
-    "The pattern is read-through: cache first, DB second, write to cache on miss. The TTL is short on purpose — this user table mutates often and stale-by-a-minute is acceptable here. If you've used DataLoader, you'll find this surprising: no batching at all. Why? Because user lookups in this app are already keyed by request, so DataLoader's win wouldn't apply."
-}
-```
-
----
-
-## code-walk (split)
-
-Sticky code on the left, prose with multiple beats on the right. Use when explanation has 2+ beats tied to specific lines and stacked would force scroll-back.
-
-### Example 1 — Router registration (split)
+### Example 2 — Router trie builder (split)
 
 ```javascript
 {
   kind: "code-walk",
   title: "Building the trie",
-  layout: "split",
   file: "src/router.ts",
   code:
 `function add(path: string, handler: Handler) {
@@ -113,49 +85,34 @@ Sticky code on the left, prose with multiple beats on the right. Use when explan
   }
   node.handler = handler;
 }`,
-  highlightLines: [4, 5, 6, 8, 11],
-  explanation:
-`<h3>The walk loop <span class="ref">L4</span></h3>
-For every path segment, descend into the trie or create a child node. Parameter segments collapse into a single wildcard key (\`'*'\`) so the same node serves \`:userId\`, \`:slug\`, etc.
-
-<h3>Param capture <span class="ref">L8</span></h3>
-The wildcard child remembers its original parameter name. At lookup time, the matching segment text gets stored under that name on the request context.
-
-<h3>Handler at the leaf <span class="ref">L11</span></h3>
-Handlers live only at leaf nodes. That's why ambiguous routes can't exist in this design — every path resolves to exactly one node.`
+  highlights: [
+    { line: 4, note: "Walk every path segment, descending into the trie." },
+    { line: 5, note: "Param segments (starting with :) collapse to a single wildcard key '*'." },
+    { line: 8, note: "The wildcard child remembers its original param name for lookup." },
+    { line: 11, note: "Handlers live only at leaf nodes — no ambiguous routes." }
+  ]
 }
 ```
 
----
-
-## code-walk (stepped)
-
-Sticky code on the left, ordered `steps[]` on the right with `{ highlightLines, beat }`. Scroll-driven highlight migration. **At most one per module.**
-
-### Example 1 — Request lifecycle walk (stepped)
+### Example 3 — Repository read (split)
 
 ```javascript
 {
   kind: "code-walk",
-  title: "What `app.fetch()` actually does",
-  layout: "stepped",
-  file: "src/app.ts",
+  title: "Read-through cache pattern",
+  file: "src/repo/user.ts",
   code:
-`async fetch(request: Request, env: Env) {
-  const ctx = makeContext(request, env);
-  const route = router.match(ctx.req.path);
-  if (!route) return new Response('Not found', { status: 404 });
-  for (const m of this.middleware) {
-    await m(ctx, async () => {});
-    if (ctx.finalized) return ctx.res;
-  }
-  return route.handler(ctx);
+`export async function findUser(id: string) {
+  const cached = cache.get(id);
+  if (cached) return cached;
+  const row = await db.users.findById(id);
+  cache.set(id, row, { ttl: 60_000 });
+  return row;
 }`,
-  steps: [
-    { highlightLines: [2], beat: "First, build the request context — a single object every middleware and handler will share. This is the only mutable thing the framework hands out." },
-    { highlightLines: [3, 4], beat: "Then match a route. Notice: the 404 escape happens *before* any middleware runs. That's a deliberate choice — auth middleware can't fire on paths that don't exist." },
-    { highlightLines: [5, 6, 7], beat: "Walk the middleware in registration order. The `next()` callback they get is a no-op here because the framework drives the chain itself. If a middleware sets `ctx.finalized`, it short-circuits the rest." },
-    { highlightLines: [9], beat: "Finally, the handler. By the time we reach this line, all middleware ran and didn't finalize — so the handler's `ctx` is fully populated." }
+  highlights: [
+    { line: 2, note: "Cache check is synchronous — instant return on hit." },
+    { line: 3, note: "Early return avoids the DB query entirely." },
+    { line: 5, note: "Short TTL (60s) because this table mutates often." }
   ]
 }
 ```

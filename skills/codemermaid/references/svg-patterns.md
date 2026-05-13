@@ -1,8 +1,151 @@
-# SVG Diagram Patterns
+# Diagram Patterns
 
-## SVG Skeleton
+## Mermaid Diagram Types (for `diagram` units)
 
-Every SVG diagram follows this skeleton:
+All `diagram` units use Mermaid.js syntax. The dark theme is configured in the skeleton template — do NOT inline theme variables in individual diagrams.
+
+### Flowchart — top-down architecture (graph TD)
+
+```mermaid
+graph TD
+  Client["Browser"] -->|"HTTPS"| Server["API Server"]
+  Server -->|"query"| DB["Postgres"]
+  Server -->|"publish"| Queue["Redis"]
+  Worker["Background Worker"] -->|"consume"| Queue
+```
+
+Mermaid syntax:
+```
+graph TD
+  Client["Browser"] -->|"HTTPS"| Server["API Server"]
+  Server -->|"query"| DB["Postgres"]
+  Server -->|"publish"| Queue["Redis"]
+  Worker["Background Worker"] -->|"consume"| Queue
+```
+
+### Flowchart — left-to-right data flow (graph LR)
+
+```mermaid
+graph LR
+  Input["Request"] --> Middleware["Auth MW"]
+  Middleware --> Router["Router"]
+  Router --> Handler["Handler"]
+  Handler --> Response["Response"]
+```
+
+Mermaid syntax:
+```
+graph LR
+  Input["Request"] --> Middleware["Auth MW"]
+  Middleware --> Router["Router"]
+  Router --> Handler["Handler"]
+  Handler --> Response["Response"]
+```
+
+### Sequence diagram (sequenceDiagram)
+
+For request/response flows, login sequences, cross-service interactions.
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant F as Frontend
+  participant API as Backend
+  U->>F: click button
+  F->>API: POST /api/data
+  API-->>F: { id, status }
+  F-->>U: update UI
+```
+
+Mermaid syntax:
+```
+sequenceDiagram
+  participant U as User
+  participant F as Frontend
+  participant API as Backend
+  U->>F: click button
+  F->>API: POST /api/data
+  API-->>F: { id, status }
+  F-->>U: update UI
+```
+
+Arrow types:
+- `->>` solid arrow (request)
+- `-->>` dashed arrow (response)
+- `--)` open arrow (async)
+
+### State diagram (stateDiagram-v2)
+
+For state machines, lifecycle flows, modal states.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Loading: fetch()
+  Loading --> Success: response ok
+  Loading --> Error: response fail
+  Success --> Idle: reset()
+  Error --> Idle: retry()
+```
+
+Mermaid syntax:
+```
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Loading: fetch()
+  Loading --> Success: response ok
+  Loading --> Error: response fail
+  Success --> Idle: reset()
+  Error --> Idle: retry()
+```
+
+### Subgraphs (grouped nodes)
+
+For layer diagrams grouping modules into architectural tiers.
+
+```
+graph TD
+  subgraph Entry["Entry Layer"]
+    HTTP["HTTP Handlers"]
+    CLI["CLI Commands"]
+  end
+  subgraph Core["Core Layer"]
+    Auth["Auth Service"]
+    User["User Service"]
+  end
+  subgraph Data["Data Layer"]
+    DB["Postgres"]
+    Cache["Redis"]
+  end
+  HTTP --> Auth
+  CLI --> User
+  Auth --> DB
+  User --> Cache
+```
+
+## Mermaid Edge Styles
+
+| Style | Syntax | Use for |
+|-------|--------|---------|
+| Solid arrow | `A --> B` | Direct dependency |
+| Labeled arrow | `A -->\|"label"\| B` | Described relationship |
+| Dashed arrow | `A -.-> B` | Optional/indirect dependency |
+| Dashed labeled | `A -.->\|"optional"\| B` | Optional with description |
+| Bidirectional | `A <--> B` | Two-way dependency |
+
+## Mermaid Node Rules
+
+- Node IDs are kebab-case: `auth-mw`, `user-store`, `api-server`
+- Node labels use bracket syntax: `AuthMW["auth middleware"]`
+- Same module = same node ID across all pages
+- Keep ≤ 8 nodes per diagram; split larger graphs into subgraphs or multiple diagrams
+- Edge labels use pipe-quote syntax: `A -->|"descriptive label"| B`
+
+## Minimal SVG Reference (for `code-graph` units only)
+
+`code-graph` units use raw SVG because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. Mermaid cannot produce these attributes.
+
+### SVG Skeleton
 
 ```html
 <svg viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
@@ -15,9 +158,7 @@ Every SVG diagram follows this skeleton:
 </svg>
 ```
 
-## Node Types
-
-### Rectangle (default for modules, services)
+### Node
 
 ```html
 <g class="node" data-node-id="auth-service">
@@ -26,89 +167,19 @@ Every SVG diagram follows this skeleton:
 </g>
 ```
 
-### Rounded pill (for small utilities)
-
-```html
-<g class="node" data-node-id="logger">
-  <rect x="0" y="0" width="100" height="32" rx="16" fill="#161718" stroke="#252829" stroke-width="1.5"/>
-  <text x="50" y="21" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="12" font-weight="500">Logger</text>
-</g>
-```
-
-### Diamond (for decision points)
-
-```html
-<g class="node" data-node-id="auth-check">
-  <polygon points="60,0 120,30 60,60 0,30" fill="#161718" stroke="#252829" stroke-width="1.5"/>
-  <text x="60" y="35" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="11" font-weight="500">Auth?</text>
-</g>
-```
-
-## Edges
-
-### Directed edge with arrow
+### Edge
 
 ```html
 <line x1="140" y1="20" x2="200" y2="20" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 ```
 
-### Edge with label
-
-```html
-<line x1="140" y1="20" x2="260" y2="20" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<text x="200" y="12" text-anchor="middle" fill="#9c9c9d" font-family="Inter, sans-serif" font-size="11" font-style="italic">calls</text>
-```
-
-### Dashed edge (optional/indirect)
-
-```html
-<line x1="140" y1="20" x2="260" y2="20" stroke="#9c9c9d" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#arrowhead)"/>
-```
-
-### Curved edge (for crossing paths)
-
-```html
-<path d="M 140 20 C 180 20, 180 60, 220 60" stroke="#9c9c9d" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
-```
-
-## Grouping (subgraph equivalent)
-
-```html
-<g class="layer">
-  <rect x="-10" y="-10" width="320" height="120" rx="12" fill="none" stroke="#252829" stroke-width="1" stroke-dasharray="6 3"/>
-  <text x="0" y="8" fill="#6b6b6c" font-family="Inter, sans-serif" font-size="11" font-weight="600" letter-spacing="1">ENTRY LAYER</text>
-  <!-- Nodes inside this group -->
-</g>
-```
-
-## Layout Math
-
-### Horizontal layout (left-to-right flow)
-- Node spacing: 60px horizontal gap between node right edge and next node left edge
-- Node heights: 40px default
-- Vertical centering: Y = total_height / 2 - node_height / 2
-
-### Vertical layout (top-down flow)
-- Node spacing: 50px vertical gap between node bottom edge and next node top edge
-- Node widths: 140px default, auto-size to text + 24px padding
-
-### Auto-sizing viewBox
-- `viewBox="0 0 {max_x + 40} {max_y + 40}"` where max_x and max_y account for the rightmost/bottommost element plus padding
-
-## Design Tokens
+### Design Tokens
 
 | Token | Value |
 |-------|-------|
 | Node fill | `#161718` |
 | Node stroke | `#252829` |
-| Node stroke width | `1.5` |
-| Node border radius | `8` |
 | Node text | `#f9f9f9`, Inter 13px/500 |
 | Active node fill | `#FF6363` |
-| Active node stroke | `#FF6363` |
-| Active node text | `#ffffff` |
 | Edge line | `#9c9c9d`, 1.5px |
 | Edge arrow | `#9c9c9d` |
-| Edge label | `#9c9c9d`, Inter 11px italic |
-| Group rect stroke | `#252829` dashed |
-| Group label | `#6b6b6c`, Inter 11px/600 uppercase |

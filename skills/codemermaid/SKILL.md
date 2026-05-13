@@ -1,12 +1,12 @@
 ---
 name: codemermaid
-description: Generates interactive multi-page HTML codebase courses with raw SVG diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
-compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono). Zero npm, zero mermaid.js, zero build tools.
+description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
+compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and Mermaid.js v11 CDN for diagrams. Zero npm, zero build tools. CSS and runtime JS are linked (not inlined).
 ---
 
 # CodeMermaid v2
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — raw SVG diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm, zero external JS libraries. Each output page is self-contained with all CSS/JS/SVG inlined.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid.js diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS and runtime JS; Mermaid.js renders diagrams via CDN.
 
 ## When to Use
 
@@ -26,13 +26,15 @@ Generate a multi-page interactive HTML site that teaches a codebase as scrollabl
 Directory: `docs/codebase-course/`
 
 ```
+style.css                     <- Copied from assets/style.css
+runtime.js                    <- Copied from assets/runtime.js
 index.html                    <- Entry page (perspective + module cards)
 architecture.html             <- Architecture perspective (essay)
 <perspective>.html            <- Other perspectives (essays)
 module-<name>.html            <- Per-module deep dives (essays)
 ```
 
-Each file is fully self-contained — all CSS from `assets/style.css` and JS from `assets/runtime.js` are inlined directly into the HTML. All diagrams are raw SVG inline. No external JS libraries.
+Each HTML page links `style.css` and `runtime.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js via CDN. The assembly process copies `assets/style.css` and `assets/runtime.js` to the output directory alongside the HTML files.
 
 ## Parallel Generation Mode
 
@@ -87,7 +89,7 @@ Module B → imports from → Module D
 Module C → imports from → Module D (optional)
 ```
 
-This becomes the edge list for SVG diagrams. Use Glob and Grep extensively. Read actual code. Do NOT guess.
+This becomes the edge list for Mermaid diagrams. Use Glob and Grep extensively. Read actual code. Do NOT guess.
 
 ## Phase 2: Analyze
 
@@ -161,7 +163,7 @@ const INDEX = {
 { kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
 { kind: "quiz",        question, options: [{letter, text, correct}], explanation }
 { kind: "takeaway",    body }
-{ kind: "diagram",     title, svg, caption, zoomable? }               // raw SVG, zoomable defaults true
+{ kind: "diagram",     title, mermaid, caption, zoomable? }               // Mermaid syntax, zoomable defaults true
 { kind: "code-walk",   title, file, code, highlights: [{line, note}], layout? }  // layout defaults "split"
 { kind: "code-graph",  title, file, code, highlights: [{line, note, graphNode?}], svg }  // left code, right mini graph
 ```
@@ -266,17 +268,23 @@ Quiz rules:
 {
   kind: "diagram",
   title: "Request flow path",
-  svg: '<svg viewBox="0 0 580 120" ...>...</svg>',
+  mermaid:
+`graph TD
+  Client["Browser"] -->|"HTTPS"| CDN["Edge CDN"]
+  CDN -->|"forwards"| App["app.fetch()"]
+  App -->|"runs middleware"| Auth["auth middleware"]
+  Auth -->|"sets ctx.user"| Handler["protected handler"]`,
   caption: "Request flows from Client through Auth MW to Handler. Auth MW annotates, doesn't block.",
   zoomable: true
 }
 ```
 
 Diagram rules:
-- `svg` is raw SVG markup. Read `references/svg-patterns.md` for templates.
+- `mermaid` is Mermaid.js syntax. Read `references/svg-patterns.md` for diagram type templates and styling tokens.
 - `zoomable` defaults to `true`.
-- Nodes represent real components. Use descriptive kebab-case `data-node-id` attributes.
+- Nodes represent real components. Use descriptive kebab-case IDs.
 - `caption` is 1-2 sentences.
+- Supported diagram types: `graph TD` (flowchart), `graph LR` (left-to-right), `sequenceDiagram`, `stateDiagram-v2`. Choose the type that best fits the content.
 
 ### Code-walk units
 
@@ -343,18 +351,20 @@ Code-graph rules:
 - The runtime syncs highlights: clicking a code line highlights the SVG node, clicking a SVG node highlights the code line.
 - SVG should have 4-6 nodes showing the function's position in the call chain.
 
-## Phase 4: Build SVG Diagrams
+## Phase 4: Build Mermaid Diagrams
 
-All diagrams are raw SVG. Read `references/svg-patterns.md` for node/edge templates and design tokens.
+All `diagram` units use Mermaid.js syntax rendered via CDN. Read `references/svg-patterns.md` for Mermaid diagram types, node styling, and dark theme tokens.
 
 Key rules:
-- Every node is a `<g class="node" data-node-id="...">` with `<rect>` + `<text>`.
-- Edges are `<line>` or `<path>` with `marker-end="url(#arrowhead)"`.
-- Use `<defs><marker id="arrowhead">...</marker></defs>` once per SVG.
-- Design tokens: node fill `#161718`, stroke `#252829`, text `#f9f9f9`, active `#FF6363`, edge `#9c9c9d`.
-- Auto-size viewBox to content + 40px padding.
-- `shape-rendering: geometricPrecision` on root `<svg>`.
-- Cross-page: same module = same node ID everywhere.
+- Use `graph TD` for top-down architecture diagrams, `graph LR` for data flow, `sequenceDiagram` for interactions, `stateDiagram-v2` for state machines.
+- Node IDs are kebab-case and must be consistent across pages (same module = same node ID everywhere).
+- Use descriptive node labels: `Auth["auth middleware"]` not just `A["auth"]`.
+- Edge labels use pipe syntax: `A -->|"label"| B`.
+- Dashed edges for optional/indirect: `A -.->|"optional"| B`.
+- The dark theme is configured in the skeleton template's `mermaid.initialize()` call. Node fill, text, and edge colors are set there — do NOT inline theme overrides in individual diagrams.
+- Keep diagrams ≤ 8 nodes for readability. If a graph exceeds 8 nodes, split into multiple diagram units or use subgraphs.
+
+`code-graph` units still use raw inline SVG for their mini call-graph because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. Mermaid cannot produce these attributes. See `references/svg-patterns.md` for the minimal SVG reference for code-graph.
 
 ## Phase 5: Generate Page List
 
@@ -367,6 +377,12 @@ Key rules:
 
 All generated course files go in `docs/codebase-course/`. Filenames are kebab-case except the fixed `index.html`.
 
+Before generating HTML pages, copy shared assets to the output directory:
+1. Copy `assets/style.css` → `docs/codebase-course/style.css`
+2. Copy `assets/runtime.js` → `docs/codebase-course/runtime.js`
+
+These are linked by every generated HTML page.
+
 ## Phase 6: Write HTML Pages
 
 For each page in the file list (Phase 5):
@@ -374,20 +390,19 @@ For each page in the file list (Phase 5):
 ### Assembly process
 
 1. **Read the skeleton template**: `assets/skeleton-essay.html` or `assets/skeleton-index.html`
-2. **Read `assets/style.css`** and replace `/* STYLE_INLINE */` with its full contents
-3. **Read `assets/runtime.js`** and replace `/* RUNTIME_INLINE */` with its full contents
-4. **Generate content HTML** for each `<!-- SLOT:... -->` marker (see below)
-5. **Replace all slots** with their content HTML
-6. **Pre-flight verification** (mandatory — do not skip):
+2. **Generate content HTML** for each `<!-- SLOT:... -->` marker (see below)
+3. **Replace all slots** with their content HTML
+4. **Pre-flight verification** (mandatory — do not skip):
    - [ ] Every `highlights[].line` points to an existing, non-blank line in its snippet
    - [ ] Every code snippet is an exact copy from source (no invented lines, no reordered statements)
    - [ ] No `href="#"` placeholders — all back/next links point to real files
    - [ ] No `**bold**` markdown — use `<strong></strong>` instead
-   - [ ] SVG diagrams contain no broken references
    - [ ] Inside `<pre class="code-block">`, `.line` spans are adjacent with NO whitespace between them
    - [ ] Quiz has exactly 1 option with `data-correct="true"`
-7. **Dispatch a subagent reviewer** to validate the generated HTML
-8. **Write** the completed HTML to `docs/codebase-course/<filename>.html`
+   - [ ] No double HTML entity escaping — scan for `&amp;#` or `&amp;lt;` or `&amp;gt;` patterns and fix them
+   - [ ] Mermaid syntax is valid — no unclosed brackets, no missing quotes in edge labels
+5. **Dispatch a subagent reviewer** to validate the generated HTML
+6. **Write** the completed HTML to `docs/codebase-course/<filename>.html`
 
 ### Essay page slots
 
@@ -471,7 +486,7 @@ For each page in the file list (Phase 5):
 ```html
 <figure class="figure">
   {ZOOMABLE ? '<button class="zoom-btn" data-zoom-trigger>Zoom</button>' : ''}
-  <div class="figure-diagram">{SVG}</div>
+  <div class="figure-diagram"><pre class="mermaid">{MERMAID_CODE}</pre></div>
   <figcaption>{CAPTION}</figcaption>
 </figure>
 ```
@@ -548,13 +563,14 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 
 1. **Real code only** — never invent, simplify, or modify code snippets.
 2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Self-contained output** — each emitted HTML has all CSS and JS inlined. No external stylesheets or JS libraries.
+3. **Linked shared assets** — copy `style.css` and `runtime.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
 4. **Vanilla JS only** — no React, no build tools.
-5. **No external JS libraries** — no mermaid.js, no React. All diagrams are raw SVG.
+5. **Mermaid.js via CDN** — all `diagram` units use Mermaid syntax. `code-graph` mini-graphs use raw SVG (for `data-node-id` click-sync).
 6. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
 7. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
 8. **Consistent node IDs** — same module = same node ID across all pages.
 9. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
+10. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
 
 ## Common Mistakes
 
@@ -564,10 +580,11 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 | Highlight points to wrong line | Count lines within the extracted snippet, not the original source file. |
 | Code snippet has invented lines | Paste the snippet back into a temp file and run the type checker. |
 | `href="#"` in links | Replace with actual relative paths. Never leave placeholder links. |
-| SVG node text overflows rect | Ensure rect width accommodates text length + 24px padding per side. |
 | Side-by-side code looks cramped | Ensure `grid-template-columns: minmax(0, 1fr) 300px` is applied. |
 | Quiz has no correct answer | Exactly 1 option must have `data-correct="true"`. |
-| Zoomed SVG looks blurry | Keep `shape-rendering: geometricPrecision` on root `<svg>`. |
+| Double HTML entity escaping | Scan output for `&amp;#`, `&amp;lt;`, `&amp;gt;` — these are wrong. The correct forms are `&#39;`, `&lt;`, `&gt;`. |
+| Mermaid edge label missing quotes | Use pipe syntax: `A -->|"label text"| B` not `A -->|label text| B`. |
+| Annotations not aligned with code | Confirm CSS `.codewalk-annotations { gap: 0 }` and runtime.js `alignAnnotations()` runs on DOMContentLoaded. |
 
 ## File Organization
 
@@ -577,15 +594,15 @@ skills/codemermaid/
   references/
     design-system.md                  # CSS/typography/shadow reference
     DESIGN.md                         # Design rationale
-    svg-patterns.md                   # SVG diagram patterns and node/edge templates
+    svg-patterns.md                   # Mermaid diagram patterns + minimal SVG for code-graph
     subagent-generation.md            # Optional parallel generation protocol
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
   assets/
-    skeleton-essay.html               # Minimal shell for essay pages (HTML comment slots)
-    skeleton-index.html               # Minimal shell for index page
-    style.css                         # Full design system CSS (inlined per page)
-    runtime.js                        # Minimal runtime: TOC, quiz, annotations, zoom
+    skeleton-essay.html               # Shell for essay pages (linked CSS/JS, Mermaid CDN)
+    skeleton-index.html               # Shell for index page (linked CSS/JS, no Mermaid)
+    style.css                         # Full design system CSS + Mermaid overrides
+    runtime.js                        # Runtime: TOC, quiz, annotation alignment/clicks, code-graph sync, zoom
   tests/
     fixtures/
       test-page-v2.html               # Visual test page exercising all unit types
