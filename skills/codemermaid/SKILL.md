@@ -215,7 +215,7 @@ Prefer depth over brevity. These are upper bounds, not targets — write as much
 | `quiz` | question ≤ 2 sentences, 4 options, explanation ≤ 100 words — must reference specific code |
 | `takeaway` | 3–5 sentences — must synthesize, not just repeat |
 | `diagram` | ≤ 8 nodes, caption 20–50 words — must say what's interesting, not just what it shows |
-| `code-walk` | 8–20 lines code + 3–6 annotations — each note must explain the *why*, not restate the code |
+| `code-walk` | 8–20 lines code + 3–6 annotations — each note must explain the reasoning, not just restate what the code says |
 | `code-graph` | 8–15 lines code + mini SVG (4–6 nodes) — same depth as code-walk for annotations |
 
 **Rule of thumb:** If you can remove an annotation note and the reader loses no understanding, the note wasn't detailed enough — rewrite it, don't remove it.
@@ -640,9 +640,6 @@ skills/codemermaid/
     skeleton-index.html               # Shell for index page (linked CSS/JS, no Mermaid)
     style.css                         # Full design system CSS + Mermaid overrides
     runtime.js                        # Runtime: TOC, quiz, annotation alignment/clicks, code-graph sync, zoom
-  tests/
-    fixtures/
-      test-page-v2.html               # Visual test page exercising all unit types
 ```
 
 ## Relationship to Other Skills
