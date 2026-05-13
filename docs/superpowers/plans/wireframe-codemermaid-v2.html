@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe — CodeMermaid v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080a;
+  --surface: #101111;
+  --surface-2: #161718;
+  --border: hsl(195, 5%, 15%);
+  --border-soft: hsl(195, 5%, 12%);
+  --text: #f9f9f9;
+  --text-dim: #9c9c9d;
+  --text-faint: #6b6b6c;
+  --accent: #FF6363;
+  --accent-soft: rgba(255, 99, 99, 0.12);
+  --code-bg: #0c0d0f;
+  --highlight: rgba(255, 99, 99, 0.10);
+  --shadow-card:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 8px 24px rgba(0,0,0,0.35),
+    0 2px 6px rgba(0,0,0,0.25);
+  --shadow-pill:
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 4px 12px rgba(255, 99, 99, 0.25),
+    0 2px 4px rgba(0,0,0,0.4);
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --green-border: rgba(52, 211, 153, 0.3);
+  --red: #f87171;
+  --red-soft: rgba(248, 113, 113, 0.12);
+  --red-border: rgba(248, 113, 113, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+* {
+  scrollbar-color: rgba(156, 156, 157, 0.42) rgba(255, 255, 255, 0.035);
+  scrollbar-width: thin;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.035); border-radius: 999px; }
+*::-webkit-scrollbar-thumb { background: rgba(156, 156, 157, 0.42); border: 2px solid var(--bg); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(249, 249, 249, 0.58); }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-primary);
+  font-feature-settings: 'calt', 'kern', 'liga', 'ss03';
+  letter-spacing: 0.2px;
+  font-weight: 400;
+  line-height: 1.65;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+code, pre { font-family: var(--font-mono); }
+
+.container {
+  width: 80%;
+  min-width: 900px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 32px 160px;
+}
+
+.topbar {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+}
+.back-link {
+  font-size: 13px;
+  color: var(--text-faint);
+  border-bottom: 1px solid transparent;
+}
+.back-link:hover { color: var(--text-dim); }
+
+.hero { margin-bottom: 56px; }
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin-bottom: 20px;
+}
+h2 {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  margin-bottom: 16px;
+}
+.learning-promise {
+  font-size: 19px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-bottom: 28px;
+  max-width: 640px;
+}
+.prereqs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+.prereqs li {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 86px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.prereqs li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: var(--text-faint);
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+/* ===== TOC (replaces anchor diagram) ===== */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 64px;
+  box-shadow: var(--shadow-card);
+}
+.toc-label {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.toc-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.toc-item:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+.toc-num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.toc-kind {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ===== UNIT BLOCKS ===== */
+.unit { margin-bottom: 56px; }
+.unit-kind {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+  padding: 3px 8px;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border-soft);
+}
+.unit p {
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+.unit p strong { color: var(--text); font-weight: 600; }
+.unit a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+}
+
+/* ===== CODE BLOCK shared ===== */
+.codewalk {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.codewalk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+pre.code-block {
+  margin: 0;
+  padding: 18px 0;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  scrollbar-gutter: stable;
+}
+pre.code-block .line {
+  display: grid;
+  grid-template-columns: 32px max-content;
+  gap: 14px;
+  padding: 0 20px;
+  color: var(--text);
+  min-width: max-content;
+  white-space: normal;
+}
+pre.code-block .line.line-hl {
+  background: var(--highlight);
+  border-left: 2px solid var(--accent);
+  padding-left: 18px;
+}
+pre.code-block .ln {
+  display: inline-block;
+  width: 32px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  user-select: none;
+}
+pre.code-block .code-text {
+  white-space: pre;
+}
+
+/* ===== CODE-WALK split (left code, right annotations) ===== */
+.codewalk-split {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.codewalk-split .codewalk-head {
+  border-bottom: 1px solid var(--border);
+}
+.codewalk-split-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+.codewalk-split pre.code-block {
+  border-right: 1px solid var(--border);
+}
+.codewalk-annotations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface-2);
+  overflow-y: auto;
+}
+.codewalk-annotation {
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 99, 99, 0.04);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.codewalk-annotation.active {
+  background: rgba(255, 99, 99, 0.11);
+  box-shadow: 0 0 0 1px rgba(255, 99, 99, 0.22);
+}
+.codewalk-annotation .annotation-line {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.codewalk-annotation p {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ===== CODE-GRAPH split (left code, right mini graph) ===== */
+.codegraph-split {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.codegraph-split .codewalk-head {
+  border-bottom: 1px solid var(--border);
+}
+.codegraph-split-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+.codegraph-split pre.code-block {
+  border-right: 1px solid var(--border);
+}
+.codegraph-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--surface);
+  overflow: auto;
+}
+.codegraph-graph svg .node-active rect,
+.codegraph-graph svg .node-active path {
+  fill: #FF6363;
+  stroke: #FF6363;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+.codegraph-graph svg .node-active text {
+  fill: #ffffff;
+  font-weight: 600;
+}
+.codegraph-graph svg .node { cursor: pointer; transition: opacity 0.2s ease; }
+.codegraph-graph svg .node:hover { opacity: 0.85; }
+
+/* ===== QUIZ ===== */
+.quiz {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.quiz-question {
+  padding: 18px 20px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.quiz-option:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--text-faint);
+}
+.quiz-option-letter {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Quiz states */
+.quiz-option.correct {
+  background: var(--green-soft);
+  border-color: var(--green-border);
+}
+.quiz-option.correct .quiz-option-letter {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+.quiz-option.wrong {
+  background: var(--red-soft);
+  border-color: var(--red-border);
+}
+.quiz-option.wrong .quiz-option-letter {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--bg);
+}
+.quiz-option.dimmed {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.quiz-explanation {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  display: none;
+}
+.quiz-explanation.visible {
+  display: block;
+}
+.quiz-explanation strong {
+  color: var(--text);
+}
+
+/* ===== DIAGRAM (inline SVG figure) ===== */
+.figure {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 32px 22px;
+  margin: 24px 0 14px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+.figure-diagram {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.figure-diagram svg { max-width: 100%; height: auto; }
+.figure figcaption {
+  color: var(--text-dim);
+  font-size: 13.5px;
+  line-height: 1.55;
+  text-align: center;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+  font-style: italic;
+}
+.figure figcaption strong { color: var(--text); font-style: normal; font-weight: 600; }
+
+/* ===== SURPRISE (now merged into concept, but showing the visual style for "surprising" concepts) ===== */
+.unit-surprise {
+  border: 1px solid var(--accent);
+  background: linear-gradient(180deg, rgba(255,99,99,0.06), rgba(255,99,99,0.02));
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin: 16px 0;
+  box-shadow: 0 8px 32px rgba(255, 99, 99, 0.08);
+}
+.unit-surprise .unit-kind {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+}
+.unit-surprise h2 { color: var(--text); }
+.unit-surprise p { color: var(--text); font-size: 17px; }
+
+/* ===== TAKEAWAY ===== */
+.unit-takeaway {
+  margin-top: 80px;
+  padding: 32px 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+}
+.unit-takeaway .unit-kind {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+.unit-takeaway p {
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* ===== FOOTER ===== */
+.page-footer {
+  margin-top: 72px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-faint);
+  font-size: 13px;
+  text-align: left;
+}
+.next-link {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.recap {
+  color: var(--text-faint);
+  font-size: 13.5px;
+  line-height: 1.55;
+  max-width: 540px;
+}
+
+/* ===== SEPARATOR between wireframe sections ===== */
+.wireframe-separator {
+  border: 0;
+  border-top: 2px dashed var(--accent);
+  margin: 80px 0;
+  opacity: 0.4;
+}
+.wireframe-note {
+  background: var(--accent-soft);
+  border: 1px solid rgba(255, 99, 99, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 40px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back-link" href="index.html">← Index</a>
+</header>
+
+<main class="container">
+
+  <div class="wireframe-note">Wireframe — 展示 6 种 unit 类型 + TOC + 页面结构。样式和现有主题一致。</div>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero">
+    <div class="eyebrow">chat-kit</div>
+    <h1>Auth Middleware</h1>
+    <p class="learning-promise">你将理解这个 middleware 如何处理认证、为什么它不 throw、以及下游如何决定权限。</p>
+    <ul class="prereqs">
+      <li>HTTP Headers</li>
+      <li>JWT Tokens</li>
+      <li>Hono Framework</li>
+    </ul>
+  </section>
+
+  <!-- ==================== TOC (replaces anchor diagram) ==================== -->
+  <nav class="toc">
+    <div class="toc-label">On this page</div>
+    <ol class="toc-list">
+      <li><a class="toc-item" href="#unit-0"><span class="toc-num">1</span> Token 提取与验证<span class="toc-kind">concept</span></a></li>
+      <li><a class="toc-item" href="#unit-1"><span class="toc-num">2</span> 这个 middleware 不 throw<span class="toc-kind">concept</span></a></li>
+      <li><a class="toc-item" href="#unit-2"><span class="toc-num">3</span> 这个 middleware 做了什么？<span class="toc-kind">quiz</span></a></li>
+      <li><a class="toc-item" href="#unit-3"><span class="toc-num">4</span> 请求流转路径<span class="toc-kind">diagram</span></a></li>
+      <li><a class="toc-item" href="#unit-4"><span class="toc-num">5</span> 逐行解析 auth middleware<span class="toc-kind">code-walk</span></a></li>
+      <li><a class="toc-item" href="#unit-5"><span class="toc-num">6</span> auth 在调用链中的位置<span class="toc-kind">code-graph</span></a></li>
+      <li><a class="toc-item" href="#unit-6"><span class="toc-num">7</span> Key takeaway<span class="toc-kind">takeaway</span></a></li>
+    </ol>
+  </nav>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: concept (normal) ==================== -->
+  <section class="unit unit-concept" id="unit-0">
+    <span class="unit-kind">concept</span>
+    <h2>Token 提取与验证</h2>
+    <p>这个 middleware 从 <code>Authorization</code> header 里提取 Bearer token。注意它用 <strong>optional chaining</strong> — 没有 header 时不 crash，只是拿到 <code>undefined</code>。</p>
+    <p>提取后调用 <code>verify()</code> 验证签名和过期时间。验证通过就把 user 对象挂到 context 上，后续 handler 直接用。</p>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: concept (surprise style) ==================== -->
+  <section class="unit unit-surprise" id="unit-1">
+    <span class="unit-kind">concept</span>
+    <h2>这个 middleware 不 throw</h2>
+    <p>大多数 auth middleware 会在 token 无效时抛 401。但这里不 — 它设 <code>c.set('user', null)</code> 然后 <code>next()</code>。下游 handler 自己决定 null user 够不够用。这意味着同一个 middleware 同时服务公开路由和受保护路由。</p>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: quiz ==================== -->
+  <section class="unit unit-quiz" id="unit-2">
+    <span class="unit-kind">quiz</span>
+    <div class="quiz">
+      <div class="quiz-question">当 token 无效（过期/签名错误）时，这个 middleware 做了什么？</div>
+      <div class="quiz-options">
+        <div class="quiz-option" data-correct="false">
+          <span class="quiz-option-letter">A</span>
+          <span>抛出 401 Unauthorized 错误</span>
+        </div>
+        <div class="quiz-option" data-correct="true">
+          <span class="quiz-option-letter">B</span>
+          <span>设置 user 为 null 并继续执行</span>
+        </div>
+        <div class="quiz-option" data-correct="false">
+          <span class="quiz-option-letter">C</span>
+          <span>重定向到登录页</span>
+        </div>
+        <div class="quiz-option" data-correct="false">
+          <span class="quiz-option-letter">D</span>
+          <span>返回空响应</span>
+        </div>
+      </div>
+      <div class="quiz-explanation visible">
+        <strong>正确：B</strong> — middleware 在 catch 块里设 <code>c.set('user', null)</code> 然后 <code>next()</code>。不 throw、不 redirect、不中断请求。这是一个有意的设计决策 — 让下游 handler 决定如何处理未认证用户。
+      </div>
+    </div>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: diagram (inline SVG) ==================== -->
+  <section class="unit unit-diagram" id="unit-3">
+    <span class="unit-kind">diagram</span>
+    <h2>请求流转路径</h2>
+    <figure class="figure">
+      <div class="figure-diagram">
+        <svg viewBox="0 0 580 120" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+          <defs>
+            <marker id="arrowhead" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#9c9c9d"/>
+            </marker>
+          </defs>
+          <g class="node" data-node-id="client">
+            <rect x="0" y="30" width="100" height="40" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+            <text x="50" y="55" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">Client</text>
+          </g>
+          <line x1="100" y1="50" x2="160" y2="50" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <g class="node" data-node-id="auth-mw">
+            <rect x="160" y="30" width="140" height="40" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+            <text x="230" y="55" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">Auth MW</text>
+          </g>
+          <line x1="300" y1="50" x2="360" y2="50" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <g class="node" data-node-id="handler">
+            <rect x="360" y="30" width="100" height="40" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+            <text x="410" y="55" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">Handler</text>
+          </g>
+          <line x1="460" y1="50" x2="520" y2="50" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <g class="node" data-node-id="response">
+            <rect x="480" y="30" width="80" height="40" rx="16" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+            <text x="520" y="55" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="12" font-weight="500">Response</text>
+          </g>
+          <text x="200" y="22" text-anchor="middle" fill="#9c9c9d" font-family="Inter, sans-serif" font-size="11" font-style="italic">verify token</text>
+          <text x="410" y="22" text-anchor="middle" fill="#9c9c9d" font-family="Inter, sans-serif" font-size="11" font-style="italic">check c.user</text>
+        </svg>
+      </div>
+      <figcaption>请求从 Client 经过 Auth Middleware 到 Handler 的流转。Auth MW 不阻断 — 它只标注。</figcaption>
+    </figure>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: code-walk (split: left code, right annotations) ==================== -->
+  <section class="unit unit-code-walk" id="unit-4">
+    <span class="unit-kind">code-walk</span>
+    <h2>逐行解析 auth middleware</h2>
+    <div class="codewalk-split">
+      <div class="codewalk-head">
+        <span>src/middleware/auth.ts</span>
+        <span>TypeScript</span>
+      </div>
+      <div class="codewalk-split-body">
+        <pre class="code-block"><span class="line line-hl" data-line="1"><span class="ln">1</span><span class="code-text">export const auth: Middleware = async (c, next) => {</span></span><span class="line line-hl" data-line="2"><span class="ln">2</span><span class="code-text">  const token = c.req.header('Authorization')?.slice(7);</span></span><span class="line" data-line="3"><span class="ln">3</span><span class="code-text">  if (!token) { c.set('user', null); return next(); }</span></span><span class="line" data-line="4"><span class="ln">4</span><span class="code-text">  try {</span></span><span class="line line-hl" data-line="5"><span class="ln">5</span><span class="code-text">    const user = await verify(token);</span></span><span class="line" data-line="6"><span class="ln">6</span><span class="code-text">    c.set('user', user);</span></span><span class="line" data-line="7"><span class="ln">7</span><span class="code-text">  } catch {</span></span><span class="line line-hl" data-line="8"><span class="ln">8</span><span class="code-text">    c.set('user', null);</span></span><span class="line" data-line="9"><span class="ln">9</span><span class="code-text">  }</span></span><span class="line line-hl" data-line="10"><span class="ln">10</span><span class="code-text">  return next();</span></span><span class="line" data-line="11"><span class="ln">11</span><span class="code-text">};</span></span></pre>
+        <div class="codewalk-annotations">
+          <div class="codewalk-annotation active" data-note-lines="1,2">
+            <span class="annotation-line">L1-2</span>
+            <p>从 Authorization header 提取 Bearer token。Optional chaining 保证没 header 时也不 crash。</p>
+          </div>
+          <div class="codewalk-annotation" data-note-lines="5">
+            <span class="annotation-line">L5</span>
+            <p>verify() 验证 JWT 签名和过期时间。抛异常说明 token 无效。</p>
+          </div>
+          <div class="codewalk-annotation" data-note-lines="8">
+            <span class="annotation-line">L8</span>
+            <p>catch 块不 throw — 设 null user，让请求继续走。</p>
+          </div>
+          <div class="codewalk-annotation" data-note-lines="10">
+            <span class="annotation-line">L10</span>
+            <p>无论成功失败都 next()。这就是"不阻断"的精髓。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: code-graph (split: left code, right mini graph) ==================== -->
+  <section class="unit unit-code-graph" id="unit-5">
+    <span class="unit-kind">code-graph</span>
+    <h2>auth 在调用链中的位置</h2>
+    <div class="codegraph-split">
+      <div class="codewalk-head">
+        <span>src/middleware/auth.ts</span>
+        <span>TypeScript</span>
+      </div>
+      <div class="codegraph-split-body">
+        <pre class="code-block"><span class="line line-hl" data-line="1"><span class="ln">1</span><span class="code-text">export const auth: Middleware = async (c, next) => {</span></span><span class="line line-hl" data-line="2"><span class="ln">2</span><span class="code-text">  const token = c.req.header('Authorization')?.slice(7);</span></span><span class="line" data-line="3"><span class="ln">3</span><span class="code-text">  if (!token) { c.set('user', null); return next(); }</span></span><span class="line" data-line="4"><span class="ln">4</span><span class="code-text">  try {</span></span><span class="line line-hl" data-line="5"><span class="ln">5</span><span class="code-text">    const user = await verify(token);</span></span><span class="line" data-line="6"><span class="ln">6</span><span class="code-text">    c.set('user', user);</span></span><span class="line" data-line="7"><span class="ln">7</span><span class="code-text">  } catch {</span></span><span class="line" data-line="8"><span class="ln">8</span><span class="code-text">    c.set('user', null);</span></span><span class="line" data-line="9"><span class="ln">9</span><span class="code-text">  }</span></span><span class="line" data-line="10"><span class="ln">10</span><span class="code-text">  return next();</span></span><span class="line" data-line="11"><span class="ln">11</span><span class="code-text">};</span></span></pre>
+        <div class="codegraph-graph">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <defs>
+              <marker id="arrow2" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#9c9c9d"/>
+              </marker>
+            </defs>
+            <g class="node node-active" data-node-id="auth-mw">
+              <rect x="70" y="10" width="140" height="36" rx="8" fill="#FF6363" stroke="#FF6363" stroke-width="1.5"/>
+              <text x="140" y="33" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-size="13" font-weight="600">auth()</text>
+            </g>
+            <line x1="100" y1="46" x2="80" y2="80" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrow2)"/>
+            <line x1="180" y1="46" x2="200" y2="80" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrow2)"/>
+            <g class="node" data-node-id="verify">
+              <rect x="10" y="80" width="120" height="36" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="70" y="103" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">verify()</text>
+            </g>
+            <g class="node" data-node-id="next">
+              <rect x="150" y="80" width="120" height="36" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="210" y="103" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">next()</text>
+            </g>
+            <line x1="70" y1="116" x2="70" y2="150" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrow2)"/>
+            <g class="node" data-node-id="jwt">
+              <rect x="10" y="150" width="120" height="36" rx="16" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="70" y="173" text-anchor="middle" fill="#9c9c9d" font-family="Inter, sans-serif" font-size="12" font-weight="500">JWT Library</text>
+            </g>
+            <line x1="210" y1="116" x2="210" y2="150" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrow2)"/>
+            <g class="node" data-node-id="handler">
+              <rect x="150" y="150" width="120" height="36" rx="16" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="210" y="173" text-anchor="middle" fill="#9c9c9d" font-family="Inter, sans-serif" font-size="12" font-weight="500">Handler</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="wireframe-separator">
+
+  <!-- ==================== UNIT: takeaway ==================== -->
+  <section class="unit unit-takeaway" id="unit-6">
+    <span class="unit-kind">takeaway</span>
+    <p>这个 auth middleware 的核心设计是 <strong>标注而非阻断</strong> — 它验证 token、把 user 挂到 context 上，但从不拒绝请求。每个下游 handler 自己决定 null user 是公开访问还是 401。这种模式让一个 middleware 同时服务公开和受保护路由。</p>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="page-footer">
+    <a class="next-link" href="module-chat-store.html">Chat Store →</a>
+    <p class="recap">Auth middleware 标注而非阻断，下游决定权限。</p>
+  </footer>
+
+</main>
+
+<script>
+document.querySelectorAll('.quiz-option').forEach(opt => {
+  opt.addEventListener('click', function() {
+    const quiz = this.closest('.quiz');
+    if (quiz.classList.contains('answered')) return;
+    quiz.classList.add('answered');
+    const isCorrect = this.dataset.correct === 'true';
+    quiz.querySelectorAll('.quiz-option').forEach(o => {
+      if (o === this) {
+        o.classList.add(isCorrect ? 'correct' : 'wrong');
+      } else if (o.dataset.correct === 'true') {
+        o.classList.add('correct');
+      } else {
+        o.classList.add('dimmed');
+      }
+    });
+    quiz.querySelector('.quiz-explanation').classList.add('visible');
+  });
+});
+
+document.querySelectorAll('.codewalk-annotation, .codegraph-graph [data-node-id]').forEach(el => {
+  el.addEventListener('click', function() {
+    const wasActive = this.classList.contains('active') || this.classList.contains('node-active');
+    this.closest('.codewalk-split, .codegraph-split')
+      .querySelectorAll('.codewalk-annotation.active, .node-active')
+      .forEach(a => a.classList.remove('active', 'node-active'));
+    if (!wasActive) this.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
