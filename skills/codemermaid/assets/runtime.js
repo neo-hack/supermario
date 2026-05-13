@@ -1,6 +1,6 @@
 /* runtime.js — minimal interactive runtime for codemermaid v2.
-   No mermaid, no unit rendering. Handles: TOC scroll, quiz, annotation clicks, code-graph sync, zoom.
-   Inlined into each generated HTML page. */
+   Handles: TOC scroll, quiz, annotation alignment, annotation clicks, code-graph sync, zoom.
+   Linked via <script src="runtime.js"> in each generated HTML page. */
 
 function initTocScroll() {
   var tocLinks = Array.from(document.querySelectorAll('.toc-item'));
@@ -102,11 +102,55 @@ function bindAnnotationClicks(scope) {
   }
 }
 
+function alignAnnotations(container) {
+  var annotations = container.querySelectorAll('.codewalk-annotation');
+  var codeLines = container.querySelectorAll('.code-block .line');
+  if (annotations.length === 0 || codeLines.length === 0) return;
+  var preBlock = container.querySelector('pre.code-block');
+  if (!preBlock) return;
+  var preTop = preBlock.getBoundingClientRect().top;
+  var annoPanel = container.querySelector('.codewalk-annotations');
+  if (!annoPanel) return;
+  var panelTop = annoPanel.getBoundingClientRect().top;
+  var offset = preTop - panelTop;
+  var minGap = 6;
+  var prevBottom = offset;
+  for (var i = 0; i < annotations.length; i++) {
+    var noteLines = String(annotations[i].dataset.noteLines || '').split(',');
+    var firstLine = noteLines[0];
+    var targetLine = null;
+    for (var j = 0; j < codeLines.length; j++) {
+      if (codeLines[j].dataset.line === firstLine) { targetLine = codeLines[j]; break; }
+    }
+    if (!targetLine) { prevBottom += annotations[i].offsetHeight + minGap; continue; }
+    var targetTop = targetLine.getBoundingClientRect().top - preTop + offset;
+    var marginTop = Math.max(minGap, targetTop - prevBottom);
+    annotations[i].style.marginTop = marginTop + 'px';
+    prevBottom = targetTop + annotations[i].offsetHeight + minGap;
+  }
+}
+
 function initCodeWalkAnnotations() {
   var containers = document.querySelectorAll('.codewalk-split');
   for (var i = 0; i < containers.length; i++) {
     bindAnnotationClicks(containers[i]);
+    alignAnnotations(containers[i]);
   }
+}
+
+function initAnnotationResize() {
+  var ticking = false;
+  window.addEventListener('resize', function() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      var containers = document.querySelectorAll('.codewalk-split');
+      for (var i = 0; i < containers.length; i++) {
+        alignAnnotations(containers[i]);
+      }
+      ticking = false;
+    });
+  });
 }
 
 function initCodeGraphSync() {
@@ -250,6 +294,7 @@ function bootPage() {
   initTocScroll();
   initQuiz();
   initCodeWalkAnnotations();
+  initAnnotationResize();
   initCodeGraphSync();
   initZoomOverlay();
 }

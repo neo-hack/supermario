@@ -555,7 +555,7 @@ pre.code-block .line.active-note-line {
 .codewalk-annotations {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   padding: 14px;
   background: var(--surface-2);
   overflow-y: auto;
@@ -803,6 +803,61 @@ pre.code-block .line.active-note-line {
   padding: 0 10px;
   min-width: 56px;
   text-align: center;
+}
+
+/* ===== MERMAID DIAGRAM OVERRIDES ===== */
+pre.mermaid {
+  background: transparent;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+pre.mermaid svg {
+  min-width: 680px;
+  max-width: 100%;
+  height: auto;
+}
+pre.mermaid .node rect,
+pre.mermaid .node polygon,
+pre.mermaid .node circle {
+  stroke-width: 1.5px;
+}
+pre.mermaid .edgeLabel {
+  font-size: 12px;
+  background: transparent;
+}
+pre.mermaid .label {
+  font-family: var(--font-primary);
+  color: var(--text);
+  font-size: 13px;
+}
+pre.mermaid .cluster-label {
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+pre.mermaid line,
+pre.mermaid path {
+  stroke: var(--text-dim);
+}
+pre.mermaid .marker {
+  fill: var(--text-dim);
+  stroke: var(--text-dim);
+}
+pre.mermaid .edge-pattern-solid {
+  stroke: var(--text-dim);
+}
+pre.mermaid .edge-pattern-dotted {
+  stroke: var(--text-dim);
+  stroke-dasharray: 4 3;
+}
+.figure-diagram pre.mermaid {
+  padding: 0;
+}
+.figure-diagram pre.mermaid svg {
+  min-width: 0;
 }
 
 /* ===== RESPONSIVE ===== */
