@@ -1,6 +1,6 @@
 # Unit Kind Examples
 
-These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples; each is a complete JS object literal that would pass through `renderUnit()` unmodified. Voice rules live separately in `voice-examples.md`.
+These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples showing the exact JS object literal format. Voice rules live separately in `voice-examples.md`.
 
 > Source: examples drawn from scanned codebases. Don't invent codebases — only use repos you've actually scanned.
 
