@@ -82,6 +82,7 @@ Rules:
 - Use code-walk units for single-file deep dives.
 - Do not write index.html or unassigned files.
 - Validate before reporting.
+- **EXPLAIN CODE THOROUGHLY.** Every annotation note must explain the *why* — not restate the code. Every concept must explain the module's role and reasoning. Lazy notes like "Calls verify() to validate the token" are banned. Good notes explain the mechanism, tradeoffs, and non-obvious behavior. See SKILL.md "Code explanation depth" section for the full standard.
 
 Return the output contract below.
 ```

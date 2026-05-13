@@ -4,7 +4,7 @@ description: Generates interactive multi-page HTML codebase courses with Mermaid
 compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and Mermaid.js v11 CDN for diagrams. Zero npm, zero build tools. CSS and runtime JS are linked (not inlined).
 ---
 
-# CodeMermaid v2
+# CodeMermaid
 
 Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid.js diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS and runtime JS; Mermaid.js renders diagrams via CDN.
 
@@ -14,12 +14,6 @@ Generate a multi-page interactive HTML site that teaches a codebase as scrollabl
 - "Create a visual walkthrough of this project's architecture"
 - "Make an interactive module dependency diagram"
 - "Build a tutorial page from this codebase"
-
-## When NOT to Use
-
-- Slide-based presentations → use `presentation` skill (Slidev)
-- Pure Markdown output → write `.md` directly
-- Need drag-and-drop node editing → use React Flow, not this skill
 
 ## Output
 
@@ -172,16 +166,59 @@ const INDEX = {
 
 A teacher pointing at the thing. Signposted, opinionated, comparing to familiar mental models. See `references/voice-examples.md` for flat-vs-pointed pairs the AI MUST imitate. Anti-patterns: neutral description, academic filler ("it is important to note"), passive voice ("as we can see").
 
+### Code explanation depth (mandatory — do not skimp)
+
+Every piece of code shown to the reader MUST be thoroughly explained. This is the core value of the course — the reader is here to understand code they couldn't read on their own.
+
+**concept units** before a code-walk must explain:
+- What the module/function does and why it exists (its role in the system)
+- What pattern or tradeoff is at play (why this approach over alternatives)
+- Any non-obvious context the reader needs before seeing the code
+
+**code-walk highlights[].note** must explain:
+- What the highlighted line does (not just restate the code — explain the *why*)
+- How it connects to the surrounding logic (data flow, control flow, side effects)
+- Any implicit behavior not visible in the code (e.g., "this returns null because the upstream function hasn't resolved yet")
+- Non-trivial API usage (e.g., "Array.from creates a shallow copy — we do this because the NodeList returned by querySelectorAll is live, meaning it updates when the DOM changes")
+
+**diagram captions** must explain:
+- What the diagram shows and why that flow/structure matters
+- Where the interesting part is (not just "this is the architecture")
+
+**quiz explanations** must explain:
+- Why the correct answer is correct (with specific code evidence)
+- Why each wrong answer is wrong (briefly)
+
+**ANTI-PATTERN: Lazy notes.** The following are banned:
+- Notes that restate the code: `note: "Calls verify() on line 3"` when the code says `const user = await verify(token)`
+- Notes that say "see above" or "as mentioned earlier" without re-explaining
+- Concept bodies that say "this module handles X" without explaining *how* or *why*
+- Captions that say "Module dependency diagram" without saying what's interesting about the dependencies
+
+**GOOD example:**
+```
+{ line: 5, note: "verify() is async because it makes a network call to the JWT issuer's .well-known/jwks.json endpoint. The await here means the middleware pauses — no downstream handler runs until this resolves. That's fine for auth, but it means every request pays this latency cost, even for public endpoints that don't need auth." }
+```
+
+**BAD example:**
+```
+{ line: 5, note: "Calls verify() to validate the JWT token." }
+```
+
 ### Unit quality guidelines (soft limits)
+
+Prefer depth over brevity. These are upper bounds, not targets — write as much as needed to truly explain the code.
 
 | Unit | Suggested scope |
 |------|-----------------|
-| `concept` | 60–150 words |
-| `quiz` | question ≤ 2 sentences, 4 options, explanation ≤ 100 words |
-| `takeaway` | 2–4 sentences |
-| `diagram` | ≤ 8 nodes, caption ≤ 40 words |
-| `code-walk` | 8–15 lines code + 3–5 annotations |
-| `code-graph` | 8–15 lines code + mini SVG (4–6 nodes) |
+| `concept` | 80–200 words — must explain *why*, not just *what* |
+| `quiz` | question ≤ 2 sentences, 4 options, explanation ≤ 100 words — must reference specific code |
+| `takeaway` | 3–5 sentences — must synthesize, not just repeat |
+| `diagram` | ≤ 8 nodes, caption 20–50 words — must say what's interesting, not just what it shows |
+| `code-walk` | 8–20 lines code + 3–6 annotations — each note must explain the *why*, not restate the code |
+| `code-graph` | 8–15 lines code + mini SVG (4–6 nodes) — same depth as code-walk for annotations |
+
+**Rule of thumb:** If you can remove an annotation note and the reader loses no understanding, the note wasn't detailed enough — rewrite it, don't remove it.
 
 There is **no fixed unit budget**. A module page should include as many units as needed to teach its content thoroughly. If a page exceeds ~15 units, consider splitting into sub-modules.
 
