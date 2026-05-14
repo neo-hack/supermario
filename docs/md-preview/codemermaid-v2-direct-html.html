@@ -7,7 +7,319 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  --bg: #07080a;
+  --surface: #101111;
+  --surface-2: #161718;
+  --border: hsl(195, 5%, 15%);
+  --border-soft: hsl(195, 5%, 12%);
+  --text: #f9f9f9;
+  --text-dim: #9c9c9d;
+  --text-faint: #6b6b6c;
+  --accent: #FF6363;
+  --accent-soft: rgba(255, 99, 99, 0.12);
+  --code-bg: #0c0d0f;
+  --highlight: rgba(255, 99, 99, 0.10);
+  --shadow-card:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 8px 24px rgba(0,0,0,0.35),
+    0 2px 6px rgba(0,0,0,0.25);
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --blue: hsl(202, 100%, 67%);
+  --blue-soft: hsla(202, 100%, 67%, 0.12);
+  --yellow: hsl(43, 100%, 60%);
+  --yellow-soft: hsla(43, 100%, 60%, 0.12);
+  --orange: hsl(24, 100%, 60%);
+  --orange-soft: hsla(24, 100%, 60%, 0.12);
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface-2: #eaeef2;
+  --border: #d0d7de;
+  --border-soft: #e0e5e9;
+  --text: #1f2328;
+  --text-dim: #656d76;
+  --text-faint: #8b949e;
+  --accent: #cf222e;
+  --accent-soft: rgba(207, 34, 46, 0.08);
+  --code-bg: #f6f8fa;
+  --highlight: rgba(207, 34, 46, 0.06);
+  --shadow-card:
+    0 1px 0 rgba(0,0,0,0.04) inset,
+    0 0 0 1px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.08),
+    0 2px 6px rgba(0,0,0,0.04);
+  --green: #1a7f37;
+  --green-soft: rgba(26, 127, 55, 0.08);
+  --blue: #0969da;
+  --blue-soft: rgba(9, 105, 218, 0.08);
+  --yellow: #9a6700;
+  --yellow-soft: rgba(154, 103, 0, 0.08);
+  --orange: #bc4c00;
+  --orange-soft: rgba(188, 76, 0, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+* { scrollbar-color: rgba(156,156,157,0.42) rgba(255,255,255,0.035); scrollbar-width: thin; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: rgba(255,255,255,0.035); border-radius: 999px; }
+*::-webkit-scrollbar-thumb { background: rgba(156,156,157,0.42); border: 2px solid var(--bg); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(249,249,249,0.58); }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-primary);
+  font-feature-settings: 'calt', 'kern', 'liga', 'ss03';
+  letter-spacing: 0.2px;
+  font-weight: 400;
+  line-height: 1.65;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre { font-family: var(--font-mono); }
+
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 52px;
+  background: var(--bg); border-bottom: 1px solid var(--border-soft);
+}
+.topbar-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.theme-toggle {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 6px; padding: 6px 10px;
+  font-family: var(--font-primary); font-size: 16px; cursor: pointer;
+  transition: opacity 0.15s; line-height: 1;
+}
+.theme-toggle:hover { opacity: 0.7; }
+
+.container {
+  width: 80%; min-width: 900px; max-width: 1400px;
+  margin: 0 auto; padding: 80px 32px 160px;
+}
+
+h1 { font-size: 44px; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 20px; }
+h2 {
+  font-size: 26px; font-weight: 600; line-height: 1.25; letter-spacing: -0.2px;
+  margin-top: 56px; margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+h3 { font-size: 18px; font-weight: 600; line-height: 1.3; margin-top: 40px; margin-bottom: 12px; }
+h4 { font-size: 15px; font-weight: 600; line-height: 1.3; margin-top: 32px; margin-bottom: 10px; }
+p { color: var(--text-dim); margin-bottom: 16px; line-height: 1.7; }
+p strong { color: var(--text); font-weight: 600; }
+
+ul, ol { color: var(--text-dim); padding-left: 28px; margin-bottom: 16px; }
+li { margin-bottom: 6px; line-height: 1.7; }
+li strong { color: var(--text); }
+
+.task-list { list-style: none; padding-left: 0; }
+.task-list li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+.task-list input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 18px; height: 18px; border: 1px solid var(--border);
+  border-radius: 4px; background: var(--surface); flex-shrink: 0; margin-top: 3px;
+  cursor: pointer; position: relative;
+}
+.task-list input[type="checkbox"]:checked { background: var(--green); border-color: var(--green); }
+.task-list input[type="checkbox"]:checked::after {
+  content: '\2713'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); font-size: 11px; color: white; font-weight: 700;
+}
+
+blockquote {
+  border-left: 4px solid var(--accent); padding: 12px 20px; margin: 20px 0;
+  background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--text-dim);
+}
+blockquote p { margin-bottom: 0; color: inherit; }
+
+.admonition {
+  padding: 16px 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid;
+}
+.admonition-title {
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 8px;
+}
+.admonition p { margin-bottom: 0; font-size: 15px; }
+.admonition-note { border-color: var(--blue); background: var(--blue-soft); }
+.admonition-note .admonition-title { color: var(--blue); }
+.admonition-warning { border-color: var(--yellow); background: var(--yellow-soft); }
+.admonition-warning .admonition-title { color: var(--yellow); }
+.admonition-tip { border-color: var(--green); background: var(--green-soft); }
+.admonition-tip .admonition-title { color: var(--green); }
+.admonition-caution { border-color: var(--orange); background: var(--orange-soft); }
+.admonition-caution .admonition-title { color: var(--orange); }
+
+table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; color: var(--text); font-size: 13px; }
+td { color: var(--text-dim); }
+tr:nth-child(even) td { background: var(--surface); }
+
+code:not(pre code) {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  padding: 2px 7px; border-radius: 4px; font-size: 13.5px;
+  color: var(--accent); font-family: var(--font-mono);
+}
+
+pre {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px 20px; overflow-x: auto;
+  margin: 20px 0; box-shadow: var(--shadow-card); position: relative;
+}
+pre code { font-size: 13.5px; line-height: 1.7; color: var(--text); }
+.code-lang {
+  position: absolute; top: 8px; right: 12px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-faint);
+  background: var(--surface-2); padding: 2px 8px; border-radius: 4px;
+  border: 1px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.copy-btn {
+  position: absolute; top: 8px; right: 72px;
+  background: var(--surface-2); border: 1px solid var(--border-soft);
+  color: var(--text-faint); border-radius: 4px; padding: 3px 8px;
+  font-family: var(--font-primary); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.3px; cursor: pointer; opacity: 0; transition: opacity 0.15s;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--text); border-color: var(--border); }
+
+.tok-keyword { color: #ff7b72; }
+.tok-string { color: #a5d6ff; }
+.tok-function { color: #d2a8ff; }
+.tok-comment { color: #8b949e; font-style: italic; }
+.tok-type { color: #79c0ff; }
+.tok-variable { color: #ffa657; }
+.tok-number { color: #79c0ff; }
+.tok-tag { color: #7ee787; }
+.tok-attr { color: #79c0ff; }
+.tok-punctuation { color: #8b949e; }
+.tok-selector { color: #7ee787; }
+.tok-property { color: #79c0ff; }
+.tok-value { color: #a5d6ff; }
+
+[data-theme="light"] .tok-keyword { color: #cf222e; }
+[data-theme="light"] .tok-string { color: #0a3069; }
+[data-theme="light"] .tok-function { color: #8250df; }
+[data-theme="light"] .tok-comment { color: #8b949e; font-style: italic; }
+[data-theme="light"] .tok-type { color: #0550ae; }
+[data-theme="light"] .tok-variable { color: #953800; }
+[data-theme="light"] .tok-number { color: #0550ae; }
+[data-theme="light"] .tok-tag { color: #116329; }
+[data-theme="light"] .tok-attr { color: #0550ae; }
+[data-theme="light"] .tok-punctuation { color: #6e7781; }
+[data-theme="light"] .tok-selector { color: #6639ba; }
+[data-theme="light"] .tok-property { color: #0550ae; }
+[data-theme="light"] .tok-value { color: #0a3069; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+.page-layout {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 40px;
+  align-items: start;
+}
+.toc-sidebar {
+  position: sticky;
+  top: 68px;
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
+}
+.toc-sidebar nav {
+  border-left: 1px solid var(--border-soft);
+  padding-left: 16px;
+}
+.toc-sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 12px;
+}
+.toc-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.toc-sidebar li { margin: 0; }
+.toc-sidebar a {
+  display: block;
+  padding: 5px 10px;
+  font-size: 13px;
+  color: var(--text-faint);
+  text-decoration: none;
+  border-radius: 4px;
+  line-height: 1.4;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toc-sidebar a:hover {
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.03);
+}
+[data-theme="light"] .toc-sidebar a:hover {
+  background: rgba(0,0,0,0.03);
+}
+.toc-sidebar a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 500;
+}
+.toc-sidebar .toc-h3 a {
+  padding-left: 22px;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .page-layout { grid-template-columns: 1fr; }
+  .toc-sidebar { display: none; }
+}
+@media (max-width: 960px) {
+  .container { width: 100%; min-width: 0; padding: 60px 20px 120px; }
+}
+
+/* ===== SHIKI DUAL THEME ===== */
+.shiki-wrapper {
+  position: relative;
+}
+.shiki-wrapper pre.shiki-dark {
+  display: block;
+}
+.shiki-wrapper pre.shiki-light {
+  display: none;
+}
+[data-theme="light"] .shiki-wrapper pre.shiki-dark {
+  display: none;
+}
+[data-theme="light"] .shiki-wrapper pre.shiki-light {
+  display: block;
+}
+.shiki-wrapper pre {
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+  </style>
 </head>
 <body>
   <nav class="topbar">
@@ -20,7 +332,7 @@
 <h1>CodeMermaid v2: Direct HTML + Raw SVG + Side-by-Side Code</h1>
 <blockquote><p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p></blockquote>
 <p><strong>Goal:</strong> Rewrite the codemermaid skill to generate self-contained HTML pages using a minimal skeleton template with HTML-comment slots, raw SVG diagrams (no mermaid.js), and 6 unit types: concept, quiz, takeaway, diagram, code-walk, code-graph.</p>
-<p><strong>Architecture:</strong> Phase 1-3 (scan, analyze, build page data) remain identical. Phase 4 (Mermaid graphs) is replaced by raw SVG. Phase 5 (page list) stays. Phase 6 (assemble) uses a skeleton template with <code>&lt;!-- SLOT:... --&gt;</code> markers — skill fills content HTML into slots. Validation is done by a subagent reviewer instead of <code>validate-units.js</code>. The <code>code-walk</code> unit defaults to side-by-side split layout (code left, annotations right). A new <code>code-graph</code> unit shows code left, mini call-graph SVG right, with highlight sync. <code>quiz</code> replaces <code>guess-first</code> with single-choice Q&A. <code>compare</code>, <code>surprise</code>, <code>storyboard</code>, and anchor diagram are removed.</p>
+<p><strong>Architecture:</strong> Phase 1-3 (scan, analyze, build page data) remain identical. Phase 4 (Mermaid graphs) is replaced by raw SVG. Phase 5 (page list) stays. Phase 6 (assemble) uses a skeleton template with <code>&lt;!-- SLOT:... --&gt;</code> markers — skill fills content HTML into slots. Validation is done by a subagent reviewer instead of <code>validate-units.js</code>. The <code>code-walk</code> unit defaults to side-by-side split layout (code left, annotations right). A new <code>code-graph</code> unit shows code left, mini call-graph SVG right, with highlight sync. <code>quiz</code> replaces <code>guess-first</code> with single-choice Q&amp;A. <code>compare</code>, <code>surprise</code>, <code>storyboard</code>, and anchor diagram are removed.</p>
 <p><strong>Tech Stack:</strong> Vanilla HTML/CSS/JS, raw SVG, Google Fonts CDN (Inter + Geist Mono). Zero npm, zero build tools, zero mermaid.js.</p>
 <hr>
 <h2 id="design-decisions-summary">Design Decisions Summary</h2>
@@ -67,15 +379,15 @@ skills/codemermaid/assets/_runtime.js
 skills/codemermaid/assets/_essay.js
 skills/codemermaid/assets/_index.js
 skills/codemermaid/scripts/validate-units.js
-skills/codemermaid/references/storyboard-patterns.md</code><button class="copy-btn">Copy</button></pre>
+skills/codemermaid/references/storyboard-patterns.md</code></pre>
 <h3 id="files-to-create">Files to CREATE</h3>
 <pre><code>skills/codemermaid/assets/skeleton-essay.html      — minimal HTML shell with &lt;!-- SLOT:... --&gt; markers
 skills/codemermaid/assets/skeleton-index.html       — minimal HTML shell for index page
 skills/codemermaid/assets/style.css                 — full design system CSS
 skills/codemermaid/assets/runtime.js                — minimal runtime: quiz, zoom, annotation clicks, TOC active tracking
-skills/codemermaid/references/svg-patterns.md       — SVG diagram patterns and node/edge templates</code><button class="copy-btn">Copy</button></pre>
+skills/codemermaid/references/svg-patterns.md       — SVG diagram patterns and node/edge templates</code></pre>
 <h3 id="files-to-modify">Files to MODIFY</h3>
-<pre><code>skills/codemermaid/SKILL.md                         — rewrite Phase 4, 5, 6 + unit specs</code><button class="copy-btn">Copy</button></pre>
+<pre><code>skills/codemermaid/SKILL.md                         — rewrite Phase 4, 5, 6 + unit specs</code></pre>
 <hr>
 <h2 id="task-1-create-skeleton-essayhtml">Task 1: Create <code>skeleton-essay.html</code></h2>
 <p><strong>Files:</strong></p>
@@ -83,9 +395,7 @@ skills/codemermaid/references/svg-patterns.md       — SVG diagram patterns and
 <li>Create: <code>skills/codemermaid/assets/skeleton-essay.html</code></li>
 </ul>
 <p>This is the minimal HTML shell. The <code>&lt;head&gt;</code>, zoom overlay, and <code>&lt;script&gt;</code> are always correct. Skill only fills content into <code>&lt;!-- SLOT:... --&gt;</code> markers.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li></ul>
 <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
@@ -151,9 +461,7 @@ skills/codemermaid/references/svg-patterns.md       — SVG diagram patterns and
 <tr><td><code>&lt;!-- SLOT:FOOTER --&gt;</code></td><td>HTML block</td><td>Footer with next link + recap</td></tr>
 </tbody>
 </table>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/assets/skeleton-essay.html
 git commit -m "feat(codemermaid): add essay page skeleton template"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -162,9 +470,7 @@ git commit -m "feat(codemermaid): add essay page skeleton template"</code><span 
 <ul>
 <li>Create: <code>skills/codemermaid/assets/skeleton-index.html</code></li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li></ul>
 <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
@@ -190,9 +496,7 @@ git commit -m "feat(codemermaid): add essay page skeleton template"</code><span 
 &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/assets/skeleton-index.html
 git commit -m "feat(codemermaid): add index page skeleton template"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -203,11 +507,11 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
 <li>Read: <code>skills/codemermaid/assets/template-essay.html</code> (lines 12–927 for existing CSS)</li>
 </ul>
 <p>Extract all CSS from the current template. Keep everything that's unchanged, remove mermaid styles, add new styles for TOC, quiz, code-walk split, code-graph split.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create the CSS file</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create the CSS file</strong></span></li></ul>
 <p>Start with the full CSS from <code>template-essay.html</code> (lines 12–927). Then make these changes:</p>
-<p>1. <strong>Container width</strong> — change from <code>max-width: 760px</code> to:</p>
+<ol>
+<li>
+<p><strong>Container width</strong> — change from <code>max-width: 760px</code> to:</p>
 <pre><code class="language-css">.container {
   width: 80%;
   min-width: 900px;
@@ -215,12 +519,14 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
   margin: 0 auto;
   padding: 80px 32px 160px;
 }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>2. <strong>Remove mermaid styles</strong> — delete all <code>.mermaid</code> selectors (lines 235–260)</p>
-<p>3. <strong>Remove anchor diagram styles</strong> — delete <code>.anchor</code>, <code>.anchor-label</code> (lines 219–234)</p>
-<p>4. <strong>Remove compare styles</strong> — delete <code>.compare</code>, <code>.col</code>, <code>.col-label</code>, <code>.col.bad</code>, <code>.col.good</code>, <code>.lesson</code> (lines 422–460)</p>
-<p>5. <strong>Remove guess-first styles</strong> — delete <code>.guess</code>, <code>.guess summary</code>, <code>.guess-icon</code>, <code>.guess-reveal</code> (lines 364–419)</p>
-<p>6. <strong>Remove storyboard styles</strong> — delete <code>.storyboard<em></code>, <code>.storyboard-mobile-guard</code>, <code>.storyboard-shell</code>, <code>.storyboard-stage</code>, <code>.storyboard-scene-label</code>, <code>.storyboard-zoom</code>, <code>.storyboard-mermaid</code>, <code>.storyboard-explanation</code>, <code>.storyboard-strip</code>, <code>.storyboard-tab</em></code>, <code>.storyboard-code-slot</code>, <code>.storyboard-code-drawer</code>, <code>.storyboard-code-grid</code>, <code>.storyboard-notes</code>, <code>.storyboard-note*</code> (lines 534–803)</p>
-<p>7. <strong>Add TOC styles:</strong></p>
+</li>
+<li><strong>Remove mermaid styles</strong> — delete all <code>.mermaid</code> selectors (lines 235–260)</li>
+<li><strong>Remove anchor diagram styles</strong> — delete <code>.anchor</code>, <code>.anchor-label</code> (lines 219–234)</li>
+<li><strong>Remove compare styles</strong> — delete <code>.compare</code>, <code>.col</code>, <code>.col-label</code>, <code>.col.bad</code>, <code>.col.good</code>, <code>.lesson</code> (lines 422–460)</li>
+<li><strong>Remove guess-first styles</strong> — delete <code>.guess</code>, <code>.guess summary</code>, <code>.guess-icon</code>, <code>.guess-reveal</code> (lines 364–419)</li>
+<li><strong>Remove storyboard styles</strong> — delete <code>.storyboard*</code>, <code>.storyboard-mobile-guard</code>, <code>.storyboard-shell</code>, <code>.storyboard-stage</code>, <code>.storyboard-scene-label</code>, <code>.storyboard-zoom</code>, <code>.storyboard-mermaid</code>, <code>.storyboard-explanation</code>, <code>.storyboard-strip</code>, <code>.storyboard-tab*</code>, <code>.storyboard-code-slot</code>, <code>.storyboard-code-drawer</code>, <code>.storyboard-code-grid</code>, <code>.storyboard-notes</code>, <code>.storyboard-note*</code> (lines 534–803)</li>
+<li>
+<p><strong>Add TOC styles:</strong></p>
 <pre><code class="language-css">.toc {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -287,7 +593,9 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
   margin-left: auto;
   flex-shrink: 0;
 }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>8. <strong>Add quiz styles:</strong></p>
+</li>
+<li>
+<p><strong>Add quiz styles:</strong></p>
 <pre><code class="language-css">.quiz {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -379,7 +687,9 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
 .quiz-explanation strong {
   color: var(--text);
 }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>9. <strong>Add code-walk split styles:</strong></p>
+</li>
+<li>
+<p><strong>Add code-walk split styles:</strong></p>
 <pre><code class="language-css">.codewalk-split {
   background: var(--code-bg);
   border: 1px solid var(--border);
@@ -433,7 +743,9 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
   font-size: 12px;
   line-height: 1.5;
 }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>10. <strong>Add code-graph split styles:</strong></p>
+</li>
+<li>
+<p><strong>Add code-graph split styles:</strong></p>
 <pre><code class="language-css">.codegraph-split {
   background: var(--code-bg);
   border: 1px solid var(--border);
@@ -472,7 +784,9 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
 }
 .codegraph-graph svg .node { cursor: pointer; transition: opacity 0.2s ease; }
 .codegraph-graph svg .node:hover { opacity: 0.85; }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>11. <strong>Add inline SVG diagram styles (replacing mermaid):</strong></p>
+</li>
+<li>
+<p><strong>Add inline SVG diagram styles (replacing mermaid):</strong></p>
 <pre><code class="language-css">.figure-diagram {
   display: flex;
   justify-content: center;
@@ -482,18 +796,18 @@ git commit -m "feat(codemermaid): add index page skeleton template"</code><span 
   max-width: 100%;
   height: auto;
 }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<p>12. <strong>Important: <code>&lt;pre&gt;</code> whitespace rule</strong> — add a comment at the top of the code-block section:</p>
+</li>
+<li>
+<p><strong>Important: <code>&lt;pre&gt;</code> whitespace rule</strong> — add a comment at the top of the code-block section:</p>
 <pre><code class="language-css">/* CRITICAL: Inside &lt;pre class="code-block"&gt;, .line spans MUST be adjacent with NO whitespace
    between them. Any newline or space between .line spans will render as visible blank lines
    in the &lt;pre&gt; context. The skill MUST generate: &lt;span class="line"&gt;...&lt;/span&gt;&lt;span class="line"&gt;...&lt;/span&gt; */</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li>
-</ul>
-<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/style.css</code></p>
-<p>Expected: 0</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
-</ul>
+</li>
+</ol>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li></ul>
+<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/style.css</code>
+Expected: 0</p>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/assets/style.css
 git commit -m "feat(codemermaid): create style.css with TOC, quiz, split-code, SVG styles"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -510,9 +824,7 @@ git commit -m "feat(codemermaid): create style.css with TOC, quiz, split-code, S
 <li>Code-graph annotation ↔ SVG node click sync</li>
 <li>Zoom overlay (pan/zoom SVG diagrams)</li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create the runtime</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create the runtime</strong></span></li></ul>
 <pre><code class="language-javascript">/* runtime.js — minimal interactive runtime for codemermaid v2.
    No mermaid, no unit rendering. Handles: TOC scroll, quiz, annotation clicks, zoom.
    Inlined into each generated HTML page. */
@@ -745,14 +1057,10 @@ function bootPage() {
 }
 
 document.addEventListener('DOMContentLoaded', bootPage);</code><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li>
-</ul>
-<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/runtime.js</code></p>
-<p>Expected: 0</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li></ul>
+<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/runtime.js</code>
+Expected: 0</p>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/assets/runtime.js
 git commit -m "feat(codemermaid): create minimal runtime with TOC, quiz, annotations, zoom"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -761,9 +1069,7 @@ git commit -m "feat(codemermaid): create minimal runtime with TOC, quiz, annotat
 <ul>
 <li>Create: <code>skills/codemermaid/references/svg-patterns.md</code></li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create the reference file</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create the reference file</strong></span></li></ul>
 <p>Content is the same as the old plan's Task 5 (SVG skeleton, node types, edges, grouping, layout math, design tokens). See the wireframe's SVG for working examples.</p>
 <p>Key patterns:</p>
 <ul>
@@ -773,9 +1079,7 @@ git commit -m "feat(codemermaid): create minimal runtime with TOC, quiz, annotat
 <li>Dashed edge: <code>stroke-dasharray="6 3"</code></li>
 <li>Design tokens: fill <code>#161718</code>, stroke <code>#252829</code>, text <code>#f9f9f9</code>, active <code>#FF6363</code>, edge <code>#9c9c9d</code></li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/references/svg-patterns.md
 git commit -m "feat(codemermaid): add SVG diagram patterns reference"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -784,9 +1088,7 @@ git commit -m "feat(codemermaid): add SVG diagram patterns reference"</code><spa
 <ul>
 <li>Delete all old template, runtime, and validation files</li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Delete old files</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Delete old files</strong></span></li></ul>
 <pre><code class="language-bash">rm skills/codemermaid/assets/template-essay.html
 rm skills/codemermaid/assets/template-index.html
 rm skills/codemermaid/assets/_runtime.js
@@ -794,14 +1096,10 @@ rm skills/codemermaid/assets/_essay.js
 rm skills/codemermaid/assets/_index.js
 rm skills/codemermaid/scripts/validate-units.js
 rm skills/codemermaid/references/storyboard-patterns.md</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Verify</strong></span></li>
-</ul>
-<p>Run: <code>ls skills/codemermaid/assets/</code></p>
-<p>Expected: <code>skeleton-essay.html  skeleton-index.html  style.css  runtime.js</code></p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Verify</strong></span></li></ul>
+<p>Run: <code>ls skills/codemermaid/assets/</code>
+Expected: <code>skeleton-essay.html  skeleton-index.html  style.css  runtime.js</code></p>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add -u skills/codemermaid/
 git commit -m "chore(codemermaid): remove old templates, mermaid runtime, validator, storyboard patterns"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
@@ -811,13 +1109,9 @@ git commit -m "chore(codemermaid): remove old templates, mermaid runtime, valida
 <li>Modify: <code>skills/codemermaid/SKILL.md</code></li>
 </ul>
 <p>This is the largest task. Phase 1-3 remain unchanged. Everything from Phase 4 onward needs rewriting.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Update frontmatter and description</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Update frontmatter and description</strong></span></li></ul>
 <p>Replace mermaid references with SVG. Update unit list to: concept, quiz, takeaway, diagram, code-walk, code-graph.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 2: Update unit kinds section</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Update unit kinds section</strong></span></li></ul>
 <p>Replace the 8 unit kinds with 6:</p>
 <pre><code class="language-javascript">{ kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
 { kind: "quiz",        question, options: [{letter, text, correct}], explanation }
@@ -825,30 +1119,31 @@ git commit -m "chore(codemermaid): remove old templates, mermaid runtime, valida
 { kind: "diagram",     title, svg, caption, zoomable? }
 { kind: "code-walk",   title, file, code, highlights: [{line, note}], layout? }
 { kind: "code-graph",  title, file, code, highlights: [{line, note, graphNode?}], svg }</code><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 3: Replace Phase 4 — "Build SVG Diagrams"</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 3: Replace Phase 4 — "Build SVG Diagrams"</strong></span></li></ul>
 <p>No more mermaid syntax. Generate raw SVG with <code>&lt;g data-node-id&gt;</code> nodes. Read <code>references/svg-patterns.md</code> for templates.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 4: Replace Phase 5 — page list</strong></span></li>
-</ul>
-<pre><code>| File | Skeleton | Condition |
-|------|----------|-----------|
-| `index.html`            | `skeleton-index.html` | Always |
-| `architecture.html`     | `skeleton-essay.html` | Always |
-| `&lt;perspective&gt;.html`    | `skeleton-essay.html` | One per non-architecture perspective |
-| `module-&lt;name&gt;.html`    | `skeleton-essay.html` | One per discovered module |</code><button class="copy-btn">Copy</button></pre>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 5: Replace Phase 6 — "Write HTML Pages"</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 4: Replace Phase 5 — page list</strong></span></li></ul>
+<table>
+<thead>
+<tr><th>File</th><th>Skeleton</th><th>Condition</th></tr>
+</thead>
+<tbody>
+<tr><td><code>index.html</code></td><td><code>skeleton-index.html</code></td><td>Always</td></tr>
+<tr><td><code>architecture.html</code></td><td><code>skeleton-essay.html</code></td><td>Always</td></tr>
+<tr><td><code>&lt;perspective&gt;.html</code></td><td><code>skeleton-essay.html</code></td><td>One per non-architecture perspective</td></tr>
+<tr><td><code>module-&lt;name&gt;.html</code></td><td><code>skeleton-essay.html</code></td><td>One per discovered module</td></tr>
+</tbody>
+</table>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 5: Replace Phase 6 — "Write HTML Pages"</strong></span></li></ul>
 <p>For each page:</p>
-<p>1. Read the skeleton template</p>
-<p>2. Read <code>assets/style.css</code> and <code>assets/runtime.js</code></p>
-<p>3. Inline CSS and JS into the skeleton</p>
-<p>4. Generate content HTML for each slot</p>
-<p>5. Replace <code>&lt;!-- SLOT:... --&gt;</code> markers with content</p>
-<p>6. <strong>Critical HTML rule:</strong> Inside <code>&lt;pre class="code-block"&gt;</code>, <code>.line</code> spans must be adjacent with NO whitespace between them</p>
-<p>7. Write the completed HTML to <code>docs/codebase-course/</code></p>
+<ol>
+<li>Read the skeleton template</li>
+<li>Read <code>assets/style.css</code> and <code>assets/runtime.js</code></li>
+<li>Inline CSS and JS into the skeleton</li>
+<li>Generate content HTML for each slot</li>
+<li>Replace <code>&lt;!-- SLOT:... --&gt;</code> markers with content</li>
+<li><strong>Critical HTML rule:</strong> Inside <code>&lt;pre class="code-block"&gt;</code>, <code>.line</code> spans must be adjacent with NO whitespace between them</li>
+<li>Write the completed HTML to <code>docs/codebase-course/</code></li>
+</ol>
 <p><strong>Essay page content generation:</strong></p>
 <p>HERO slot:</p>
 <pre><code class="language-html">&lt;section class="hero"&gt;
@@ -884,47 +1179,39 @@ git commit -m "chore(codemermaid): remove old templates, mermaid runtime, valida
 <li><input type="checkbox"><span>Every <code>highlightLines</code> / <code>highlights[].line</code> points to an existing line</span></li>
 <li><input type="checkbox"><span>Every code snippet is an exact copy from source</span></li>
 <li><input type="checkbox"><span>No <code>href="#"</code> placeholders</span></li>
-<li><input type="checkbox"><span>No <code><strong>bold</strong></code> markdown — use <code>&lt;strong&gt;</code> directly</span></li>
+<li><input type="checkbox"><span>No <code>**bold**</code> markdown — use <code>&lt;strong&gt;</code> directly</span></li>
 <li><input type="checkbox"><span>SVG diagrams contain no broken references</span></li>
 <li><input type="checkbox"><span>No whitespace between <code>.line</code> spans inside <code>&lt;pre&gt;</code> blocks</span></li>
 </ul>
 <p><strong>Validation:</strong> Dispatch a subagent reviewer to check the generated HTML.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 6: Update Important Rules, Common Mistakes, File Organization</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 6: Update Important Rules, Common Mistakes, File Organization</strong></span></li></ul>
 <ul>
 <li>Remove mermaid references</li>
 <li>Add rules about <code>&lt;pre&gt;</code> whitespace</li>
 <li>Add quiz answer rules (exactly 1 <code>data-correct="true"</code>)</li>
 <li>Update file organization tree</li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 7: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 7: Commit</strong></span></li></ul>
 <pre><code class="language-bash">git add skills/codemermaid/SKILL.md
 git commit -m "feat(codemermaid): rewrite SKILL.md for v2 pipeline"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
 <hr>
-<h2 id="task-8-generate-test-page-validate">Task 8: Generate test page + validate</h2>
+<h2 id="task-8-generate-test-page--validate">Task 8: Generate test page + validate</h2>
 <p><strong>Files:</strong></p>
 <ul>
 <li>Create: <code>tests/fixtures/test-page-v2.html</code></li>
 </ul>
 <p>Use the wireframe at <code>docs/superpowers/plans/wireframe-codemermaid-v2.html</code> as reference. Generate a proper test page using the skeleton template + inlined CSS/JS.</p>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Create test page</strong></span></li>
-<li><input type="checkbox"><span><strong>Step 2: Open in browser and verify all interactions</strong></span></li>
-<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Create test page</strong></span></li></ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Open in browser and verify all interactions</strong></span></li></ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li></ul>
 <hr>
 <h2 id="task-9-fix-issues-from-validation">Task 9: Fix issues from validation</h2>
 <p><strong>Files:</strong></p>
 <ul>
 <li>Modify: whatever needs fixing</li>
 </ul>
-<ul class="task-list">
-<li><input type="checkbox"><span><strong>Step 1: Fix and re-verify</strong></span></li>
-<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
-</ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 1: Fix and re-verify</strong></span></li></ul>
+<ul class="task-list"><li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li></ul>
 <hr>
 <h2 id="summary">Summary</h2>
 <table>
@@ -955,14 +1242,14 @@ git commit -m "feat(codemermaid): rewrite SKILL.md for v2 pipeline"</code><span 
       <li class="toc-h3"><a href="#files-to-delete">Files to DELETE</a></li>
       <li class="toc-h3"><a href="#files-to-create">Files to CREATE</a></li>
       <li class="toc-h3"><a href="#files-to-modify">Files to MODIFY</a></li>
-      <li><a href="#task-1-create-skeleton-essayhtml">Task 1: Create <code>skeleton-essay.html</code></a></li>
-      <li><a href="#task-2-create-skeleton-indexhtml">Task 2: Create <code>skeleton-index.html</code></a></li>
-      <li><a href="#task-3-create-stylecss">Task 3: Create <code>style.css</code></a></li>
-      <li><a href="#task-4-create-runtimejs">Task 4: Create <code>runtime.js</code></a></li>
-      <li><a href="#task-5-create-referencessvg-patternsmd">Task 5: Create <code>references/svg-patterns.md</code></a></li>
+      <li><a href="#task-1-create-skeleton-essayhtml">Task 1: Create skeleton-essay.html</a></li>
+      <li><a href="#task-2-create-skeleton-indexhtml">Task 2: Create skeleton-index.html</a></li>
+      <li><a href="#task-3-create-stylecss">Task 3: Create style.css</a></li>
+      <li><a href="#task-4-create-runtimejs">Task 4: Create runtime.js</a></li>
+      <li><a href="#task-5-create-referencessvg-patternsmd">Task 5: Create references/svg-patterns.md</a></li>
       <li><a href="#task-6-delete-old-files">Task 6: Delete old files</a></li>
       <li><a href="#task-7-rewrite-skillmd">Task 7: Rewrite SKILL.md</a></li>
-      <li><a href="#task-8-generate-test-page-validate">Task 8: Generate test page + validate</a></li>
+      <li><a href="#task-8-generate-test-page--validate">Task 8: Generate test page + validate</a></li>
       <li><a href="#task-9-fix-issues-from-validation">Task 9: Fix issues from validation</a></li>
       <li><a href="#summary">Summary</a></li>
     </ul>
@@ -970,6 +1257,144 @@ git commit -m "feat(codemermaid): rewrite SKILL.md for v2 pipeline"</code><span 
 </aside>
     </div>
   </div>
-  <script type="module" src="runtime.js"></script>
+  <script>
+async function initShiki() {
+  const codeBlocks = document.querySelectorAll('pre code[class*="language-"]');
+  if (codeBlocks.length === 0) return;
+
+  const { createHighlighter } = await import('https://esm.sh/shiki');
+  const highlighter = await createHighlighter({
+    themes: ['github-light', 'github-dark'],
+    langs: ['typescript', 'python', 'bash', 'css', 'html', 'json', 'yaml', 'rust', 'go', 'sql', 'markdown', 'jsx', 'tsx', 'diff']
+  });
+
+  codeBlocks.forEach(block => {
+    const lang = Array.from(block.classList)
+      .find(c => c.startsWith('language-'))
+      ?.replace('language-', '') || 'text';
+    
+    if (lang === 'mermaid') return;
+    if (lang === 'text') return;
+
+    try {
+      if (!highlighter.getLoadedLanguages().includes(lang)) return;
+      const darkHtml = highlighter.codeToHtml(block.textContent, { lang, theme: 'github-dark' });
+      const lightHtml = highlighter.codeToHtml(block.textContent, { lang, theme: 'github-light' });
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'shiki-wrapper';
+      wrapper.innerHTML = darkHtml;
+      wrapper.querySelector('pre')?.classList.add('shiki-dark');
+      const lightPre = document.createElement('pre');
+      lightPre.className = 'shiki-light';
+      lightPre.innerHTML = new DOMParser().parseFromString(lightHtml, 'text/html').querySelector('pre')?.innerHTML || '';
+      wrapper.appendChild(lightPre);
+
+      const pre = block.parentElement;
+      const langLabel = pre.querySelector('.code-lang');
+      const copyBtn = pre.querySelector('.copy-btn');
+      pre.innerHTML = '';
+      if (langLabel) pre.appendChild(langLabel);
+      if (copyBtn) pre.appendChild(copyBtn);
+      pre.appendChild(wrapper);
+    } catch (e) {}
+  });
+}
+
+function initMermaid() {
+  const mermaidBlocks = document.querySelectorAll('pre.mermaid');
+  if (mermaidBlocks.length === 0) return;
+
+  import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(mermaid => {
+    mermaid.default.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#101111',
+        primaryColor: '#1b1c1e',
+        primaryTextColor: '#f9f9f9',
+        primaryBorderColor: '#252829',
+        lineColor: '#9c9c9d',
+        secondaryColor: '#161718',
+        tertiaryColor: '#07080a'
+      }
+    });
+    mermaid.default.run({ nodes: mermaidBlocks });
+  });
+}
+
+function initThemeToggle() {
+  const toggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+
+  const saved = localStorage.getItem('md-preview-theme');
+  if (saved) {
+    html.setAttribute('data-theme', saved);
+    toggle.textContent = saved === 'dark' ? '\u2600' : '\uD83C\uDF19';
+  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+    html.setAttribute('data-theme', 'light');
+    toggle.textContent = '\uD83C\uDF19';
+  }
+
+  toggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\uD83C\uDF19';
+    localStorage.setItem('md-preview-theme', next);
+  });
+}
+
+function initTocScroll() {
+  const tocLinks = document.querySelectorAll('.toc-sidebar a');
+  const headings = document.querySelectorAll('article h2[id], article h3[id]');
+  if (tocLinks.length === 0 || headings.length === 0) return;
+
+  let active = null;
+  function updateToc() {
+    const top = 80;
+    let current = null;
+    for (const h of headings) {
+      if (h.getBoundingClientRect().top <= top) current = h;
+    }
+    if (current && current !== active) {
+      active = current;
+      tocLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current.id);
+      });
+      history.replaceState(null, '', '#' + current.id);
+    }
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { updateToc(); ticking = false; });
+  }, { passive: true });
+  updateToc();
+}
+
+function initCopyButtons() {
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pre = btn.closest('pre');
+      const code = pre.querySelector('code') || pre.querySelector('.shiki-wrapper');
+      const text = code ? code.textContent : '';
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    });
+  });
+}
+
+initThemeToggle();
+initTocScroll();
+initCopyButtons();
+initShiki();
+initMermaid();
+  </script>
 </body>
 </html>
