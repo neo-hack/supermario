@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><!-- SLOT:TITLE --></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="topbar">
+    <span class="topbar-title"><!-- SLOT:TITLE --></span>
+    <button class="theme-toggle" id="theme-toggle">&#9728;</button>
+  </nav>
+  <div class="container">
+    <div class="page-layout">
+      <article id="content">
+<!-- SLOT:CONTENT -->
+      </article>
+<!-- SLOT:TOC_SIDEBAR -->
+    </div>
+  </div>
+  <script type="module" src="runtime.js"></script>
+</body>
+</html>
