@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeMermaid v2: Direct HTML + Raw SVG + Side-by-Side Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="topbar">
+    <span class="topbar-title">CodeMermaid v2: Direct HTML + Raw SVG + Side-by-Side Code</span>
+    <button class="theme-toggle" id="theme-toggle">&#9728;</button>
+  </nav>
+  <div class="container">
+    <div class="page-layout">
+      <article id="content">
+<h1>CodeMermaid v2: Direct HTML + Raw SVG + Side-by-Side Code</h1>
+<blockquote><p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p></blockquote>
+<p><strong>Goal:</strong> Rewrite the codemermaid skill to generate self-contained HTML pages using a minimal skeleton template with HTML-comment slots, raw SVG diagrams (no mermaid.js), and 6 unit types: concept, quiz, takeaway, diagram, code-walk, code-graph.</p>
+<p><strong>Architecture:</strong> Phase 1-3 (scan, analyze, build page data) remain identical. Phase 4 (Mermaid graphs) is replaced by raw SVG. Phase 5 (page list) stays. Phase 6 (assemble) uses a skeleton template with <code>&lt;!-- SLOT:... --&gt;</code> markers — skill fills content HTML into slots. Validation is done by a subagent reviewer instead of <code>validate-units.js</code>. The <code>code-walk</code> unit defaults to side-by-side split layout (code left, annotations right). A new <code>code-graph</code> unit shows code left, mini call-graph SVG right, with highlight sync. <code>quiz</code> replaces <code>guess-first</code> with single-choice Q&A. <code>compare</code>, <code>surprise</code>, <code>storyboard</code>, and anchor diagram are removed.</p>
+<p><strong>Tech Stack:</strong> Vanilla HTML/CSS/JS, raw SVG, Google Fonts CDN (Inter + Geist Mono). Zero npm, zero build tools, zero mermaid.js.</p>
+<hr>
+<h2 id="design-decisions-summary">Design Decisions Summary</h2>
+<table>
+<thead>
+<tr><th>Decision</th><th>Old</th><th>New</th></tr>
+</thead>
+<tbody>
+<tr><td>Page generation</td><td>Template + PAGE_DATA + runtime rendering</td><td>Skeleton template + <code>&lt;!-- SLOT:... --&gt;</code> + pre-rendered content</td></tr>
+<tr><td>Diagrams</td><td>Mermaid.js from CDN</td><td>Raw inline SVG</td></tr>
+<tr><td>Anchor diagram</td><td>SVG map with scroll-link</td><td><strong>Removed</strong> — replaced by TOC</td></tr>
+<tr><td>Code layout</td><td>Stacked (code above, explanation below)</td><td>Split (code left, annotations right)</td></tr>
+<tr><td>Validation</td><td><code>validate-units.js</code> Node script</td><td><strong>Removed</strong> — subagent reviewer</td></tr>
+<tr><td>Container width</td><td><code>max-width: 760px</code></td><td><code>width: 80%; min-width: 900px; max-width: 1400px</code></td></tr>
+</tbody>
+</table>
+<p><strong>Unit types: 6 (down from 8)</strong></p>
+<table>
+<thead>
+<tr><th>Unit</th><th>Status</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>concept</code></td><td><strong>Kept</strong></td><td>Absorbs <code>surprise</code> — use <code>.unit-surprise</code> class for red-border callout style</td></tr>
+<tr><td><code>quiz</code></td><td><strong>New</strong></td><td>Replaces <code>guess-first</code> — single-choice, 4 options, click-to-judge + explanation</td></tr>
+<tr><td><code>takeaway</code></td><td><strong>Kept</strong></td><td>No change</td></tr>
+<tr><td><code>diagram</code></td><td><strong>Kept</strong></td><td><code>mermaid</code> field → <code>svg</code> field (raw inline SVG)</td></tr>
+<tr><td><code>code-walk</code></td><td><strong>Kept</strong></td><td>Default layout → <code>split</code> (left code, right annotations)</td></tr>
+<tr><td><code>code-graph</code></td><td><strong>New</strong></td><td>Replaces <code>storyboard</code> — left code, right mini call-graph SVG, highlight sync</td></tr>
+<tr><td><code>compare</code></td><td><strong>Removed</strong></td><td>Use two <code>code-walk</code> + concept instead</td></tr>
+<tr><td><code>surprise</code></td><td><strong>Removed</strong></td><td>Merged into <code>concept</code> with <code>.unit-surprise</code> class</td></tr>
+<tr><td><code>guess-first</code></td><td><strong>Removed</strong></td><td>Replaced by <code>quiz</code></td></tr>
+<tr><td><code>storyboard</code></td><td><strong>Removed</strong></td><td>Replaced by <code>code-graph</code></td></tr>
+</tbody>
+</table>
+<hr>
+<h2 id="wireframe">Wireframe</h2>
+<p>Visual reference at <code>docs/superpowers/plans/wireframe-codemermaid-v2.html</code> — shows all 6 unit types + TOC with the existing dark theme.</p>
+<hr>
+<h2 id="file-structure">File Structure</h2>
+<h3 id="files-to-delete">Files to DELETE</h3>
+<pre><code>skills/codemermaid/assets/template-essay.html
+skills/codemermaid/assets/template-index.html
+skills/codemermaid/assets/_runtime.js
+skills/codemermaid/assets/_essay.js
+skills/codemermaid/assets/_index.js
+skills/codemermaid/scripts/validate-units.js
+skills/codemermaid/references/storyboard-patterns.md</code><button class="copy-btn">Copy</button></pre>
+<h3 id="files-to-create">Files to CREATE</h3>
+<pre><code>skills/codemermaid/assets/skeleton-essay.html      — minimal HTML shell with &lt;!-- SLOT:... --&gt; markers
+skills/codemermaid/assets/skeleton-index.html       — minimal HTML shell for index page
+skills/codemermaid/assets/style.css                 — full design system CSS
+skills/codemermaid/assets/runtime.js                — minimal runtime: quiz, zoom, annotation clicks, TOC active tracking
+skills/codemermaid/references/svg-patterns.md       — SVG diagram patterns and node/edge templates</code><button class="copy-btn">Copy</button></pre>
+<h3 id="files-to-modify">Files to MODIFY</h3>
+<pre><code>skills/codemermaid/SKILL.md                         — rewrite Phase 4, 5, 6 + unit specs</code><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-1-create-skeleton-essayhtml">Task 1: Create <code>skeleton-essay.html</code></h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>skills/codemermaid/assets/skeleton-essay.html</code></li>
+</ul>
+<p>This is the minimal HTML shell. The <code>&lt;head&gt;</code>, zoom overlay, and <code>&lt;script&gt;</code> are always correct. Skill only fills content into <code>&lt;!-- SLOT:... --&gt;</code> markers.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li>
+</ul>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;&lt;!-- SLOT:PAGE_TITLE --&gt; — &lt;!-- SLOT:PROJECT_NAME --&gt;&lt;/title&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet"&gt;
+&lt;style&gt;
+/* Full contents of assets/style.css inlined here */
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header class="topbar"&gt;
+  &lt;a class="back-link" href="&lt;!-- SLOT:BACK_LINK --&gt;"&gt;← &lt;!-- SLOT:BACK_LABEL --&gt;&lt;/a&gt;
+&lt;/header&gt;
+
+&lt;main class="container"&gt;
+  &lt;!-- SLOT:HERO --&gt;
+  &lt;!-- SLOT:TOC --&gt;
+  &lt;!-- SLOT:UNITS --&gt;
+  &lt;!-- SLOT:FOOTER --&gt;
+&lt;/main&gt;
+
+&lt;div class="zoom-overlay" hidden&gt;
+  &lt;div class="zoom-stage"&gt;&lt;/div&gt;
+  &lt;div class="zoom-controls"&gt;
+    &lt;button data-zoom-out aria-label="Zoom out" title="Zoom out"&gt;
+      &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M5 12h14"/&gt;&lt;/svg&gt;
+    &lt;/button&gt;
+    &lt;span class="zoom-level" data-zoom-level&gt;100%&lt;/span&gt;
+    &lt;button data-zoom-reset aria-label="Reset zoom" title="Reset zoom"&gt;
+      &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M3 12a9 9 0 1 0 3-6.7"/&gt;&lt;path d="M3 4v6h6"/&gt;&lt;/svg&gt;
+    &lt;/button&gt;
+    &lt;button data-zoom-in aria-label="Zoom in" title="Zoom in"&gt;
+      &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M12 5v14"/&gt;&lt;path d="M5 12h14"/&gt;&lt;/svg&gt;
+    &lt;/button&gt;
+    &lt;button data-zoom-close aria-label="Close zoom" title="Close zoom"&gt;
+      &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M18 6 6 18"/&gt;&lt;path d="m6 6 12 12"/&gt;&lt;/svg&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+/* Full contents of assets/runtime.js inlined here */
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
+<p><strong>Slot inventory:</strong></p>
+<table>
+<thead>
+<tr><th>Slot</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>&lt;!-- SLOT:PAGE_TITLE --&gt;</code></td><td>plain text</td><td>Page title</td></tr>
+<tr><td><code>&lt;!-- SLOT:PROJECT_NAME --&gt;</code></td><td>plain text</td><td>Project name</td></tr>
+<tr><td><code>&lt;!-- SLOT:BACK_LINK --&gt;</code></td><td>URL</td><td>Back link href</td></tr>
+<tr><td><code>&lt;!-- SLOT:BACK_LABEL --&gt;</code></td><td>plain text</td><td>Back link text</td></tr>
+<tr><td><code>&lt;!-- SLOT:HERO --&gt;</code></td><td>HTML block</td><td>Hero section (title, learning promise, prereqs)</td></tr>
+<tr><td><code>&lt;!-- SLOT:TOC --&gt;</code></td><td>HTML block</td><td>Table of contents</td></tr>
+<tr><td><code>&lt;!-- SLOT:UNITS --&gt;</code></td><td>HTML block</td><td>All unit sections</td></tr>
+<tr><td><code>&lt;!-- SLOT:FOOTER --&gt;</code></td><td>HTML block</td><td>Footer with next link + recap</td></tr>
+</tbody>
+</table>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/assets/skeleton-essay.html
+git commit -m "feat(codemermaid): add essay page skeleton template"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-2-create-skeleton-indexhtml">Task 2: Create <code>skeleton-index.html</code></h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>skills/codemermaid/assets/skeleton-index.html</code></li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create the skeleton</strong></span></li>
+</ul>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;&lt;!-- SLOT:PROJECT_NAME --&gt; — Codebase Course&lt;/title&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet"&gt;
+&lt;style&gt;
+/* Full contents of assets/style.css inlined here */
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;main class="container"&gt;
+  &lt;!-- SLOT:INDEX_HEADER --&gt;
+  &lt;!-- SLOT:PERSPECTIVE_CARDS --&gt;
+  &lt;!-- SLOT:MODULE_CARDS --&gt;
+&lt;/main&gt;
+
+&lt;script&gt;
+/* Full contents of assets/runtime.js inlined here */
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/assets/skeleton-index.html
+git commit -m "feat(codemermaid): add index page skeleton template"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-3-create-stylecss">Task 3: Create <code>style.css</code></h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>skills/codemermaid/assets/style.css</code></li>
+<li>Read: <code>skills/codemermaid/assets/template-essay.html</code> (lines 12–927 for existing CSS)</li>
+</ul>
+<p>Extract all CSS from the current template. Keep everything that's unchanged, remove mermaid styles, add new styles for TOC, quiz, code-walk split, code-graph split.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create the CSS file</strong></span></li>
+</ul>
+<p>Start with the full CSS from <code>template-essay.html</code> (lines 12–927). Then make these changes:</p>
+<p>1. <strong>Container width</strong> — change from <code>max-width: 760px</code> to:</p>
+<pre><code class="language-css">.container {
+  width: 80%;
+  min-width: 900px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 32px 160px;
+}</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>2. <strong>Remove mermaid styles</strong> — delete all <code>.mermaid</code> selectors (lines 235–260)</p>
+<p>3. <strong>Remove anchor diagram styles</strong> — delete <code>.anchor</code>, <code>.anchor-label</code> (lines 219–234)</p>
+<p>4. <strong>Remove compare styles</strong> — delete <code>.compare</code>, <code>.col</code>, <code>.col-label</code>, <code>.col.bad</code>, <code>.col.good</code>, <code>.lesson</code> (lines 422–460)</p>
+<p>5. <strong>Remove guess-first styles</strong> — delete <code>.guess</code>, <code>.guess summary</code>, <code>.guess-icon</code>, <code>.guess-reveal</code> (lines 364–419)</p>
+<p>6. <strong>Remove storyboard styles</strong> — delete <code>.storyboard<em></code>, <code>.storyboard-mobile-guard</code>, <code>.storyboard-shell</code>, <code>.storyboard-stage</code>, <code>.storyboard-scene-label</code>, <code>.storyboard-zoom</code>, <code>.storyboard-mermaid</code>, <code>.storyboard-explanation</code>, <code>.storyboard-strip</code>, <code>.storyboard-tab</em></code>, <code>.storyboard-code-slot</code>, <code>.storyboard-code-drawer</code>, <code>.storyboard-code-grid</code>, <code>.storyboard-notes</code>, <code>.storyboard-note*</code> (lines 534–803)</p>
+<p>7. <strong>Add TOC styles:</strong></p>
+<pre><code class="language-css">.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 64px;
+  box-shadow: var(--shadow-card);
+}
+.toc-label {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.toc-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.toc-item:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+.toc-item.active {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.toc-num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.toc-kind {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>8. <strong>Add quiz styles:</strong></p>
+<pre><code class="language-css">.quiz {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.quiz-question {
+  padding: 18px 20px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.quiz-option:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--text-faint);
+}
+.quiz-option-letter {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.quiz-option.correct {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+.quiz-option.correct .quiz-option-letter {
+  background: #34d399;
+  border-color: #34d399;
+  color: var(--bg);
+}
+.quiz-option.wrong {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+.quiz-option.wrong .quiz-option-letter {
+  background: #f87171;
+  border-color: #f87171;
+  color: var(--bg);
+}
+.quiz-option.dimmed {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.quiz-explanation {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  display: none;
+}
+.quiz-explanation.visible {
+  display: block;
+}
+.quiz-explanation strong {
+  color: var(--text);
+}</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>9. <strong>Add code-walk split styles:</strong></p>
+<pre><code class="language-css">.codewalk-split {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.codewalk-split .codewalk-head {
+  border-bottom: 1px solid var(--border);
+}
+.codewalk-split-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+.codewalk-split pre.code-block {
+  border-right: 1px solid var(--border);
+}
+.codewalk-annotations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface-2);
+  overflow-y: auto;
+}
+.codewalk-annotation {
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 99, 99, 0.04);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.codewalk-annotation.active {
+  background: rgba(255, 99, 99, 0.11);
+  box-shadow: 0 0 0 1px rgba(255, 99, 99, 0.22);
+}
+.codewalk-annotation .annotation-line {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.codewalk-annotation p {
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>10. <strong>Add code-graph split styles:</strong></p>
+<pre><code class="language-css">.codegraph-split {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.codegraph-split .codewalk-head {
+  border-bottom: 1px solid var(--border);
+}
+.codegraph-split-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+.codegraph-split pre.code-block {
+  border-right: 1px solid var(--border);
+}
+.codegraph-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--surface);
+  overflow: auto;
+}
+.codegraph-graph svg .node-active rect,
+.codegraph-graph svg .node-active path {
+  fill: #FF6363;
+  stroke: #FF6363;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+.codegraph-graph svg .node-active text {
+  fill: #ffffff;
+  font-weight: 600;
+}
+.codegraph-graph svg .node { cursor: pointer; transition: opacity 0.2s ease; }
+.codegraph-graph svg .node:hover { opacity: 0.85; }</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>11. <strong>Add inline SVG diagram styles (replacing mermaid):</strong></p>
+<pre><code class="language-css">.figure-diagram {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.figure-diagram svg {
+  max-width: 100%;
+  height: auto;
+}</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<p>12. <strong>Important: <code>&lt;pre&gt;</code> whitespace rule</strong> — add a comment at the top of the code-block section:</p>
+<pre><code class="language-css">/* CRITICAL: Inside &lt;pre class="code-block"&gt;, .line spans MUST be adjacent with NO whitespace
+   between them. Any newline or space between .line spans will render as visible blank lines
+   in the &lt;pre&gt; context. The skill MUST generate: &lt;span class="line"&gt;...&lt;/span&gt;&lt;span class="line"&gt;...&lt;/span&gt; */</code><span class="code-lang">css</span><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li>
+</ul>
+<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/style.css</code></p>
+<p>Expected: 0</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/assets/style.css
+git commit -m "feat(codemermaid): create style.css with TOC, quiz, split-code, SVG styles"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-4-create-runtimejs">Task 4: Create <code>runtime.js</code></h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>skills/codemermaid/assets/runtime.js</code></li>
+</ul>
+<p>Minimal runtime — no mermaid, no unit rendering. Only handles interactive features:</p>
+<ul>
+<li>TOC active tracking (highlight current section on scroll)</li>
+<li>Quiz click handling (judge answer, show explanation)</li>
+<li>Code-walk annotation ↔ code line click sync</li>
+<li>Code-graph annotation ↔ SVG node click sync</li>
+<li>Zoom overlay (pan/zoom SVG diagrams)</li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create the runtime</strong></span></li>
+</ul>
+<pre><code class="language-javascript">/* runtime.js — minimal interactive runtime for codemermaid v2.
+   No mermaid, no unit rendering. Handles: TOC scroll, quiz, annotation clicks, zoom.
+   Inlined into each generated HTML page. */
+
+function initTocScroll() {
+  const tocLinks = Array.from(document.querySelectorAll('.toc-item'));
+  const units = Array.from(document.querySelectorAll('.unit[id]'));
+  if (tocLinks.length === 0 || units.length === 0) return;
+
+  let active = null;
+  function pickActive() {
+    const center = window.innerHeight / 2;
+    let best = null, bestDist = Infinity;
+    for (const u of units) {
+      const r = u.getBoundingClientRect();
+      const d = Math.abs((r.top + r.bottom) / 2 - center);
+      if (d &lt; bestDist) { bestDist = d; best = u; }
+    }
+    if (best &amp;&amp; best !== active) {
+      active = best;
+      tocLinks.forEach(link =&gt; {
+        const href = link.getAttribute('href');
+        link.classList.toggle('active', href === '#' + best.id);
+      });
+    }
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() =&gt; { pickActive(); ticking = false; });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+}
+
+function initQuiz() {
+  document.querySelectorAll('.quiz-option').forEach(opt =&gt; {
+    opt.addEventListener('click', function() {
+      const quiz = this.closest('.quiz');
+      if (quiz.classList.contains('answered')) return;
+      quiz.classList.add('answered');
+      const isCorrect = this.dataset.correct === 'true';
+      quiz.querySelectorAll('.quiz-option').forEach(o =&gt; {
+        if (o === this) {
+          o.classList.add(isCorrect ? 'correct' : 'wrong');
+        } else if (o.dataset.correct === 'true') {
+          o.classList.add('correct');
+        } else {
+          o.classList.add('dimmed');
+        }
+      });
+      const explanation = quiz.querySelector('.quiz-explanation');
+      if (explanation) explanation.classList.add('visible');
+    });
+  });
+}
+
+function bindAnnotationClicks(scope) {
+  const annotations = Array.from(scope.querySelectorAll('[data-note-lines]'));
+  const codeLines = Array.from(scope.querySelectorAll('.code-block .line'));
+  if (annotations.length === 0 || codeLines.length === 0) return;
+
+  function activate(note, lineNumber) {
+    annotations.forEach(a =&gt; a.classList.toggle('active', a === note));
+    codeLines.forEach(l =&gt; l.classList.toggle('active-note-line', l.dataset.line === lineNumber));
+  }
+
+  codeLines.forEach(line =&gt; {
+    line.addEventListener('click', () =&gt; {
+      const target = annotations.find(a =&gt; {
+        const lines = String(a.dataset.noteLines || '').split(',').filter(Boolean);
+        return lines.includes(line.dataset.line);
+      });
+      if (!target) return;
+      activate(target, line.dataset.line);
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  });
+
+  annotations.forEach(note =&gt; {
+    note.addEventListener('click', () =&gt; {
+      const firstLine = String(note.dataset.noteLines || '').split(',')[0];
+      const target = codeLines.find(l =&gt; l.dataset.line === firstLine);
+      if (!target) return;
+      activate(note, firstLine);
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    });
+  });
+}
+
+function initCodeWalkAnnotations() {
+  document.querySelectorAll('.codewalk-split').forEach(container =&gt; {
+    bindAnnotationClicks(container);
+  });
+}
+
+function initCodeGraphSync() {
+  document.querySelectorAll('.codegraph-split').forEach(container =&gt; {
+    const codeLines = Array.from(container.querySelectorAll('.code-block .line'));
+    const svgNodes = Array.from(container.querySelectorAll('.codegraph-graph [data-node-id]'));
+    if (codeLines.length === 0 || svgNodes.length === 0) return;
+
+    const lineToNode = new Map();
+    codeLines.forEach(line =&gt; {
+      const nodeId = line.dataset.graphNode;
+      if (nodeId) lineToNode.set(line.dataset.line, nodeId);
+    });
+
+    function highlightNode(nodeId) {
+      svgNodes.forEach(g =&gt; g.classList.toggle('node-active', g.dataset.nodeId === nodeId));
+    }
+
+    function highlightLine(lineNum) {
+      codeLines.forEach(l =&gt; l.classList.remove('active-note-line'));
+      const target = codeLines.find(l =&gt; l.dataset.line === lineNum);
+      if (target) target.classList.add('active-note-line');
+    }
+
+    svgNodes.forEach(node =&gt; {
+      node.addEventListener('click', () =&gt; {
+        const nodeId = node.dataset.nodeId;
+        highlightNode(nodeId);
+        const matchingLine = codeLines.find(l =&gt; l.dataset.graphNode === nodeId);
+        if (matchingLine) {
+          highlightLine(matchingLine.dataset.line);
+          matchingLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+
+    codeLines.forEach(line =&gt; {
+      line.addEventListener('click', () =&gt; {
+        const nodeId = line.dataset.graphNode;
+        if (!nodeId) return;
+        highlightNode(nodeId);
+        highlightLine(line.dataset.line);
+      });
+    });
+  });
+}
+
+function initZoomOverlay() {
+  const overlay = document.querySelector('.zoom-overlay');
+  if (!overlay) return;
+  const stage = overlay.querySelector('.zoom-stage');
+  const levelEl = overlay.querySelector('[data-zoom-level]');
+  let scale = 1, tx = 0, ty = 0;
+  const MIN = 0.3, MAX = 6;
+
+  function applyTransform() {
+    stage.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+    if (levelEl) levelEl.textContent = Math.round(scale * 100) + '%';
+  }
+
+  function openZoom(svg) {
+    const clone = svg.cloneNode(true);
+    const r = svg.getBoundingClientRect();
+    clone.removeAttribute('style');
+    clone.setAttribute('width', r.width);
+    clone.setAttribute('height', r.height);
+    clone.classList.add('zoom-svg-fix');
+    stage.innerHTML = '';
+    stage.appendChild(clone);
+    scale = 1; tx = 0; ty = 0;
+    applyTransform();
+    overlay.classList.add('open');
+    overlay.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeZoom() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-zoom-trigger]').forEach(btn =&gt; {
+    btn.addEventListener('click', () =&gt; {
+      const fig = btn.closest('.figure, .unit-diagram');
+      const svg = fig &amp;&amp; fig.querySelector('svg');
+      if (svg) openZoom(svg);
+    });
+  });
+
+  overlay.querySelector('[data-zoom-close]')?.addEventListener('click', closeZoom);
+  overlay.addEventListener('click', e =&gt; { if (e.target === overlay) closeZoom(); });
+  document.addEventListener('keydown', e =&gt; { if (e.key === 'Escape' &amp;&amp; overlay.classList.contains('open')) closeZoom(); });
+  overlay.querySelector('[data-zoom-in]')?.addEventListener('click', () =&gt; { scale = Math.min(MAX, scale * 1.25); applyTransform(); });
+  overlay.querySelector('[data-zoom-out]')?.addEventListener('click', () =&gt; { scale = Math.max(MIN, scale / 1.25); applyTransform(); });
+  overlay.querySelector('[data-zoom-reset]')?.addEventListener('click', () =&gt; { scale = 1; tx = 0; ty = 0; applyTransform(); });
+
+  overlay.addEventListener('wheel', e =&gt; {
+    if (!overlay.classList.contains('open')) return;
+    e.preventDefault();
+    const rect = stage.getBoundingClientRect();
+    const cx = e.clientX - (rect.left + rect.width / 2);
+    const cy = e.clientY - (rect.top + rect.height / 2);
+    const factor = e.deltaY &lt; 0 ? 1.12 : 1 / 1.12;
+    const ns = Math.min(MAX, Math.max(MIN, scale * factor));
+    const r = ns / scale;
+    tx -= cx * (r - 1); ty -= cy * (r - 1);
+    scale = ns;
+    applyTransform();
+  }, { passive: false });
+
+  let dragging = false, lx = 0, ly = 0;
+  overlay.addEventListener('mousedown', e =&gt; {
+    if (e.target.closest('.zoom-controls')) return;
+    dragging = true; lx = e.clientX; ly = e.clientY;
+    overlay.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e =&gt; {
+    if (!dragging) return;
+    tx += e.clientX - lx; ty += e.clientY - ly;
+    lx = e.clientX; ly = e.clientY;
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () =&gt; { dragging = false; overlay.classList.remove('dragging'); });
+}
+
+function bootPage() {
+  initTocScroll();
+  initQuiz();
+  initCodeWalkAnnotations();
+  initCodeGraphSync();
+  initZoomOverlay();
+}
+
+document.addEventListener('DOMContentLoaded', bootPage);</code><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Verify no mermaid references</strong></span></li>
+</ul>
+<p>Run: <code>grep -ci "mermaid" skills/codemermaid/assets/runtime.js</code></p>
+<p>Expected: 0</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/assets/runtime.js
+git commit -m "feat(codemermaid): create minimal runtime with TOC, quiz, annotations, zoom"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-5-create-referencessvg-patternsmd">Task 5: Create <code>references/svg-patterns.md</code></h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>skills/codemermaid/references/svg-patterns.md</code></li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create the reference file</strong></span></li>
+</ul>
+<p>Content is the same as the old plan's Task 5 (SVG skeleton, node types, edges, grouping, layout math, design tokens). See the wireframe's SVG for working examples.</p>
+<p>Key patterns:</p>
+<ul>
+<li>Skeleton with <code>&lt;defs&gt;&lt;marker id="arrowhead"&gt;...&lt;/marker&gt;&lt;/defs&gt;</code></li>
+<li>Rectangle node: <code>&lt;g class="node" data-node-id="..."&gt;&lt;rect rx="8"/&gt;&lt;text/&gt;&lt;/g&gt;</code></li>
+<li>Edge: <code>&lt;line marker-end="url(#arrowhead)"/&gt;</code></li>
+<li>Dashed edge: <code>stroke-dasharray="6 3"</code></li>
+<li>Design tokens: fill <code>#161718</code>, stroke <code>#252829</code>, text <code>#f9f9f9</code>, active <code>#FF6363</code>, edge <code>#9c9c9d</code></li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/references/svg-patterns.md
+git commit -m "feat(codemermaid): add SVG diagram patterns reference"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-6-delete-old-files">Task 6: Delete old files</h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Delete all old template, runtime, and validation files</li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Delete old files</strong></span></li>
+</ul>
+<pre><code class="language-bash">rm skills/codemermaid/assets/template-essay.html
+rm skills/codemermaid/assets/template-index.html
+rm skills/codemermaid/assets/_runtime.js
+rm skills/codemermaid/assets/_essay.js
+rm skills/codemermaid/assets/_index.js
+rm skills/codemermaid/scripts/validate-units.js
+rm skills/codemermaid/references/storyboard-patterns.md</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Verify</strong></span></li>
+</ul>
+<p>Run: <code>ls skills/codemermaid/assets/</code></p>
+<p>Expected: <code>skeleton-essay.html  skeleton-index.html  style.css  runtime.js</code></p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add -u skills/codemermaid/
+git commit -m "chore(codemermaid): remove old templates, mermaid runtime, validator, storyboard patterns"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-7-rewrite-skillmd">Task 7: Rewrite SKILL.md</h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: <code>skills/codemermaid/SKILL.md</code></li>
+</ul>
+<p>This is the largest task. Phase 1-3 remain unchanged. Everything from Phase 4 onward needs rewriting.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Update frontmatter and description</strong></span></li>
+</ul>
+<p>Replace mermaid references with SVG. Update unit list to: concept, quiz, takeaway, diagram, code-walk, code-graph.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 2: Update unit kinds section</strong></span></li>
+</ul>
+<p>Replace the 8 unit kinds with 6:</p>
+<pre><code class="language-javascript">{ kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
+{ kind: "quiz",        question, options: [{letter, text, correct}], explanation }
+{ kind: "takeaway",    body }
+{ kind: "diagram",     title, svg, caption, zoomable? }
+{ kind: "code-walk",   title, file, code, highlights: [{line, note}], layout? }
+{ kind: "code-graph",  title, file, code, highlights: [{line, note, graphNode?}], svg }</code><span class="code-lang">javascript</span><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 3: Replace Phase 4 — "Build SVG Diagrams"</strong></span></li>
+</ul>
+<p>No more mermaid syntax. Generate raw SVG with <code>&lt;g data-node-id&gt;</code> nodes. Read <code>references/svg-patterns.md</code> for templates.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 4: Replace Phase 5 — page list</strong></span></li>
+</ul>
+<pre><code>| File | Skeleton | Condition |
+|------|----------|-----------|
+| `index.html`            | `skeleton-index.html` | Always |
+| `architecture.html`     | `skeleton-essay.html` | Always |
+| `&lt;perspective&gt;.html`    | `skeleton-essay.html` | One per non-architecture perspective |
+| `module-&lt;name&gt;.html`    | `skeleton-essay.html` | One per discovered module |</code><button class="copy-btn">Copy</button></pre>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 5: Replace Phase 6 — "Write HTML Pages"</strong></span></li>
+</ul>
+<p>For each page:</p>
+<p>1. Read the skeleton template</p>
+<p>2. Read <code>assets/style.css</code> and <code>assets/runtime.js</code></p>
+<p>3. Inline CSS and JS into the skeleton</p>
+<p>4. Generate content HTML for each slot</p>
+<p>5. Replace <code>&lt;!-- SLOT:... --&gt;</code> markers with content</p>
+<p>6. <strong>Critical HTML rule:</strong> Inside <code>&lt;pre class="code-block"&gt;</code>, <code>.line</code> spans must be adjacent with NO whitespace between them</p>
+<p>7. Write the completed HTML to <code>docs/codebase-course/</code></p>
+<p><strong>Essay page content generation:</strong></p>
+<p>HERO slot:</p>
+<pre><code class="language-html">&lt;section class="hero"&gt;
+  &lt;div class="eyebrow"&gt;{PROJECT_NAME}&lt;/div&gt;
+  &lt;h1&gt;{PAGE_TITLE}&lt;/h1&gt;
+  &lt;p class="learning-promise"&gt;{LEARNING_PROMISE}&lt;/p&gt;
+  &lt;ul class="prereqs"&gt;{PREREQ_CHIPS}&lt;/ul&gt;
+&lt;/section&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
+<p>TOC slot:</p>
+<pre><code class="language-html">&lt;nav class="toc"&gt;
+  &lt;div class="toc-label"&gt;On this page&lt;/div&gt;
+  &lt;ol class="toc-list"&gt;
+    &lt;li&gt;&lt;a class="toc-item" href="#unit-0"&gt;&lt;span class="toc-num"&gt;1&lt;/span&gt;{TITLE}&lt;span class="toc-kind"&gt;{KIND}&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+    ...
+  &lt;/ol&gt;
+&lt;/nav&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
+<p>UNITS slot — each unit wrapped in:</p>
+<pre><code class="language-html">&lt;section class="unit unit-{KIND}" id="unit-{INDEX}"&gt;
+  {UNIT_CONTENT}
+&lt;/section&gt;</code><span class="code-lang">html</span><button class="copy-btn">Copy</button></pre>
+<p>Unit HTML templates:</p>
+<ul>
+<li><strong>concept</strong> (normal): <code>&lt;span class="unit-kind"&gt;concept&lt;/span&gt;&lt;h2&gt;...&lt;/h2&gt;&lt;p&gt;...&lt;/p&gt;</code></li>
+<li><strong>concept</strong> (callout): Same but wrapped in <code>&lt;div class="unit-surprise"&gt;</code> with <code>&lt;span class="unit-kind"&gt;concept&lt;/span&gt;</code> inside</li>
+<li><strong>quiz</strong>: <code>&lt;div class="quiz"&gt;&lt;div class="quiz-question"&gt;...&lt;/div&gt;&lt;div class="quiz-options"&gt;&lt;div class="quiz-option" data-correct="true/false"&gt;...&lt;/div&gt;...&lt;/div&gt;&lt;div class="quiz-explanation"&gt;...&lt;/div&gt;&lt;/div&gt;</code></li>
+<li><strong>takeaway</strong>: Same as before</li>
+<li><strong>diagram</strong>: <code>&lt;figure class="figure"&gt;&lt;div class="figure-diagram"&gt;{SVG}&lt;/div&gt;&lt;figcaption&gt;...&lt;/figcaption&gt;&lt;/figure&gt;</code></li>
+<li><strong>code-walk</strong> (split): <code>&lt;div class="codewalk-split"&gt;&lt;div class="codewalk-head"&gt;...&lt;/div&gt;&lt;div class="codewalk-split-body"&gt;&lt;pre class="code-block"&gt;...&lt;/pre&gt;&lt;div class="codewalk-annotations"&gt;...&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></li>
+<li><strong>code-graph</strong>: <code>&lt;div class="codegraph-split"&gt;&lt;div class="codewalk-head"&gt;...&lt;/div&gt;&lt;div class="codegraph-split-body"&gt;&lt;pre class="code-block"&gt;...&lt;/pre&gt;&lt;div class="codegraph-graph"&gt;{SVG}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></li>
+</ul>
+<p><strong>Pre-flight checks:</strong></p>
+<ul class="task-list">
+<li><input type="checkbox"><span>Every <code>highlightLines</code> / <code>highlights[].line</code> points to an existing line</span></li>
+<li><input type="checkbox"><span>Every code snippet is an exact copy from source</span></li>
+<li><input type="checkbox"><span>No <code>href="#"</code> placeholders</span></li>
+<li><input type="checkbox"><span>No <code><strong>bold</strong></code> markdown — use <code>&lt;strong&gt;</code> directly</span></li>
+<li><input type="checkbox"><span>SVG diagrams contain no broken references</span></li>
+<li><input type="checkbox"><span>No whitespace between <code>.line</code> spans inside <code>&lt;pre&gt;</code> blocks</span></li>
+</ul>
+<p><strong>Validation:</strong> Dispatch a subagent reviewer to check the generated HTML.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 6: Update Important Rules, Common Mistakes, File Organization</strong></span></li>
+</ul>
+<ul>
+<li>Remove mermaid references</li>
+<li>Add rules about <code>&lt;pre&gt;</code> whitespace</li>
+<li>Add quiz answer rules (exactly 1 <code>data-correct="true"</code>)</li>
+<li>Update file organization tree</li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 7: Commit</strong></span></li>
+</ul>
+<pre><code class="language-bash">git add skills/codemermaid/SKILL.md
+git commit -m "feat(codemermaid): rewrite SKILL.md for v2 pipeline"</code><span class="code-lang">bash</span><button class="copy-btn">Copy</button></pre>
+<hr>
+<h2 id="task-8-generate-test-page-validate">Task 8: Generate test page + validate</h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>tests/fixtures/test-page-v2.html</code></li>
+</ul>
+<p>Use the wireframe at <code>docs/superpowers/plans/wireframe-codemermaid-v2.html</code> as reference. Generate a proper test page using the skeleton template + inlined CSS/JS.</p>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Create test page</strong></span></li>
+<li><input type="checkbox"><span><strong>Step 2: Open in browser and verify all interactions</strong></span></li>
+<li><input type="checkbox"><span><strong>Step 3: Commit</strong></span></li>
+</ul>
+<hr>
+<h2 id="task-9-fix-issues-from-validation">Task 9: Fix issues from validation</h2>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: whatever needs fixing</li>
+</ul>
+<ul class="task-list">
+<li><input type="checkbox"><span><strong>Step 1: Fix and re-verify</strong></span></li>
+<li><input type="checkbox"><span><strong>Step 2: Commit</strong></span></li>
+</ul>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr><th>Task</th><th>Description</th><th>Est. Time</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Create <code>skeleton-essay.html</code></td><td>5 min</td></tr>
+<tr><td>2</td><td>Create <code>skeleton-index.html</code></td><td>3 min</td></tr>
+<tr><td>3</td><td>Create <code>style.css</code></td><td>15 min</td></tr>
+<tr><td>4</td><td>Create <code>runtime.js</code></td><td>15 min</td></tr>
+<tr><td>5</td><td>Create <code>svg-patterns.md</code></td><td>10 min</td></tr>
+<tr><td>6</td><td>Delete old files</td><td>3 min</td></tr>
+<tr><td>7</td><td>Rewrite SKILL.md</td><td>25 min</td></tr>
+<tr><td>8</td><td>Generate test page + validate</td><td>15 min</td></tr>
+<tr><td>9</td><td>Fix validation issues</td><td>10 min</td></tr>
+<tr><td><strong>Total</strong></td><td></td><td><strong>~100 min</strong></td></tr>
+</tbody>
+</table>
+      </article>
+<aside class="toc-sidebar">
+  <nav>
+    <div class="toc-sidebar-title">On this page</div>
+    <ul>
+      <li><a href="#design-decisions-summary">Design Decisions Summary</a></li>
+      <li><a href="#wireframe">Wireframe</a></li>
+      <li><a href="#file-structure">File Structure</a></li>
+      <li class="toc-h3"><a href="#files-to-delete">Files to DELETE</a></li>
+      <li class="toc-h3"><a href="#files-to-create">Files to CREATE</a></li>
+      <li class="toc-h3"><a href="#files-to-modify">Files to MODIFY</a></li>
+      <li><a href="#task-1-create-skeleton-essayhtml">Task 1: Create <code>skeleton-essay.html</code></a></li>
+      <li><a href="#task-2-create-skeleton-indexhtml">Task 2: Create <code>skeleton-index.html</code></a></li>
+      <li><a href="#task-3-create-stylecss">Task 3: Create <code>style.css</code></a></li>
+      <li><a href="#task-4-create-runtimejs">Task 4: Create <code>runtime.js</code></a></li>
+      <li><a href="#task-5-create-referencessvg-patternsmd">Task 5: Create <code>references/svg-patterns.md</code></a></li>
+      <li><a href="#task-6-delete-old-files">Task 6: Delete old files</a></li>
+      <li><a href="#task-7-rewrite-skillmd">Task 7: Rewrite SKILL.md</a></li>
+      <li><a href="#task-8-generate-test-page-validate">Task 8: Generate test page + validate</a></li>
+      <li><a href="#task-9-fix-issues-from-validation">Task 9: Fix issues from validation</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ul>
+  </nav>
+</aside>
+    </div>
+  </div>
+  <script type="module" src="runtime.js"></script>
+</body>
+</html>
