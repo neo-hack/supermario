@@ -39,7 +39,7 @@ The agent converts all standard and extended markdown to HTML:
 
 | MD Element | HTML Output |
 |------------|-------------|
-| `# h1` – `#### h4` | `<h1>` – `<h4>` |
+| `# h1` – `#### h4` | `<h1>` – `<h4>`, all h2/h3 get `id` attribute from slugified text |
 | Paragraphs | `<p>` |
 | `**bold**`, `*italic*` | `<strong>`, `<em>` |
 | `- [ ] task`, `- [x] done` | `<input type="checkbox">` in `<li>` |
@@ -53,6 +53,7 @@ The agent converts all standard and extended markdown to HTML:
 | `[text](url)` | `<a href="url">text</a>` |
 | `---` | `<hr>` |
 | Inline code | `<code>...</code>` |
+| (auto-generated) | TOC sidebar `<aside>` from h2/h3 headings with scroll-linked anchor links |
 
 ## Runtime.js Responsibilities
 
@@ -81,6 +82,14 @@ Scans `<pre class="mermaid">` blocks, calls `mermaid.run()`.
 - Fallback: `prefers-color-scheme` media query
 - Click toggle button → set `data-theme` on `<html>` + persist to localStorage
 - shiki dual-theme syncs via CSS class visibility
+
+### 4. TOC Scroll Tracking
+
+- Scans all `<h2 id="...">` and `<h3 id="...">` in the article
+- Builds sticky sidebar TOC from heading hierarchy
+- On scroll: highlights the currently visible section's TOC link
+- h2 entries are top-level, h3 entries are indented
+- Active link uses `--accent` color + `--accent-soft` background
 
 ## CDN Dependencies (ESM only)
 
@@ -136,6 +145,29 @@ Follows the codemermaid Raycast-inspired design system (`skills/codemermaid/DESI
 | Images | `max-width: 100%`, rounded corners |
 | Links | `--accent` color, underline on hover |
 
+### Page Layout
+
+Grid layout with content + sticky TOC sidebar:
+
+```css
+.page-layout {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 40px;
+  align-items: start;
+}
+.toc-sidebar {
+  position: sticky;
+  top: 68px; /* below topbar */
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
+}
+```
+
+TOC sidebar contains a `<nav>` with left border, listing all h2/h3 headings. h3 entries are indented. On scroll, runtime.js highlights the active heading's TOC link. At viewport widths < 1100px, the TOC sidebar hides and layout collapses to single column.
+
+Agent generates the TOC sidebar HTML by scanning all headings in the rendered content, assigning `id` attributes, and building the `<ul>` with anchor links.
+
 ### Top Navigation Bar
 
 Fixed top bar with: filename (from first h1 or file basename) + theme toggle button (sun/moon icon).
@@ -159,9 +191,12 @@ Fixed top bar with: filename (from first h1 or file basename) + theme toggle but
     <button class="theme-toggle" id="theme-toggle"><!-- sun/moon icon --></button>
   </nav>
   <div class="container">
-    <article id="content">
-      <!-- SLOT:CONTENT -->
-    </article>
+    <div class="page-layout">
+      <article id="content">
+        <!-- SLOT:CONTENT -->
+      </article>
+      <!-- SLOT:TOC_SIDEBAR -->
+    </div>
   </div>
   <script type="module" src="runtime.js"></script>
 </body>
