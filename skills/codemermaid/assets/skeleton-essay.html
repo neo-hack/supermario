@@ -3,40 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{PAGE_TITLE}} — {{PROJECT_NAME}}</title>
+<title><!-- SLOT:PAGE_TITLE --> — <!-- SLOT:PROJECT_NAME --></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
-<style>
-{{COMMON_STYLES}}
-{{PAGE_STYLES}}
-</style>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,securityLevel:'loose',theme:'dark',themeVariables:{fontSize:'16px',primaryColor:'#161718',primaryTextColor:'#f9f9f9',primaryBorderColor:'#252829',lineColor:'#9c9c9d',activeBkgColor:'#FF6363',activeTextColor:'#fff',nodeTextColor:'#f9f9f9',clusterBkg:'#101111',clusterBorder:'#252829'}});</script>
 </head>
 <body>
 <header class="topbar">
-  <a class="back-link" href="{{BACK_LINK}}">← {{BACK_LABEL}}</a>
+  <a class="back-link" href="<!-- SLOT:BACK_LINK -->">← <!-- SLOT:BACK_LABEL --></a>
 </header>
 
 <main class="container">
-  <section class="hero">
-    <div class="eyebrow">{{PROJECT_NAME}}</div>
-    <h1>{{PAGE_TITLE}}</h1>
-    <p class="learning-promise">{{LEARNING_PROMISE}}</p>
-    <ul class="prereqs">{{PREREQ_CHIPS}}</ul>
-  </section>
-
-  <section class="anchor">
-    <div class="anchor-label">Anchor diagram</div>
-    <div class="mermaid"></div>
-  </section>
-
-  <section class="units"></section>
-
-  <footer class="page-footer">
-    <a class="next-link" href="{{NEXT_LINK}}">{{NEXT_LABEL}} →</a>
-    <p class="recap">{{LEARNING_PROMISE_RECAP}}</p>
-  </footer>
+  <!-- SLOT:HERO -->
+  <!-- SLOT:TOC -->
+  <!-- SLOT:UNITS -->
+  <!-- SLOT:FOOTER -->
 </main>
 
 <div class="zoom-overlay" hidden>
@@ -58,12 +42,6 @@
   </div>
 </div>
 
-<script>
-{{COMMON_SCRIPTS}}
-{{PAGE_SCRIPTS}}
-
-const PAGE = {{PAGE_DATA}};
-bootEssay(PAGE);
-</script>
+<script src="runtime.js"></script>
 </body>
 </html>

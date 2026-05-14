@@ -1,8 +1,8 @@
 # Unit Kind Examples
 
-These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples; each is a complete JS object literal that would pass through `renderUnit()` unmodified. Voice rules live separately in `voice-examples.md`.
+These are the concrete patterns the generator should imitate. Every unit kind has 2–3 worked examples showing the exact JS object literal format. Voice rules live separately in `voice-examples.md`.
 
-> Source: examples drawn from the reference implementation at `docs/codebase-demo-mermaid-essay.html` and from the spec voice pairs (`docs/superpowers/specs/2026-05-03-codemermaid-essay-design.md`). Don't invent codebases — only use repos you've actually scanned.
+> Source: examples drawn from scanned codebases. Don't invent codebases — only use repos you've actually scanned.
 
 ---
 
@@ -34,17 +34,16 @@ Plain prose, 60–150 words. The teacher pointing at a thing before showing code
 
 ---
 
-## code-walk (stacked)
+## code-walk (split)
 
-Default layout. Code first, then explanation. Use when prose is one paragraph.
+Sticky code on the left, annotation cards on the right. Each annotation references a specific code line. Use when explanation has 2+ beats tied to specific lines.
 
-### Example 1 — Auth middleware (stacked)
+### Example 1 — Auth middleware (split)
 
 ```javascript
 {
   kind: "code-walk",
   title: "Token check before any handler",
-  layout: "stacked",
   file: "src/middleware/auth.ts",
   code:
 `export const auth: Middleware = async (c, next) => {
@@ -58,47 +57,20 @@ Default layout. Code first, then explanation. Use when prose is one paragraph.
   }
   return next();
 };`,
-  highlightLines: [3, 6, 9],
-  explanation:
-    "Watch what they do here — the token check happens before any handler runs, but they don't throw on a malformed token, they `next()` with a null user. That's the move. Downstream handlers decide whether `null user` is OK for them, instead of the middleware deciding for everyone."
+  highlights: [
+    { line: 2, note: "Optional chaining — no crash if header is missing." },
+    { line: 5, note: "verify() throws on malformed tokens — caught below." },
+    { line: 8, note: "Does NOT throw — sets null user, continues. Downstream decides." }
+  ]
 }
 ```
 
-### Example 2 — Repository read (stacked)
-
-```javascript
-{
-  kind: "code-walk",
-  title: "Read-through cache pattern",
-  layout: "stacked",
-  file: "src/repo/user.ts",
-  code:
-`export async function findUser(id: string) {
-  const cached = cache.get(id);
-  if (cached) return cached;
-  const row = await db.users.findById(id);
-  cache.set(id, row, { ttl: 60_000 });
-  return row;
-}`,
-  highlightLines: [2, 3, 5],
-  explanation:
-    "The pattern is read-through: cache first, DB second, write to cache on miss. The TTL is short on purpose — this user table mutates often and stale-by-a-minute is acceptable here. If you've used DataLoader, you'll find this surprising: no batching at all. Why? Because user lookups in this app are already keyed by request, so DataLoader's win wouldn't apply."
-}
-```
-
----
-
-## code-walk (split)
-
-Sticky code on the left, prose with multiple beats on the right. Use when explanation has 2+ beats tied to specific lines and stacked would force scroll-back.
-
-### Example 1 — Router registration (split)
+### Example 2 — Router trie builder (split)
 
 ```javascript
 {
   kind: "code-walk",
   title: "Building the trie",
-  layout: "split",
   file: "src/router.ts",
   code:
 `function add(path: string, handler: Handler) {
@@ -113,177 +85,35 @@ Sticky code on the left, prose with multiple beats on the right. Use when explan
   }
   node.handler = handler;
 }`,
-  highlightLines: [4, 5, 6, 8, 11],
-  explanation:
-`<h3>The walk loop <span class="ref">L4</span></h3>
-For every path segment, descend into the trie or create a child node. Parameter segments collapse into a single wildcard key (\`'*'\`) so the same node serves \`:userId\`, \`:slug\`, etc.
-
-<h3>Param capture <span class="ref">L8</span></h3>
-The wildcard child remembers its original parameter name. At lookup time, the matching segment text gets stored under that name on the request context.
-
-<h3>Handler at the leaf <span class="ref">L11</span></h3>
-Handlers live only at leaf nodes. That's why ambiguous routes can't exist in this design — every path resolves to exactly one node.`
-}
-```
-
----
-
-## code-walk (stepped)
-
-Sticky code on the left, ordered `steps[]` on the right with `{ highlightLines, beat }`. Scroll-driven highlight migration. **At most one per module.**
-
-### Example 1 — Request lifecycle walk (stepped)
-
-```javascript
-{
-  kind: "code-walk",
-  title: "What `app.fetch()` actually does",
-  layout: "stepped",
-  file: "src/app.ts",
-  code:
-`async fetch(request: Request, env: Env) {
-  const ctx = makeContext(request, env);
-  const route = router.match(ctx.req.path);
-  if (!route) return new Response('Not found', { status: 404 });
-  for (const m of this.middleware) {
-    await m(ctx, async () => {});
-    if (ctx.finalized) return ctx.res;
-  }
-  return route.handler(ctx);
-}`,
-  steps: [
-    { highlightLines: [2], beat: "First, build the request context — a single object every middleware and handler will share. This is the only mutable thing the framework hands out." },
-    { highlightLines: [3, 4], beat: "Then match a route. Notice: the 404 escape happens *before* any middleware runs. That's a deliberate choice — auth middleware can't fire on paths that don't exist." },
-    { highlightLines: [5, 6, 7], beat: "Walk the middleware in registration order. The `next()` callback they get is a no-op here because the framework drives the chain itself. If a middleware sets `ctx.finalized`, it short-circuits the rest." },
-    { highlightLines: [9], beat: "Finally, the handler. By the time we reach this line, all middleware ran and didn't finalize — so the handler's `ctx` is fully populated." }
+  highlights: [
+    { line: 4, note: "Walk every path segment, descending into the trie." },
+    { line: 5, note: "Param segments (starting with :) collapse to a single wildcard key '*'." },
+    { line: 8, note: "The wildcard child remembers its original param name for lookup." },
+    { line: 11, note: "Handlers live only at leaf nodes — no ambiguous routes." }
   ]
 }
 ```
 
----
-
-## guess-first
-
-Question that requires the reader to commit to a guess before the reveal. Collapsed `<details>` element. Question ≤ 2 sentences, reveal ≤ 150 words.
-
-### Example 1 — Cache TTL
+### Example 3 — Repository read (split)
 
 ```javascript
 {
-  kind: "guess-first",
-  question: "Why does the cache TTL drop to 0 inside `loginAs()`?",
-  reveal: {
-    code:
-`if (process.env.NODE_ENV === 'test') {
-  cache.setDefaultTTL(0);
+  kind: "code-walk",
+  title: "Read-through cache pattern",
+  file: "src/repo/user.ts",
+  code:
+`export async function findUser(id: string) {
+  const cached = cache.get(id);
+  if (cached) return cached;
+  const row = await db.users.findById(id);
+  cache.set(id, row, { ttl: 60_000 });
+  return row;
 }`,
-    explanation:
-      "Tests run with `NODE_ENV=test`, and a non-zero TTL means the next test sees stale state from the previous one. Setting TTL to 0 is cheaper than wiping the cache between tests — the data still passes through cache.set/get, so the code path under test stays identical to production."
-  }
-}
-```
-
-### Example 2 — Why two trees?
-
-```javascript
-{
-  kind: "guess-first",
-  question: "React keeps two fiber trees alive at once. Why two and not one?",
-  reveal: {
-    explanation:
-      "If render fails or gets aborted (suspense, error boundary, scheduler interrupt), React needs to throw away the in-progress work and keep the previous UI mounted. With one tree, you'd be mutating live UI state — half-rendered = visible bugs. With two trees, the work-in-progress mutates freely; commit phase atomically swaps pointers."
-  }
-}
-```
-
----
-
-## compare
-
-Side-by-side code with a lesson banner. Use for "before/after" patterns or "library A vs library B" framings. ≤ 12 lines per side, lesson ≤ 80 words.
-
-### Example 1 — Optional chaining vs guard
-
-```javascript
-{
-  kind: "compare",
-  title: "Two ways to read a possibly-missing field",
-  left: {
-    label: "Verbose: explicit guards",
-    code:
-`if (user && user.profile && user.profile.avatar) {
-  setSrc(user.profile.avatar);
-}`
-  },
-  right: {
-    label: "Idiomatic: optional chaining",
-    code: `setSrc(user?.profile?.avatar);`
-  },
-  lesson:
-    "Both branches handle the same null cases, but the optional-chaining form is a single expression — easier to use as a value (e.g., default with `?? '/avatar.png'`)."
-}
-```
-
-### Example 2 — Sync vs async cache check
-
-```javascript
-{
-  kind: "compare",
-  title: "When the API shape hides the cost",
-  left: {
-    label: "Looks the same, isn't",
-    code:
-`const r = await getUser(id);
-return r;`
-  },
-  right: {
-    label: "What actually runs",
-    code:
-`const cached = cache.get(id);   // sync
-if (cached) return cached;       // sync return path
-const r = await fetch(...);      // network only on miss
-return r;`
-  },
-  lesson:
-    "Heads up — `await` doesn't tell you whether work happened. The sync cache hit and the async network fetch share the same call site. The shape of the API hides the cost."
-}
-```
-
----
-
-## surprise
-
-A counterintuitive observation worth pausing on. 1–3 sentences. Distinct callout style.
-
-### Example 1 — Middleware short-circuit
-
-```javascript
-{
-  kind: "surprise",
-  title: "Middleware runs before routing",
-  body:
-    "Every middleware fires *before* the framework checks whether the route exists. That means a logging middleware logs every 404 the wild internet sends you. Useful or noisy depending on your perspective."
-}
-```
-
-### Example 2 — Trie wildcards
-
-```javascript
-{
-  kind: "surprise",
-  title: "All `:params` collapse to one trie key",
-  body:
-    "It doesn't matter whether you wrote `:userId` or `:slug` — both segments become the same `'*'` child in the trie. The original name only resurfaces at lookup time. That's why two routes with different param names but identical positions are *the same route*."
-}
-```
-
-### Example 3 — The cost is in the API shape
-
-```javascript
-{
-  kind: "surprise",
-  body:
-    "Heads up — this returns a Promise but the cache check is synchronous. If you `await` this without checking the cache flag first, you've already lost the early-return win. The shape of the API hides the cost."
+  highlights: [
+    { line: 2, note: "Cache check is synchronous — instant return on hit." },
+    { line: 3, note: "Early return avoids the DB query entirely." },
+    { line: 5, note: "Short TTL (60s) because this table mutates often." }
+  ]
 }
 ```
 
@@ -373,6 +203,13 @@ Architecture / sequence / state figure. Inline in `units[]`. Renders with a Zoom
 
 Multi-scene Mermaid player with optional paired code. Use when a static diagram would hide the sequence of moves.
 
+Use storyboard for:
+- **Multi-step sequences**: state transitions, request lifecycles, build pipelines
+- **Cross-file interactions**: showing how components, hooks, or modules call each other
+- **Single-file drilling**: examining different aspects of one file across multiple scenes (Props → State → Handlers)
+
+### Example 1 — Single-file: Phase 6 assembly
+
 ```javascript
 {
   kind: "storyboard",
@@ -392,17 +229,14 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
       name: "Inline partials",
       mermaid:
 `flowchart LR
-  A["_base.css"] --> C["self-contained HTML"]
-  B["_essay.css"] --> C
-  D["_runtime.js"] --> C
-  E["_essay.js"] --> C`,
+  A["template-essay.html"] --> C["output HTML"]
+  B["_runtime.js"] --> C`,
       code: {
         file: "skills/codemermaid/SKILL.md",
         lang: "markdown",
-        source: "1. Read template-essay.html\n2. Read _base.css and _essay.css\n3. Read _runtime.js and _essay.js\n4. Replace template slots",
+        source: "1. Read template-essay.html\n2. Read _runtime.js and _essay.js\n3. Replace template slots",
         highlights: [
-          { line: 2, note: "CSS partials define the Raycast-themed reading surface." },
-          { line: 3, note: "Runtime partials keep each output page interactive without a build step." }
+          { line: 2, note: "Runtime partials keep each output page interactive without a build step." }
         ]
       },
       explanation:
@@ -426,6 +260,68 @@ Multi-scene Mermaid player with optional paired code. Use when a static diagram 
       },
       explanation:
         "Bad pedagogy fails before the page is written. That keeps the generator honest when it starts producing richer units."
+    }
+  ]
+}
+```
+
+### Example 2 — Cross-file: Component calls Hook
+
+```javascript
+{
+  kind: "storyboard",
+  title: "ChatPanel uses useAutoScroll",
+  caption: "How the top-level component initializes scrolling behavior via a custom hook.",
+  scenes: [
+    {
+      name: "Component Setup",
+      mermaid:
+`flowchart LR
+  A["ChatPanel.tsx"] --> B["useAutoScroll hook"]`,
+      code: {
+        file: "src/components/ChatPanel.tsx",
+        lang: "tsx",
+        source: "const containerRef = useRef<HTMLDivElement>(null);\nconst { autoScroll, scrollToBottom } = useAutoScroll(containerRef);",
+        highlights: [
+          { line: 1, note: "ChatPanel creates a ref to pass into the hook." },
+          { line: 2, note: "The hook returns both state and an imperative scroll function." }
+        ]
+      },
+      explanation:
+        "ChatPanel needs auto-scroll for new messages. It creates a ref and passes it to useAutoScroll, which manages the scroll state."
+    },
+    {
+      name: "Hook Internals",
+      mermaid:
+`flowchart LR
+  B["useAutoScroll hook"] --> C["scrollToBottom()"]`,
+      code: {
+        file: "src/hooks/useAutoScroll.ts",
+        lang: "ts",
+        source: "export function useAutoScroll(containerRef: RefObject<HTMLElement>) {\n  const [autoScroll, setAutoScroll] = useState(true);\n  // ...\n  const scrollToBottom = () => {\n    if (containerRef.current) {\n      containerRef.current.scrollTop = containerRef.current.scrollHeight;\n    }\n  };\n  return { autoScroll, scrollToBottom };\n}",
+        highlights: [
+          { line: 5, note: "The hook provides an imperative scroll function." },
+          { line: 8, note: "Returns state and controls to the caller." }
+        ]
+      },
+      explanation:
+        "The hook encapsulates scroll logic. It returns state so ChatPanel can show an indicator, and a function so ChatPanel can trigger scrolling."
+    },
+    {
+      name: "Back to Component",
+      mermaid:
+`flowchart LR
+  C["scrollToBottom()"] --> D["Message renders"]`,
+      code: {
+        file: "src/components/ChatPanel.tsx",
+        lang: "tsx",
+        source: "useEffect(() => {\n  if (autoScroll) scrollToBottom();\n}, [messages]);",
+        highlights: [
+          { line: 2, note: "Whenever messages change, auto-scroll if enabled." }
+        ]
+      },
+      explanation:
+        "ChatPanel wires the hook's return value into its effect. New messages trigger auto-scroll, but the user can disable it by toggling the state."
     }
   ]
 }
