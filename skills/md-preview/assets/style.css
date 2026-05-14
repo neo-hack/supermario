@@ -285,3 +285,27 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 @media (max-width: 960px) {
   .container { width: 100%; min-width: 0; padding: 60px 20px 120px; }
 }
+
+/* ===== SHIKI DUAL THEME ===== */
+.shiki-wrapper {
+  position: relative;
+}
+.shiki-wrapper pre.shiki-dark {
+  display: block;
+}
+.shiki-wrapper pre.shiki-light {
+  display: none;
+}
+[data-theme="light"] .shiki-wrapper pre.shiki-dark {
+  display: none;
+}
+[data-theme="light"] .shiki-wrapper pre.shiki-light {
+  display: block;
+}
+.shiki-wrapper pre {
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
