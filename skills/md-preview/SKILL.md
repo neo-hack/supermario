@@ -10,17 +10,20 @@ Generate a styled HTML preview page from a markdown file. The output is a self-c
 ## Workflow
 
 1. Read the target `.md` file.
-2. Create output directory: `docs/md-preview/` (if it doesn't exist).
-3. Copy `skills/md-preview/assets/style.css` and `skills/md-preview/assets/runtime.js` to `docs/md-preview/`.
-4. Read `skills/md-preview/assets/template.html` as the HTML shell.
-5. Convert the markdown content to HTML manually (see MD→HTML rules below).
-6. Generate a TOC sidebar from all h2/h3 headings.
-7. Fill the template slots:
+2. Read `skills/md-preview/assets/template.html` as the HTML shell.
+3. Read `skills/md-preview/assets/style.css` and `skills/md-preview/assets/runtime.js` — these will be inlined into the HTML.
+4. Convert the markdown content to HTML manually (see MD→HTML rules below).
+5. Generate a TOC sidebar from all h2/h3 headings.
+6. Fill the template slots:
    - `<!-- SLOT:TITLE -->` — page title and topbar (use first h1 text or filename)
+   - `<!-- SLOT:STYLE -->` — paste the full contents of `style.css` (replaces the entire line including the `/* SLOT:STYLE */` comment)
    - `<!-- SLOT:CONTENT -->` — the converted HTML content
    - `<!-- SLOT:TOC_SIDEBAR -->` — the generated TOC sidebar HTML
-8. Write the result to `docs/md-preview/<filename>.html` (same basename as source).
-9. Run `open docs/md-preview/<filename>.html`.
+   - `/* SLOT:SCRIPT */` — paste the full contents of `runtime.js` (replaces the entire line including the `/* SLOT:SCRIPT */` comment)
+7. Write the result to `docs/md-preview/<filename>.html` (same basename as source).
+8. Run `open docs/md-preview/<filename>.html`.
+
+**Output is a single self-contained HTML file** — CSS and JS are inlined, no external assets needed. This ensures the file works with `open` on `file://` protocol without CORS issues.
 
 ## MD → HTML Conversion Rules
 
@@ -174,16 +177,22 @@ After generating the HTML file:
 
 ```bash
 test -s docs/md-preview/<filename>.html
-test -s docs/md-preview/style.css
-test -s docs/md-preview/runtime.js
 open docs/md-preview/<filename>.html
 ```
+
+Check in browser:
+- Dark theme renders correctly
+- Theme toggle switches to light and back
+- Code blocks show shiki syntax highlighting
+- TOC sidebar highlights active section on scroll
+- Tables, admonitions, task lists render properly
 
 ## Debugging
 
 If the page looks wrong:
 1. Check the browser DevTools console for errors
-2. Verify `style.css` and `runtime.js` are in the same directory as the HTML file
+2. Verify the HTML file contains inlined `<style>` and `<script>` (not external links)
 3. Verify all heading ids are unique and match TOC links
 4. Verify code blocks have `class="language-xxx"` for shiki to detect
 5. Verify mermaid blocks use `<pre class="mermaid">` not `<pre><code class="language-mermaid">`
+6. If shiki/mermaid CDN fails (no network), content still renders as plain HTML
