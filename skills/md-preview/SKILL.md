@@ -16,6 +16,7 @@ Generate a styled HTML preview page from a markdown file. The output is a self-c
 5. Generate a TOC sidebar from all h2/h3 headings.
 6. Fill the template slots:
    - `<!-- SLOT:TITLE -->` — page title and topbar (use first h1 text or filename)
+   - `<!-- SLOT:SOURCE -->` — relative path of the source `.md` file (e.g. `docs/plans/my-plan.md`)
    - `<!-- SLOT:STYLE -->` — paste the full contents of `style.css` (replaces the entire line including the `/* SLOT:STYLE */` comment)
    - `<!-- SLOT:CONTENT -->` — the converted HTML content
    - `<!-- SLOT:TOC_SIDEBAR -->` — the generated TOC sidebar HTML
@@ -170,6 +171,47 @@ Inside code blocks (`<pre><code>`), escape these characters:
 - `&` → `&amp;`
 
 Do NOT escape these in regular content — only inside code contexts.
+
+## Source Line Annotation
+
+During MD→HTML conversion, track the source line number for each block-level element. Add a `data-source-line="<N>"` attribute where `<N>` is the 1-indexed line number from the source `.md` file where the element starts.
+
+### Elements to annotate
+
+| Element | Annotate? |
+|---------|-----------|
+| `<p>` | Yes |
+| `<h1>`–`<h4>` | Yes |
+| `<pre>` | Yes |
+| `<blockquote>` | Yes |
+| `<table>` | Yes |
+| `<div class="admonition">` | Yes |
+| `<hr>` | Yes |
+| `<li>` | Yes |
+| `<ul>`, `<ol>` | No (children are annotated) |
+| `<thead>`, `<tbody>` | No (parent `<table>` is annotated) |
+
+### Rules
+
+- Nested structures (e.g. `<p>` inside `<blockquote>`) annotate independently — each gets its own starting line number.
+- The line number corresponds to where the markdown construct begins in the source file, not where it ends.
+- Example: a fenced code block starting at line 42 gets `data-source-line="42"` on the `<pre>` element, even though the closing fence is on line 48.
+
+### Example
+
+Source markdown (lines 10-13):
+
+```markdown
+Some paragraph text.
+## Section Name
+```
+
+Generated HTML:
+
+```html
+<p data-source-line="10">Some paragraph text.</p>
+<h2 data-source-line="12" id="section-name">Section Name</h2>
+```
 
 ## Verification
 
