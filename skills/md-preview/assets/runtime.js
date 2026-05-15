@@ -73,37 +73,65 @@ function initCommentSystem() {
   var nextId = 1;
   var tooltip = null;
   var popover = null;
-  var activeCard = null;
   var article = document.getElementById('content');
+  var layout = document.querySelector('.page-layout');
 
-  var fab = document.createElement('div');
-  fab.className = 'comment-fab';
-  fab.style.display = 'none';
-  fab.innerHTML = '<span class="comment-fab-count">0</span>';
-  var fabMenu = document.createElement('div');
-  fabMenu.className = 'comment-fab-menu';
-  fabMenu.innerHTML = '<button class="comment-fab-btn" data-action="copy">Copy All</button><button class="comment-fab-btn" data-action="clear">Clear All</button>';
-  fab.appendChild(fabMenu);
-  document.body.appendChild(fab);
+  var panel = document.createElement('aside');
+  panel.className = 'comments-panel';
+  renderPanel();
+  layout.appendChild(panel);
 
-  fab.addEventListener('click', function(e) {
-    var btn = e.target.closest('.comment-fab-btn');
-    if (btn) {
-      if (btn.dataset.action === 'copy') copyAll();
-      if (btn.dataset.action === 'clear') clearAll();
-      fabMenu.classList.remove('open');
-      return;
-    }
-    fabMenu.classList.toggle('open');
-  });
+  function renderPanel() {
+    var count = comments.length;
+    panel.innerHTML =
+      '<div class="comments-panel-header">' +
+        '<div class="comments-panel-title">Comments' + (count > 0 ? ' (' + count + ')' : '') + '</div>' +
+        (count > 0 ? '<div class="comments-panel-actions">' +
+          '<button class="comments-panel-btn" data-action="copy">Copy All</button>' +
+          '<button class="comments-panel-btn" data-action="clear">Clear</button>' +
+        '</div>' : '') +
+      '</div>' +
+      (count === 0
+        ? '<div class="comments-panel-empty">Select text to comment</div>'
+        : '<div class="comments-panel-list">' + comments.map(renderCard).join('') + '</div>');
 
-  document.addEventListener('click', function(e) {
-    if (!fab.contains(e.target)) fabMenu.classList.remove('open');
-  });
+    panel.querySelectorAll('.comment-card-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        deleteComment(parseInt(btn.dataset.id, 10));
+      });
+    });
+    panel.querySelectorAll('.comment-card').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.comment-card-delete')) return;
+        var id = parseInt(card.dataset.id, 10);
+        scrollToBadge(id);
+      });
+    });
+    var copyBtn = panel.querySelector('[data-action="copy"]');
+    if (copyBtn) copyBtn.addEventListener('click', copyAll);
+    var clearBtn = panel.querySelector('[data-action="clear"]');
+    if (clearBtn) clearBtn.addEventListener('click', clearAll);
+  }
 
-  function updateFab() {
-    fab.style.display = comments.length > 0 ? 'flex' : 'none';
-    fab.querySelector('.comment-fab-count').textContent = comments.length;
+  function renderCard(c) {
+    var loc = sourceFile + ':' + c.startLine + (c.startLine !== c.endLine ? '-' + c.endLine : '');
+    var preview = c.selectedText.split('\n')[0].slice(0, 60);
+    return '<div class="comment-card" data-id="' + c.id + '">' +
+      '<div class="comment-card-header">' +
+        '<span>#' + c.id + ' ' + loc + '</span>' +
+        '<button class="comment-card-delete" data-id="' + c.id + '">&times;</button>' +
+      '</div>' +
+      '<div class="comment-card-body">' + escapeHtml(c.comment) + '</div>' +
+      '<div class="comment-card-preview">' + escapeHtml(preview) + '</div>' +
+    '</div>';
+  }
+
+  function scrollToBadge(id) {
+    var badge = document.querySelector('span.comment-badge[data-comment-id="' + id + '"]');
+    if (badge) badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    panel.querySelectorAll('.comment-card').forEach(function(card) {
+      card.classList.toggle('active', parseInt(card.dataset.id, 10) === id);
+    });
   }
 
   document.addEventListener('selectionchange', function() {
@@ -196,11 +224,11 @@ function initCommentSystem() {
         mark.after(badge);
         badge.addEventListener('click', function(e) {
           e.stopPropagation();
-          toggleCard(id, badge);
+          scrollToBadge(id);
         });
       } catch (err) {}
       sel.removeAllRanges();
-      updateFab();
+      renderPanel();
       hidePopover();
     }
 
@@ -216,39 +244,6 @@ function initCommentSystem() {
     if (popover) { popover.remove(); popover = null; }
   }
 
-  function toggleCard(id, badge) {
-    if (activeCard) activeCard.remove();
-    activeCard = null;
-    var c = comments.find(function(x) { return x.id === id; });
-    if (!c) return;
-    var badgeRect = badge.getBoundingClientRect();
-    var card = document.createElement('div');
-    card.className = 'comment-card';
-    var loc = sourceFile + ':' + c.startLine + (c.startLine !== c.endLine ? '-' + c.endLine : '');
-    card.innerHTML =
-      '<div class="comment-card-header">' +
-        '<span>#' + c.id + ' ' + loc + '</span>' +
-        '<button class="comment-card-delete">&times;</button>' +
-      '</div>' +
-      '<div class="comment-card-body">' + escapeHtml(c.comment) + '</div>';
-    card.style.right = '24px';
-    card.style.top = badgeRect.top + 'px';
-    document.body.appendChild(card);
-    activeCard = card;
-    card.querySelector('.comment-card-delete').addEventListener('click', function() {
-      deleteComment(id);
-    });
-    setTimeout(function() {
-      document.addEventListener('mousedown', function handler(e) {
-        if (!card.contains(e.target) && e.target !== badge) {
-          card.remove();
-          if (activeCard === card) activeCard = null;
-          document.removeEventListener('mousedown', handler);
-        }
-      });
-    }, 10);
-  }
-
   function deleteComment(id) {
     var idx = comments.findIndex(function(x) { return x.id === id; });
     if (idx === -1) return;
@@ -261,8 +256,7 @@ function initCommentSystem() {
       mark.remove();
     }
     if (badge) badge.remove();
-    if (activeCard) { activeCard.remove(); activeCard = null; }
-    updateFab();
+    renderPanel();
   }
 
   function clearAll() {
@@ -281,10 +275,11 @@ function initCommentSystem() {
       return '@' + loc + '\n\n' + quoted + '\n\n' + c.comment;
     });
     navigator.clipboard.writeText(parts.join('\n\n---\n\n')).then(function() {
-      fab.querySelector('.comment-fab-count').textContent = '\u2713';
-      setTimeout(function() {
-        fab.querySelector('.comment-fab-count').textContent = comments.length;
-      }, 1500);
+      var btn = panel.querySelector('[data-action="copy"]');
+      if (btn) {
+        btn.textContent = 'Copied!';
+        setTimeout(function() { renderPanel(); }, 1500);
+      }
     });
   }
 

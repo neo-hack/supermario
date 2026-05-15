@@ -217,8 +217,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 
 .page-layout {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 40px;
+  grid-template-columns: 200px 1fr 300px;
+  gap: 32px;
   align-items: start;
 }
 .toc-sidebar {
@@ -228,8 +228,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
   overflow-y: auto;
 }
 .toc-sidebar nav {
-  border-left: 1px solid var(--border-soft);
-  padding-left: 16px;
+  border-right: 1px solid var(--border-soft);
+  padding-right: 16px;
 }
 .toc-sidebar-title {
   font-size: 11px;
@@ -280,7 +280,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 
 @media (max-width: 1100px) {
   .page-layout { grid-template-columns: 1fr; }
-  .toc-sidebar { display: none; }
+  .toc-sidebar, .comments-panel { display: none; }
 }
 @media (max-width: 960px) {
   .container { width: 100%; min-width: 0; padding: 60px 20px 120px; }
@@ -431,21 +431,20 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 .comment-badge:hover { opacity: 0.8; }
 
 .comment-card {
-  position: fixed;
-  z-index: 500;
-  width: 280px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
   overflow: hidden;
+  transition: border-color 0.15s;
+}
+.comment-card.active {
+  border-color: var(--accent);
 }
 .comment-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-soft);
+  padding: 8px 12px;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-faint);
@@ -454,7 +453,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
   background: none;
   border: none;
   color: var(--text-faint);
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
@@ -462,62 +461,69 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 }
 .comment-card-delete:hover { color: var(--accent); }
 .comment-card-body {
-  padding: 12px 14px;
-  font-size: 14px;
+  padding: 8px 12px 10px;
+  font-size: 13px;
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
 }
+.comment-card-preview {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  max-height: 48px;
+  overflow: hidden;
+}
 
-.comment-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 600;
+.comments-panel {
+  position: sticky;
+  top: 68px;
+  max-height: calc(100vh - 84px);
+  overflow-y: auto;
   display: flex;
+  flex-direction: column;
+}
+.comments-panel-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 22px;
-  background: var(--accent);
-  box-shadow: var(--shadow-card);
+  margin-bottom: 12px;
+}
+.comments-panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+.comments-panel-actions {
+  display: flex;
+  gap: 6px;
+}
+.comments-panel-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text-faint);
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.15s;
 }
-.comment-fab:hover { opacity: 0.9; }
-.comment-fab-count {
-  color: white;
-  font-size: 14px;
-  font-weight: 700;
+.comments-panel-btn:hover { opacity: 0.8; }
+.comments-panel-empty {
+  font-size: 12px;
+  color: var(--text-faint);
+  text-align: center;
+  padding: 24px 0;
 }
-.comment-fab-menu {
-  position: absolute;
-  bottom: 52px;
-  right: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-card);
-  padding: 4px;
-  display: none;
-  min-width: 120px;
+.comments-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.comment-fab-menu.open { display: block; }
-.comment-fab-btn {
-  display: block;
-  width: 100%;
-  padding: 8px 16px;
-  background: none;
-  border: none;
-  color: var(--text);
-  font-family: var(--font-primary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-.comment-fab-btn:hover { background: var(--surface-2); }
