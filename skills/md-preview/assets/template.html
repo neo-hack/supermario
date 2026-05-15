@@ -1,26 +1,37 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="source-file" content="<!-- SLOT:SOURCE -->">
   <title><!-- SLOT:TITLE --></title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+          mono: ['Geist Mono', 'monospace'],
+        },
+      }
+    }
+  }
+  </script>
   <style>
 /* SLOT:STYLE */
   </style>
 </head>
-<body>
-  <nav class="topbar">
-    <span class="topbar-title"><!-- SLOT:TITLE --></span>
-    <button class="theme-toggle" id="theme-toggle">&#9728;</button>
+<body class="bg-[var(--bg)] text-[var(--text)]">
+  <nav class="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-8 h-[52px] bg-[var(--bg)] border-b border-[var(--border-soft)]">
+    <span class="text-sm font-semibold text-[var(--text)]"><!-- SLOT:TITLE --></span>
+    <button class="bg-[var(--surface)] border border-[var(--border)] text-[var(--text-dim)] rounded-md px-2.5 py-1.5 text-base cursor-pointer transition-opacity hover:opacity-70 leading-none" id="theme-toggle">&#9728;</button>
   </nav>
-  <div class="container">
-    <div class="page-layout">
+  <div class="w-full mx-auto px-4 md:px-8 pt-[68px] pb-40">
+    <div class="grid grid-cols-[1fr_300px] xl:grid-cols-[200px_minmax(0,1fr)_300px] gap-8 items-start">
 <!-- SLOT:TOC_SIDEBAR -->
-      <article id="content">
+      <article id="content" class="min-w-0 break-words prose dark:prose-invert max-w-none">
 <!-- SLOT:CONTENT -->
       </article>
     </div>
