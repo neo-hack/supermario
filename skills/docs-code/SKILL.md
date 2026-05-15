@@ -7,6 +7,50 @@ description: Use when asked to analyze code and add explanatory code annotations
 
 Analyze a codebase, get confirmation on the module map, then add high-value comments without changing code behavior.
 
+## Phase 0: Execution Mode
+
+Before Phase 1, ask the user to choose one execution mode and wait for the answer: "Choose `subagent driven` or `inline exec`."
+
+1. `subagent driven`: use concurrent subagents for both Phase 1 exploration and Phase 2 annotation when scopes can be kept independent.
+2. `inline exec`: use concurrent subagents for Phase 1 exploration when useful, but do Phase 2 edits in the current thread; before each docs-code edit, briefly explain why that annotation is worth adding.
+
+If the user already specified a mode, proceed with that mode.
+
+Phase 1 exploration rule for both modes:
+
+- Prefer dispatching explorer subagents during Phase 1 when the target contains two or more independent modules, directories, or meaningful file groups.
+- Give each explorer subagent a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, and likely annotation targets.
+- Keep exploration read-only. Explorer subagents must not edit files.
+- If the target is a single small file or has no sensible independent scopes, explore inline and state why subagents were not useful.
+- Consolidate explorer findings into the Phase 1 report, then wait for user confirmation before any edits.
+
+For `subagent driven` mode:
+
+- During Phase 2, use concurrent annotation subagents only after Phase 1 confirmation.
+- Each annotation subagent must read the Phase 1 report, its owned files, and any immediately relevant local imports or importers before editing.
+- Require each annotation subagent to add comments only within its owned files and to preserve code behavior.
+- Consolidate post-confirmation annotation results into the final annotation summary.
+
+For `inline exec` mode:
+
+- Work directly in the current thread.
+- During Phase 2, re-read the Phase 1 report, the target files, and any immediately relevant local imports or importers before editing.
+- Before adding each file header, doc comment, or inline comment, state the reason it helps future readers.
+- When practical, show the reason together with the planned comment and a short code snippet or pseudocode sketch so the user can see where the comment will land.
+- Pseudocode is allowed for readability, but it must reflect code that was actually re-read and must not replace checking the real target code before editing.
+- Keep each reason brief and tied to intent, dependency boundaries, invariants, or non-obvious control flow.
+
+Inline exec preview format:
+
+````markdown
+Reason: [why this comment helps]
+Planned comment: `[exact comment text]`
+Code or pseudocode:
+```language
+[small snippet or pseudocode sketch showing where the comment will be inserted]
+```
+````
+
 ## Argument Handling
 
 This skill accepts an optional target path:
@@ -41,15 +85,16 @@ coverage
 
 Complete this phase before editing.
 
-1. Explore the target codebase or directory exhaustively.
-2. Identify project type: monorepo, single package, or multi-language project.
-3. For each top-level module, package, or meaningful directory, read key files and map:
+1. Dispatch explorer subagents for independent modules, directories, or meaningful file groups when the scope is large enough to split.
+2. Explore the target codebase or directory exhaustively, using the explorer findings plus direct reads as needed.
+3. Identify project type: monorepo, single package, or multi-language project.
+4. For each top-level module, package, or meaningful directory, read key files and map:
    - Module name and one-sentence responsibility.
    - Key files and what each does.
    - Core exports or public API.
    - Dependencies on other modules.
    - Which modules depend on it.
-4. Present a report and wait for user confirmation before Phase 2.
+5. Present a report and wait for user confirmation before Phase 2.
 
 Report format:
 
@@ -78,6 +123,8 @@ For a file argument, skip the module-level report. Instead:
 
 After user confirmation, add only comments. Do not modify code logic.
 
+Primary goal: help future maintainers understand the project. Public APIs must be documented, but they are not the only target. Also document internal contracts, module boundaries, data flow, state machines, invariants, compatibility paths, and non-obvious maintenance decisions.
+
 ### Comment Style
 
 Detect project conventions first. If a project already uses a comment style, follow it.
@@ -102,8 +149,19 @@ JSX / TSX rule: `//` and `/* */` are invalid inside JSX markup. Inside returned 
 Add comments only where they do not already exist:
 
 1. File header: brief role of the file in the module.
-2. Exported functions, classes, and interfaces: purpose, parameters, and return value when useful.
-3. Non-obvious logic blocks: a short comment explaining why the block exists.
+2. Public functions, classes, interfaces, and class members: purpose, parameters, and return value when useful.
+   - For packages, determine public API from `package.json` `exports` and the entrypoint/barrel files reachable from those exports.
+   - Do not treat every `export` keyword as public API; exported symbols that are not reachable from a package entrypoint are internal implementation details.
+   - For JS / TS / JSX / TSX public APIs, add `@example` only when it demonstrates non-obvious real usage, integration flow, or configuration.
+   - Do not add trivial examples that merely restate a type shape, assign a dummy object, or call a function with placeholder values.
+   - Good `@example` targets include components, hooks, non-obvious helpers, and complex config types. Simple data shapes and internal reducer/action types usually need explanation, not examples.
+   - Treat exported symbols reachable from package entrypoints and public class members as public APIs. Do not require `@example` for private helpers.
+3. Internal contracts and maintainer-critical implementation details:
+   - Module boundaries and ownership rules.
+   - Cross-module data flow and lifecycle handoffs.
+   - State machines, reducer invariants, cache keys, dedupe rules, and race-condition guards.
+   - Legacy compatibility paths, protocol fallbacks, and intentional deviations from simpler designs.
+4. Non-obvious logic blocks: a short comment explaining why the block exists.
 
 ## Comment Quality Rules
 
