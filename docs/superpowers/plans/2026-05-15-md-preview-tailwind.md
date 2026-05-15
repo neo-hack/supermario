@@ -180,13 +180,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-.task-list { list-style: none; padding-left: 0; }
-.task-list li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+.task-list { @apply list-none pl-0; }
+.task-list li { @apply flex items-start gap-2.5 py-1.5; }
 .task-list input[type="checkbox"] {
-  appearance: none; -webkit-appearance: none;
-  width: 18px; height: 18px; border: 1px solid var(--border);
-  border-radius: 4px; background: var(--surface); flex-shrink: 0; margin-top: 3px;
-  cursor: pointer; position: relative;
+  @apply appearance-none w-[18px] h-[18px] border rounded bg-[var(--surface)]
+         shrink-0 mt-[3px] cursor-pointer relative;
+  border-color: var(--border);
 }
 .task-list input[type="checkbox"]:checked { background: var(--green); border-color: var(--green); }
 .task-list input[type="checkbox"]:checked::after {
@@ -194,14 +193,9 @@ html, body {
   transform: translate(-50%, -50%); font-size: 11px; color: white; font-weight: 700;
 }
 
-.admonition {
-  padding: 16px 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid;
-}
-.admonition-title {
-  font-size: 13px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.8px; margin-bottom: 8px;
-}
-.admonition p { margin-bottom: 0; font-size: 15px; }
+.admonition { @apply py-4 px-5 my-5 rounded-lg border-l-4; }
+.admonition-title { @apply text-[13px] font-semibold uppercase tracking-wider mb-2; }
+.admonition p { @apply mb-0 text-[15px]; }
 .admonition-note { border-color: var(--blue); background: var(--blue-soft); }
 .admonition-note .admonition-title { color: var(--blue); }
 .admonition-warning { border-color: var(--yellow); background: var(--yellow-soft); }
@@ -212,25 +206,25 @@ html, body {
 .admonition-caution .admonition-title { color: var(--orange); }
 
 pre {
+  @apply rounded-xl py-[18px] px-5 overflow-x-auto my-5 relative;
   background: var(--code-bg); border: 1px solid var(--border);
-  border-radius: 12px; padding: 18px 20px; overflow-x: auto;
-  margin: 20px 0; box-shadow: var(--shadow-card); position: relative;
+  box-shadow: var(--shadow-card);
 }
-pre code { font-size: 13.5px; line-height: 1.7; color: var(--text); }
+pre code { @apply text-[13.5px] leading-[1.7]; color: var(--text); }
 .code-lang {
-  position: absolute; top: 8px; right: 12px;
-  font-family: var(--font-mono); font-size: 11px; color: var(--text-faint);
-  background: var(--surface-2); padding: 2px 8px; border-radius: 4px;
-  border: 1px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.5px;
+  @apply absolute top-2 right-3 font-mono text-[11px] bg-[var(--surface-2)]
+         px-2 py-[2px] rounded border uppercase tracking-wider;
+  color: var(--text-faint);
+  border-color: var(--border-soft);
 }
 .copy-btn {
-  position: absolute; top: 8px; right: 72px;
-  background: var(--surface-2); border: 1px solid var(--border-soft);
-  color: var(--text-faint); border-radius: 4px; padding: 3px 8px;
-  font-family: var(--font-primary); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.3px; cursor: pointer; opacity: 0; transition: opacity 0.15s;
+  @apply absolute top-2 right-[72px] bg-[var(--surface-2)] border rounded
+         px-2 py-[3px] font-sans text-[11px] font-semibold tracking-tight
+         cursor-pointer opacity-0 transition-opacity;
+  color: var(--text-faint);
+  border-color: var(--border-soft);
 }
-pre:hover .copy-btn { opacity: 1; }
+pre:hover .copy-btn { @apply opacity-100; }
 .copy-btn:hover { color: var(--text); border-color: var(--border); }
 
 .tok-keyword { color: #ff7b72; }
@@ -266,34 +260,17 @@ pre:hover .copy-btn { opacity: 1; }
   padding-right: 16px;
 }
 .toc-sidebar-title {
-  font-size: 11px;
-  font-weight: 600;
+  @apply text-[11px] font-semibold uppercase tracking-[1.2px] mb-3;
   color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin-bottom: 12px;
 }
 .toc-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  @apply list-none p-0 m-0 flex flex-col gap-[1px];
 }
-.toc-sidebar li { margin: 0; }
+.toc-sidebar li { @apply m-0; }
 .toc-sidebar a {
-  display: block;
-  padding: 5px 10px;
-  font-size: 13px;
+  @apply block py-[5px] px-2.5 text-[13px] no-underline rounded leading-snug
+         truncate transition-colors duration-150;
   color: var(--text-faint);
-  text-decoration: none;
-  border-radius: 4px;
-  line-height: 1.4;
-  transition: color 0.15s, background 0.15s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .toc-sidebar a:hover {
   color: var(--text-dim);
@@ -305,130 +282,71 @@ pre:hover .copy-btn { opacity: 1; }
 .toc-sidebar a.active {
   color: var(--accent);
   background: var(--accent-soft);
-  font-weight: 500;
+  @apply font-medium;
 }
 .toc-sidebar .toc-h3 a {
-  padding-left: 22px;
-  font-size: 12px;
+  @apply pl-[22px] text-xs;
 }
 
-.shiki-wrapper {
-  position: relative;
-}
-.shiki-wrapper pre.shiki-dark {
-  display: block;
-}
-.shiki-wrapper pre.shiki-light {
-  display: none;
-}
-[data-theme="light"] .shiki-wrapper pre.shiki-dark {
-  display: none;
-}
-[data-theme="light"] .shiki-wrapper pre.shiki-light {
-  display: block;
-}
+.shiki-wrapper { @apply relative; }
+.shiki-wrapper pre.shiki-dark { @apply block; }
+.shiki-wrapper pre.shiki-light { @apply hidden; }
+[data-theme="light"] .shiki-wrapper pre.shiki-dark { @apply hidden; }
+[data-theme="light"] .shiki-wrapper pre.shiki-light { @apply block; }
 .shiki-wrapper pre {
-  margin: 0;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  @apply m-0 !bg-transparent !border-none !shadow-none !p-0;
 }
 
 .comment-tooltip {
-  position: absolute;
-  z-index: 300;
+  @apply absolute z-[300] text-white px-3 py-1 rounded-md text-xs font-semibold
+         tracking-tight cursor-pointer whitespace-nowrap transition-opacity;
   background: var(--accent);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  cursor: pointer;
-  white-space: nowrap;
   box-shadow: var(--shadow-card);
-  transition: opacity 0.15s;
 }
-.comment-tooltip:hover { opacity: 0.9; }
+.comment-tooltip:hover { @apply opacity-90; }
 
 .comment-popover {
-  position: absolute;
-  z-index: 400;
-  width: 340px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  @apply absolute z-[400] w-[340px] rounded-xl p-4;
+  background: var(--surface); border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
 }
 .comment-popover-loc {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  @apply font-mono text-[11px] mb-2;
   color: var(--text-faint);
-  margin-bottom: 8px;
 }
 .comment-popover-preview {
-  font-size: 13px;
+  @apply text-[13px] bg-[var(--surface-2)] rounded-md px-3 py-2 mb-3
+         max-h-[80px] overflow-y-auto leading-snug whitespace-pre-wrap break-words;
   color: var(--text-dim);
-  background: var(--surface-2);
   border: 1px solid var(--border-soft);
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  max-height: 80px;
-  overflow-y: auto;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 .comment-popover-input {
-  width: 100%;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--text);
-  font-family: var(--font-primary);
-  font-size: 14px;
-  line-height: 1.5;
-  resize: vertical;
-  min-height: 60px;
+  @apply w-full rounded-lg px-3 py-2.5 text-sm leading-snug resize-y min-h-[60px];
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font-primary);
 }
-.comment-popover-input:focus { outline: none; border-color: var(--accent); }
+.comment-popover-input:focus { @apply outline-none; border-color: var(--accent); }
 .comment-popover-input::placeholder { color: var(--text-faint); }
-.comment-popover-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-}
+.comment-popover-actions { @apply flex justify-end gap-2 mt-3; }
 .comment-popover-cancel,
 .comment-popover-add {
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-family: var(--font-primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+  @apply px-4 py-1.5 rounded-md font-sans text-[13px] font-semibold cursor-pointer;
   border: 1px solid var(--border);
 }
 .comment-popover-cancel {
-  background: var(--surface-2);
+  @apply bg-[var(--surface-2)];
   color: var(--text-dim);
 }
 .comment-popover-add {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  @apply text-white;
+  background: var(--accent); border-color: var(--accent);
 }
-.comment-popover-add:hover { opacity: 0.9; }
+.comment-popover-add:hover { @apply opacity-90; }
 
 .comment-highlight {
   background: rgba(255, 212, 0, 0.2);
   border-bottom: 2px solid rgba(255, 212, 0, 0.6);
-  border-radius: 2px;
-  padding: 1px 0;
+  @apply rounded-[2px] py-px;
 }
 [data-theme="light"] .comment-highlight {
   background: rgba(255, 180, 0, 0.15);
@@ -436,121 +354,56 @@ pre:hover .copy-btn { opacity: 1; }
 }
 
 .comment-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 9px;
+  @apply inline-flex items-center justify-center w-[18px] h-[18px] rounded-full
+         text-white text-[10px] font-bold cursor-pointer align-middle ml-0.5
+         leading-none transition-opacity;
   background: var(--accent);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  vertical-align: middle;
-  margin-left: 2px;
-  line-height: 1;
-  transition: opacity 0.15s;
 }
-.comment-badge:hover { opacity: 0.8; }
+.comment-badge:hover { @apply opacity-80; }
 
 .comment-card {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 0.15s;
+  @apply rounded-lg overflow-hidden transition-colors;
+  background: var(--surface); border: 1px solid var(--border-soft);
 }
-.comment-card.active {
-  border-color: var(--accent);
-}
+.comment-card.active { border-color: var(--accent); }
 .comment-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  @apply flex justify-between items-center px-3 py-2 font-mono text-[11px];
   color: var(--text-faint);
 }
 .comment-card-delete {
-  background: none;
-  border: none;
+  @apply bg-transparent border-none text-base cursor-pointer px-1 leading-none transition-colors;
   color: var(--text-faint);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-  transition: color 0.15s;
 }
 .comment-card-delete:hover { color: var(--accent); }
 .comment-card-body {
-  padding: 8px 12px 10px;
-  font-size: 13px;
+  @apply px-3 pt-2 pb-2.5 text-[13px] leading-snug whitespace-pre-wrap break-words;
   color: var(--text);
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 .comment-card-preview {
-  padding: 0 12px 8px;
-  font-size: 11px;
+  @apply px-3 pb-2 text-[11px] font-mono leading-snug max-h-[48px] overflow-hidden;
   color: var(--text-faint);
-  font-family: var(--font-mono);
-  line-height: 1.4;
-  max-height: 48px;
-  overflow: hidden;
 }
 
 .comments-panel {
-  position: sticky;
-  top: 68px;
-  max-height: calc(100vh - 84px);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  @apply sticky top-[68px] max-h-[calc(100vh-84px)] overflow-y-auto flex flex-col;
 }
-.comments-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
+.comments-panel-header { @apply flex justify-between items-center mb-3; }
 .comments-panel-title {
-  font-size: 11px;
-  font-weight: 600;
+  @apply text-[11px] font-semibold uppercase tracking-[1.2px];
   color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
 }
-.comments-panel-actions {
-  display: flex;
-  gap: 6px;
-}
+.comments-panel-actions { @apply flex gap-1.5; }
 .comments-panel-btn {
-  background: var(--surface-2);
-  border: 1px solid var(--border-soft);
+  @apply px-2.5 py-[3px] rounded font-sans text-[11px] font-medium cursor-pointer transition-opacity;
+  background: var(--surface-2); border: 1px solid var(--border-soft);
   color: var(--text-faint);
-  font-family: var(--font-primary);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: opacity 0.15s;
 }
-.comments-panel-btn:hover { opacity: 0.8; }
+.comments-panel-btn:hover { @apply opacity-80; }
 .comments-panel-empty {
-  font-size: 12px;
+  @apply text-xs text-center py-6;
   color: var(--text-faint);
-  text-align: center;
-  padding: 24px 0;
 }
-.comments-panel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.comments-panel-list { @apply flex flex-col gap-2; }
 ```
 
 What was removed (handled by Tailwind/prose):
@@ -564,20 +417,19 @@ What was removed (handled by Tailwind/prose):
 - `blockquote` styles
 - `table, th, td, tr` table styles
 - `code:not(pre code)` inline code styles
-- `pre` background/border (kept for code-block extras positioning)
 - `hr` horizontal rule
 - `.page-layout, #content` grid layout
 - `.toc-sidebar` layout (sticky, top, max-height, overflow)
 - Both `@media` queries
 
-What was kept:
-- CSS variables / theme (lines 1-57)
-- Scrollbar styles
-- `html, body` font-feature-settings
+What was kept and converted to `@apply`:
+- CSS variables / theme (cannot use @apply)
+- Scrollbar styles (pseudo-elements, cannot use @apply)
+- `html, body` font-feature-settings (not a Tailwind utility)
 - `.task-list` custom checkbox
 - `.admonition` callout boxes
 - `pre, pre code, .code-lang, .copy-btn` code block extras
-- `.tok-*` syntax highlighting
+- `.tok-*` syntax highlighting (simple color tokens, no @apply benefit)
 - `.toc-sidebar` cosmetic styles (nav border, link colors, hover/active)
 - `.shiki-wrapper` dual theme
 - Full comments system
