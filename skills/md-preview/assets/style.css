@@ -419,14 +419,16 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 .comment-popover-add:hover { opacity: 0.6; }
 
 .comment-highlight {
-  background: rgba(255, 212, 0, 0.2);
-  border-bottom: 2px solid rgba(255, 212, 0, 0.6);
+  background: rgba(255, 212, 0, 0.35);
+  border-bottom: 2px solid rgba(255, 212, 0, 0.8);
   border-radius: 2px;
   padding: 1px 0;
+  box-shadow: 0 0 0 2px rgba(255, 212, 0, 0.15);
 }
 [data-theme="light"] .comment-highlight {
-  background: rgba(255, 180, 0, 0.15);
-  border-bottom-color: rgba(255, 180, 0, 0.5);
+  background: rgba(255, 180, 0, 0.25);
+  border-bottom-color: rgba(255, 180, 0, 0.7);
+  box-shadow: 0 0 0 2px rgba(255, 180, 0, 0.1);
 }
 
 .comment-badge {
