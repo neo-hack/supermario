@@ -145,7 +145,7 @@ Supported types: `NOTE` (blue), `WARNING` (yellow), `TIP` (green), `CAUTION` (or
 After converting all markdown to HTML, scan the converted content for all h2 and h3 elements. Build the sidebar HTML:
 
 ```html
-<aside class="toc-sidebar hidden xl:block sticky top-[68px] max-h-[calc(100vh-84px)] overflow-y-auto">
+<aside class="toc-sidebar">
   <nav>
     <div class="toc-sidebar-title">On this page</div>
     <ul>

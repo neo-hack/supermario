@@ -294,25 +294,21 @@ function initThemeToggle() {
   const toggle = document.getElementById('theme-toggle');
   const html = document.documentElement;
 
-  function applyTheme(theme) {
-    html.setAttribute('data-theme', theme);
-    html.classList.toggle('dark', theme === 'dark');
-    toggle.textContent = theme === 'dark' ? '\u2600' : '\uD83C\uDF19';
-    localStorage.setItem('md-preview-theme', theme);
-  }
-
   const saved = localStorage.getItem('md-preview-theme');
   if (saved) {
-    applyTheme(saved);
+    html.setAttribute('data-theme', saved);
+    toggle.textContent = saved === 'dark' ? '\u2600' : '\uD83C\uDF19';
   } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-    applyTheme('light');
-  } else {
-    applyTheme('dark');
+    html.setAttribute('data-theme', 'light');
+    toggle.textContent = '\uD83C\uDF19';
   }
 
   toggle.addEventListener('click', () => {
     const current = html.getAttribute('data-theme');
-    applyTheme(current === 'dark' ? 'light' : 'dark');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\uD83C\uDF19';
+    localStorage.setItem('md-preview-theme', next);
   });
 }
 
