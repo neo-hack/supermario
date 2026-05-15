@@ -1,17 +1,17 @@
 ---
-name: md-preview
-description: Convert markdown files into styled HTML preview pages with code syntax highlighting, Mermaid diagram rendering, and light/dark theme toggle. Use when asked to preview, render, or display a markdown file as HTML.
+name: request-plan-review
+description: Convert markdown plan/spec files into styled HTML review pages with code syntax highlighting, Mermaid diagram rendering, inline comments, and light/dark theme toggle. Use when asked to preview, render, or display a markdown file as HTML for review.
 ---
 
-# MD Preview
+# Request Plan Review
 
-Generate a styled HTML preview page from a markdown file. The output is a self-contained HTML page with Raycast-inspired design, code syntax highlighting, Mermaid diagram rendering, and light/dark theme toggle.
+Generate a styled HTML review page from a markdown file. The output is a self-contained HTML page with Raycast-inspired design, code syntax highlighting, Mermaid diagram rendering, inline comments, and light/dark theme toggle.
 
 ## Workflow
 
 1. Read the target `.md` file.
-2. Read `skills/md-preview/assets/template.html` as the HTML shell.
-3. Read `skills/md-preview/assets/style.css` and `skills/md-preview/assets/runtime.js` — these will be inlined into the HTML.
+2. Read `skills/request-plan-review/assets/template.html` as the HTML shell.
+3. Read `skills/request-plan-review/assets/style.css` and `skills/request-plan-review/assets/runtime.js` — these will be inlined into the HTML.
 4. Convert the markdown content to HTML manually (see MD→HTML rules below).
 5. Generate a TOC sidebar from all h2/h3 headings.
 6. Fill the template slots:
@@ -21,8 +21,8 @@ Generate a styled HTML preview page from a markdown file. The output is a self-c
    - `<!-- SLOT:CONTENT -->` — the converted HTML content
    - `<!-- SLOT:TOC_SIDEBAR -->` — the generated TOC sidebar HTML
    - `/* SLOT:SCRIPT */` — paste the full contents of `runtime.js` (replaces the entire line including the `/* SLOT:SCRIPT */` comment)
-7. Write the result to `docs/md-preview/<filename>.html` (same basename as source).
-8. Run `open docs/md-preview/<filename>.html`.
+7. Write the result to `docs/request-plan-review/<filename>.html` (same basename as source).
+8. Run `open docs/request-plan-review/<filename>.html`.
 
 **Output is a single self-contained HTML file** — CSS and JS are inlined, no external assets needed. This ensures the file works with `open` on `file://` protocol without CORS issues.
 
@@ -218,8 +218,8 @@ Generated HTML:
 After generating the HTML file:
 
 ```bash
-test -s docs/md-preview/<filename>.html
-open docs/md-preview/<filename>.html
+test -s docs/request-plan-review/<filename>.html
+open docs/request-plan-review/<filename>.html
 ```
 
 Check in browser:
