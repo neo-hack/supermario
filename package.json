@@ -5,6 +5,7 @@
   "description": "Agent skills for documentation, code annotation, visual mockups, and development workflows.",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
+    "build:mermaid": "bash scripts/build-mermaid.sh",
     "changeset": "changeset",
     "changeset:status": "changeset status"
   },
