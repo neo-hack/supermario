@@ -2,7 +2,7 @@
 
 ## Mermaid Diagram Types (for `diagram` units)
 
-All `diagram` units use Mermaid.js syntax. The dark theme is configured in the skeleton template — do NOT inline theme variables in individual diagrams.
+All `diagram` units use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The Raycast dark theme is configured in `mermaid-bridge.js` — do NOT inline theme variables in individual diagrams.
 
 ### Flowchart — top-down architecture (graph TD)
 
@@ -143,7 +143,7 @@ graph TD
 
 ## Minimal SVG Reference (for `code-graph` units only)
 
-`code-graph` units use raw SVG because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. Mermaid cannot produce these attributes.
+`code-graph` units use raw SVG because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. beautiful-mermaid cannot produce these attributes.
 
 ### SVG Skeleton
 
