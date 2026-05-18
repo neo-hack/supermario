@@ -4,3 +4,6 @@
 [submodule "vendor/devices.css"]
 	path = vendor/devices.css
 	url = https://github.com/picturepan2/devices.css.git
+[submodule "vendor/beautiful-mermaid"]
+	path = vendor/beautiful-mermaid
+	url = https://github.com/lukilabs/beautiful-mermaid.git

@@ -167,4 +167,4 @@ dist
 docs/codebase/node_modules/
 .gstack/
 .worktrees/
-vendor/beautiful-mermaid/
+
