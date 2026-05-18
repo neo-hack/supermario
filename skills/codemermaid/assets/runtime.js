@@ -300,3 +300,4 @@ function bootPage() {
 }
 
 document.addEventListener('DOMContentLoaded', bootPage);
+document.addEventListener('mermaid:rendered', initZoomOverlay);

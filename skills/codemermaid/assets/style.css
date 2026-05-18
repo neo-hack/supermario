@@ -859,6 +859,16 @@ pre.mermaid .edge-pattern-dotted {
 .figure-diagram pre.mermaid svg {
   min-width: 0;
 }
+pre.mermaid-error {
+  color: var(--red);
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 960px) {

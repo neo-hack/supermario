@@ -1,12 +1,12 @@
 ---
 name: codemermaid
 description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
-compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and Mermaid.js v11 CDN for diagrams. Zero npm, zero build tools. CSS and runtime JS are linked (not inlined).
+compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and beautiful-mermaid browser bundle for diagram rendering. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined). Vendor: vendor/beautiful-mermaid (MIT).
 ---
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — Mermaid.js diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS and runtime JS; Mermaid.js renders diagrams via CDN.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
 
 ## When to Use
 
@@ -28,7 +28,7 @@ architecture.html             <- Architecture perspective (essay)
 module-<name>.html            <- Per-module deep dives (essays)
 ```
 
-Each HTML page links `style.css` and `runtime.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js via CDN. The assembly process copies `assets/style.css` and `assets/runtime.js` to the output directory alongside the HTML files.
+Each HTML page links `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The assembly process copies these assets from `assets/` to the output directory alongside the HTML files.
 
 ## Parallel Generation Mode
 
@@ -390,7 +390,7 @@ Code-graph rules:
 
 ## Phase 4: Build Mermaid Diagrams
 
-All `diagram` units use Mermaid.js syntax rendered via CDN. Read `references/svg-patterns.md` for Mermaid diagram types, node styling, and dark theme tokens.
+All `diagram` units use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The `mermaid-bridge.js` script finds `<pre class="mermaid">` blocks and replaces them with rendered SVGs using the Raycast dark theme. Read `references/svg-patterns.md` for Mermaid diagram types, node styling, and dark theme tokens.
 
 Key rules:
 - Use `graph TD` for top-down architecture diagrams, `graph LR` for data flow, `sequenceDiagram` for interactions, `stateDiagram-v2` for state machines.
@@ -398,10 +398,10 @@ Key rules:
 - Use descriptive node labels: `Auth["auth middleware"]` not just `A["auth"]`.
 - Edge labels use pipe syntax: `A -->|"label"| B`.
 - Dashed edges for optional/indirect: `A -.->|"optional"| B`.
-- The dark theme is configured in the skeleton template's `mermaid.initialize()` call. Node fill, text, and edge colors are set there — do NOT inline theme overrides in individual diagrams.
+- The Raycast dark theme is configured in `mermaid-bridge.js` via the THEME object — do NOT inline theme overrides in individual diagrams.
 - Keep diagrams ≤ 8 nodes for readability. If a graph exceeds 8 nodes, split into multiple diagram units or use subgraphs.
 
-`code-graph` units still use raw inline SVG for their mini call-graph because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. Mermaid cannot produce these attributes. See `references/svg-patterns.md` for the minimal SVG reference for code-graph.
+`code-graph` units still use raw inline SVG for their mini call-graph because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. beautiful-mermaid cannot produce these attributes. See `references/svg-patterns.md` for the minimal SVG reference for code-graph.
 
 ## Phase 5: Generate Page List
 
@@ -417,6 +417,8 @@ All generated course files go in `docs/codemermaid/`. Filenames are kebab-case e
 Before generating HTML pages, copy shared assets to the output directory:
 1. Copy `assets/style.css` → `docs/codemermaid/style.css`
 2. Copy `assets/runtime.js` → `docs/codemermaid/runtime.js`
+3. Copy `assets/beautiful-mermaid.bundle.js` → `docs/codemermaid/beautiful-mermaid.bundle.js`
+4. Copy `assets/mermaid-bridge.js` → `docs/codemermaid/mermaid-bridge.js`
 
 These are linked by every generated HTML page.
 
@@ -572,6 +574,17 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 </div>
 ```
 
+**`<!-- SLOT:ARCHITECTURE_DIAGRAM -->`:**
+```html
+<div class="section">
+  <div class="section-title">Architecture</div>
+  <figure class="figure">
+    <div class="figure-diagram"><pre class="mermaid">{MERMAID_CODE}</pre></div>
+    <figcaption>{CAPTION}</figcaption>
+  </figure>
+</div>
+```
+
 **`<!-- SLOT:PERSPECTIVE_CARDS -->`:**
 ```html
 <div class="section">
@@ -600,9 +613,9 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 
 1. **Real code only** — never invent, simplify, or modify code snippets.
 2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Linked shared assets** — copy `style.css` and `runtime.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
+3. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
 4. **Vanilla JS only** — no React, no build tools.
-5. **Mermaid.js via CDN** — all `diagram` units use Mermaid syntax. `code-graph` mini-graphs use raw SVG (for `data-node-id` click-sync).
+5. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG (for `data-node-id` click-sync).
 6. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
 7. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
 8. **Consistent node IDs** — same module = same node ID across all pages.
@@ -622,6 +635,7 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 | Double HTML entity escaping | Scan output for `&amp;#`, `&amp;lt;`, `&amp;gt;` — these are wrong. The correct forms are `&#39;`, `&lt;`, `&gt;`. |
 | Mermaid edge label missing quotes | Use pipe syntax: `A -->|"label text"| B` not `A -->|label text| B`. |
 | Annotations not aligned with code | Confirm CSS `.codewalk-annotations { gap: 0 }` and runtime.js `alignAnnotations()` runs on DOMContentLoaded. |
+| beautiful-mermaid not rendering | Ensure `beautiful-mermaid.bundle.js` and `mermaid-bridge.js` are copied to output dir and linked in correct order (bundle in `<head>`, bridge before `runtime.js`). |
 
 ## File Organization
 
@@ -636,10 +650,13 @@ skills/codemermaid/
     units-examples.md                 # 2-3 examples per unit kind
     voice-examples.md                 # Flat-vs-pointed prose pairs
   assets/
-    skeleton-essay.html               # Shell for essay pages (linked CSS/JS, Mermaid CDN)
-    skeleton-index.html               # Shell for index page (linked CSS/JS, no Mermaid)
-    style.css                         # Full design system CSS + Mermaid overrides
+    skeleton-essay.html               # Shell for essay pages (linked CSS/JS, beautiful-mermaid bundle)
+    skeleton-index.html               # Shell for index page (linked CSS/JS, beautiful-mermaid bundle)
+    style.css                         # Full design system CSS + beautiful-mermaid overrides
     runtime.js                        # Runtime: TOC, quiz, annotation alignment/clicks, code-graph sync, zoom
+    beautiful-mermaid.bundle.js       # beautiful-mermaid browser bundle (vendored, MIT)
+    mermaid-bridge.js                 # Bridge: finds <pre class="mermaid">, renders via beautiful-mermaid
+vendor/beautiful-mermaid/             # Upstream source (lukilabs/beautiful-mermaid)
 ```
 
 ## Relationship to Other Skills
