@@ -87,7 +87,7 @@ test('CSS files keep studio, browser, and device responsibilities separate', () 
 });
 
 test('renderer helpers parse options and classify inputs', async () => {
-  const mod = await import('../scripts/render-mockup.mjs');
+  const mod = await import('../../skills/mockup/scripts/render-mockup.mjs');
 
   const options = mod.parseArgs([
     '--input', './shot.png',
@@ -112,7 +112,7 @@ test('renderer helpers parse options and classify inputs', async () => {
 });
 
 test('renderer validates unsupported frame, theme, and output mode', async () => {
-  const mod = await import('../scripts/render-mockup.mjs');
+  const mod = await import('../../skills/mockup/scripts/render-mockup.mjs');
   const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
 
   assert.throws(() => mod.resolveFrame(frames, 'firefox', 'light'), /Unsupported frame/);
@@ -121,7 +121,7 @@ test('renderer validates unsupported frame, theme, and output mode', async () =>
 });
 
 test('renderer builds HTML with escaped config, CSS links, frame classes, and screenshot source', async () => {
-  const mod = await import('../scripts/render-mockup.mjs');
+  const mod = await import('../../skills/mockup/scripts/render-mockup.mjs');
   const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
   const frame = mod.resolveFrame(frames, 'safari', 'dark');
   const html = mod.renderHtml({
@@ -143,13 +143,13 @@ test('renderer builds HTML with escaped config, CSS links, frame classes, and sc
 });
 
 test('renderer exposes Playwright dependency guidance', async () => {
-  const mod = await import('../scripts/render-mockup.mjs');
+  const mod = await import('../../skills/mockup/scripts/render-mockup.mjs');
   assert.match(mod.playwrightInstallHelp(), /npm install playwright/);
   assert.match(mod.playwrightInstallHelp(), /npx playwright install chromium/);
 });
 
 test('capture plan uses frame defaults unless viewport is provided', async () => {
-  const mod = await import('../scripts/render-mockup.mjs');
+  const mod = await import('../../skills/mockup/scripts/render-mockup.mjs');
   const frames = mod.loadFrames(path.join(skillRoot, 'assets/frames.json'));
   const chrome = mod.resolveFrame(frames, 'chrome', 'light');
 

@@ -142,6 +142,27 @@ Detect project conventions first. If a project already uses a comment style, fol
 | Ruby | `# ...` | `# ...` | `#` |
 | Lua | `-- ...` | `--- ...` | `--` |
 
+For JS / TS config options, schema fields, interface properties, and public option metadata, prefer structured TSDoc / JSDoc tags over sentence-only doc blocks.
+
+Good:
+
+```ts
+/**
+ * @description Skip workspace file-change subscriptions while keeping plugin resources enabled.
+ * @default true
+ */
+skipWorkspaceSubscriptions?: boolean;
+```
+
+Bad:
+
+```ts
+/** Skip workspace file-change subscriptions while keeping plugin resources enabled. Defaults to true. */
+skipWorkspaceSubscriptions?: boolean;
+```
+
+Use sentence-only doc blocks only for brief API summaries. For option metadata, include `@default` only when the default value is verified from implementation or existing docs.
+
 JSX / TSX rule: `//` and `/* */` are invalid inside JSX markup. Inside returned JSX, use `{/* ... */}`. Outside JSX markup, use normal JS comment syntax.
 
 ### What to Add

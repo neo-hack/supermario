@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "build:mermaid": "bash scripts/build-mermaid.sh",
+    "test": "node --test tests/**/*.test.js tests/**/*.test.mjs",
     "changeset": "changeset",
     "changeset:status": "changeset status"
   },

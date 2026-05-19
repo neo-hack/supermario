@@ -82,7 +82,7 @@ test -s ./mockup.png
 Run skill tests after changing renderer, CSS, or frame registry files:
 
 ```bash
-node --test skills/mockup/tests/render-mockup.test.mjs
+pnpm test
 ```
 
 ## Implementation Notes

@@ -4,7 +4,7 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '../../skills/codemermaid');
 const assets = path.join(root, 'assets');
 
 test('skill metadata follows Agent Skills spec constraints', () => {
@@ -23,8 +23,15 @@ test('skill metadata follows Agent Skills spec constraints', () => {
   assert.ok(!compatibility || compatibility.length <= 500);
 });
 
-test('asset files exist: runtime.js, style.css, skeleton-essay.html, skeleton-index.html', () => {
-  const required = ['runtime.js', 'style.css', 'skeleton-essay.html', 'skeleton-index.html'];
+test('asset files exist: runtime.js, style.css, skeletons, and Mermaid bridge files', () => {
+  const required = [
+    'beautiful-mermaid.bundle.js',
+    'mermaid-bridge.js',
+    'runtime.js',
+    'style.css',
+    'skeleton-essay.html',
+    'skeleton-index.html',
+  ];
   for (const file of required) {
     assert.ok(fs.existsSync(path.join(assets, file)), 'missing asset: ' + file);
   }
@@ -37,13 +44,13 @@ test('asset files exist: runtime.js, style.css, skeleton-essay.html, skeleton-in
   assert.ok(!fs.existsSync(path.join(assets, 'template-index.html')), 'stale template-index.html renamed to skeleton');
 });
 
-test('skeleton-essay.html links CSS and JS, loads Mermaid CDN, has zoom overlay', () => {
+test('skeleton-essay.html links CSS and bundled JS, has zoom overlay', () => {
   const html = fs.readFileSync(path.join(assets, 'skeleton-essay.html'), 'utf8');
 
   assert.match(html, /<link rel="stylesheet" href="style\.css">/);
+  assert.match(html, /<script src="beautiful-mermaid\.bundle\.js"><\/script>/);
+  assert.match(html, /<script src="mermaid-bridge\.js"><\/script>/);
   assert.match(html, /<script src="runtime\.js"><\/script>/);
-  assert.match(html, /mermaid@11/);
-  assert.match(html, /mermaid\.initialize/);
   assert.match(html, /<!-- SLOT:PAGE_TITLE -->/);
   assert.match(html, /<!-- SLOT:UNITS -->/);
   assert.match(html, /class="zoom-overlay"/);
@@ -54,12 +61,13 @@ test('skeleton-essay.html links CSS and JS, loads Mermaid CDN, has zoom overlay'
   assert.match(html, /data-zoom-level/);
 });
 
-test('skeleton-index.html links CSS and JS, no Mermaid', () => {
+test('skeleton-index.html links CSS and bundled JS', () => {
   const html = fs.readFileSync(path.join(assets, 'skeleton-index.html'), 'utf8');
 
   assert.match(html, /<link rel="stylesheet" href="style\.css">/);
+  assert.match(html, /<script src="beautiful-mermaid\.bundle\.js"><\/script>/);
+  assert.match(html, /<script src="mermaid-bridge\.js"><\/script>/);
   assert.match(html, /<script src="runtime\.js"><\/script>/);
-  assert.doesNotMatch(html, /mermaid/);
   assert.match(html, /<!-- SLOT:INDEX_HEADER -->/);
   assert.match(html, /<!-- SLOT:PERSPECTIVE_CARDS -->/);
   assert.match(html, /<!-- SLOT:MODULE_CARDS -->/);
