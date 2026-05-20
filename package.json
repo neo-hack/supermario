@@ -11,6 +11,7 @@
     "changeset:status": "changeset status"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.7"
+    "@changesets/cli": "^2.29.7",
+    "js-yaml": "^4.1.1"
   }
 }
