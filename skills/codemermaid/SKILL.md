@@ -1,7 +1,7 @@
 ---
 name: codemermaid
 description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
-compatibility: Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and beautiful-mermaid browser bundle for diagram rendering. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined). Vendor: vendor/beautiful-mermaid (MIT).
+compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and beautiful-mermaid browser bundle for diagram rendering. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined). Vendor: vendor/beautiful-mermaid (MIT)."
 ---
 
 # CodeMermaid
