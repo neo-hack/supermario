@@ -1,4 +1,4 @@
 interface:
   display_name: "Fire"
-  short_description: "Parallel dead-code analysis and cleanup"
-  default_prompt: "Use $fire to dispatch explorer agents, analyze dead code evidence, and safely remove proven unused code."
+  short_description: "Dead-code cleanup and duplicate reports"
+  default_prompt: "Use $fire to dispatch explorer agents, analyze dead code evidence, report duplicated code, and safely remove proven unused code."
