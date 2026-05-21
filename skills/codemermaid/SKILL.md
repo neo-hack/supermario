@@ -273,18 +273,9 @@ Keep the unit-level traps in mind: callout concepts use `style: "callout"`, quiz
 
 ## Phase 4: Build Mermaid Diagrams
 
-All `diagram` units use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The `mermaid-bridge.js` script finds `<pre class="mermaid">` blocks and replaces them with rendered SVGs using the Raycast dark theme. Read `references/svg-patterns.md` for Mermaid diagram types, node styling, and dark theme tokens.
+Before writing diagrams, read `references/svg-patterns.md`.
 
-Key rules:
-- Use `graph TD` for top-down architecture diagrams, `graph LR` for data flow, `sequenceDiagram` for interactions, `stateDiagram-v2` for state machines.
-- Node IDs are kebab-case and must be consistent across pages (same module = same node ID everywhere).
-- Use descriptive node labels: `Auth["auth middleware"]` not just `A["auth"]`.
-- Edge labels use pipe syntax: `A -->|"label"| B`.
-- Dashed edges for optional/indirect: `A -.->|"optional"| B`.
-- The Raycast dark theme is configured in `mermaid-bridge.js` via the THEME object — do NOT inline theme overrides in individual diagrams.
-- Keep diagrams ≤ 8 nodes for readability. If a graph exceeds 8 nodes, split into multiple diagram units or use subgraphs.
-
-`code-graph` units still use raw inline SVG for their mini call-graph because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. beautiful-mermaid cannot produce these attributes. See `references/svg-patterns.md` for the minimal SVG reference for code-graph.
+Use Mermaid for `diagram` units and raw inline SVG only for `code-graph` mini-graphs that need `data-node-id` click-sync. Keep node IDs consistent across pages, use descriptive labels, and do not inline theme overrides; the Raycast dark theme is configured in `mermaid-bridge.js`.
 
 ## Phase 5: Generate Page List
 
