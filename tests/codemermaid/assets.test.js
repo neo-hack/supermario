@@ -138,3 +138,60 @@ test('SKILL.md documents all current unit types', () => {
     assert.match(skill, pattern, 'SKILL.md should document unit type: ' + kind);
   }
 });
+
+test('SKILL.md delegates detailed guidance to codemermaid references', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+
+  assert.match(skill, /Before writing generated prose, read `references\/voice-examples\.md`/);
+  assert.match(skill, /Before drafting unit data, read `references\/units-examples\.md`/);
+  assert.match(skill, /Before writing diagrams, read `references\/svg-patterns\.md`/);
+  assert.match(skill, /read `references\/subagent-generation\.md` before dispatching work/);
+  assert.match(skill, /read `DESIGN\.md` and `references\/design-system\.md`/);
+});
+
+test('SKILL.md avoids maintenance-only or incorrect codemermaid paths', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+
+  assert.doesNotMatch(skill, /references\/DESIGN\.md/);
+  assert.doesNotMatch(skill, /vendor\/beautiful-mermaid\//);
+});
+
+test('SKILL.md keeps hard quality gates after slimming', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+
+  assert.match(skill, /Code explanation depth/);
+  assert.match(skill, /Pedagogy enforcement/);
+  assert.match(skill, /Real code only/);
+  assert.match(skill, /Code presentation rules/);
+  assert.match(skill, /Pre-flight verification/);
+  assert.match(skill, /Phase 6: Write HTML Pages/);
+});
+
+test('codemermaid references preserve unit-specific rules moved out of SKILL.md', () => {
+  const units = fs.readFileSync(path.join(root, 'references/units-examples.md'), 'utf8');
+  const svg = fs.readFileSync(path.join(root, 'references/svg-patterns.md'), 'utf8');
+
+  assert.match(units, /style: "callout"/);
+  assert.match(units, /unit-surprise/);
+  assert.match(units, /Exactly 4 options/);
+  assert.match(units, /letters A-D/);
+  assert.match(units, /Exactly 1 option has `correct: true`/);
+  assert.match(units, /layout.*defaults to `split`/);
+  assert.match(units, /`stacked`/);
+  assert.match(units, /snippet-local/);
+  assert.match(units, /highlights\[\]\.graphNode/);
+  assert.match(units, /data-node-id/);
+  assert.match(svg, /code-graph/);
+  assert.match(svg, /data-node-id/);
+  assert.match(svg, /4-6 nodes/);
+});
+
+test('SKILL.md no longer carries long per-unit example sections', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+
+  assert.doesNotMatch(skill, /^### Concept units$/m);
+  assert.doesNotMatch(skill, /^### Quiz units$/m);
+  assert.doesNotMatch(skill, /^### Diagram units$/m);
+  assert.doesNotMatch(skill, /^### Code-walk units$/m);
+  assert.doesNotMatch(skill, /^### Code-graph units$/m);
+});
