@@ -43,7 +43,24 @@ From the gathered context:
 2. Identify the change type: feature, bugfix, refactor, docs, chore, or test.
 3. Note verification evidence already present in the branch.
 
-### 4. Generate PR Title and Body
+### 4. Check Changeset Requirement
+
+Before pushing or creating the PR, check whether the repository uses Changesets:
+
+```bash
+test -d .changeset && test -f .changeset/config.json
+rg -n '"@changesets/cli"|changeset' package.json pnpm-lock.yaml package-lock.json yarn.lock 2>/dev/null
+```
+
+If Changesets is not configured, skip this step.
+
+If Changesets is configured, inspect the staged, unstaged, and unpushed branch diff that will be included in the PR. When the diff changes a versioned package or adds a backward-compatible public capability, and no matching `.changeset/*.md` file is already included, use the `changeset` skill before pushing.
+
+Do not duplicate package eligibility, package-name, or bump-selection logic here. Let the `changeset` skill derive package names, release impact, and validation commands from repository metadata and Changesets config.
+
+Include any generated `.changeset/*.md` file in the branch before running `git push` and `gh pr create`.
+
+### 5. Generate PR Title and Body
 
 Title requirements:
 
@@ -115,4 +132,5 @@ Report the PR URL to the user.
 | Ignoring a PR template | Search all supported template locations first. |
 | Writing a title from memory | Base the title on the actual diff and commits. |
 | Claiming tests passed without evidence | Put only verified commands in the test plan. |
+| Omitting a required changeset | Check Changesets support and use the `changeset` skill before pushing release-impacting changes. |
 | Forgetting to push the branch | Push with `git push -u origin HEAD`, then create the PR. |
