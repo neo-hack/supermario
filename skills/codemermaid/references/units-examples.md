@@ -32,6 +32,12 @@ Plain prose, 60–150 words. The teacher pointing at a thing before showing code
 }
 ```
 
+### Concept rules
+
+- Use `style: "callout"` for surprising or counter-intuitive content.
+- Callout concepts render with the red `unit-surprise` treatment.
+- Normal concept units should prepare the reader before code by explaining role, reasoning, and tradeoff.
+
 ---
 
 ## code-walk (split)
@@ -117,6 +123,14 @@ Sticky code on the left, annotation cards on the right. Each annotation referenc
 }
 ```
 
+### Code-walk rules
+
+- `layout` defaults to `split`, with code on the left and annotations on the right.
+- `stacked` is the alternative layout when horizontal space is too tight or the explanation reads better top-to-bottom.
+- `highlights` is an array of `{ line, note }` objects.
+- Highlight lines are snippet-local, 1-based line numbers after trimming the snippet.
+- `code` must be the exact, unmodified source snippet.
+
 ---
 
 ## takeaway
@@ -142,6 +156,18 @@ End-of-section recap. 2–4 sentences. Stronger styling than `concept` so reader
     "The router is a trie because lookup cost matters more than registration cost. Param names are bookkeeping; the actual match key is structural. Once you see this, every other choice in the file (no regex, no precompile step, no route ordering) lines up."
 }
 ```
+
+## quiz
+
+Checks whether the reader understood a design choice, not trivia.
+
+### Quiz rules
+
+- Exactly 4 options.
+- Option letters A-D.
+- Exactly 1 option has `correct: true`.
+- `explanation` is shown after answering, regardless of correctness.
+- The explanation must cite specific code evidence and briefly rule out the wrong answers.
 
 ---
 
@@ -326,3 +352,16 @@ Use storyboard for:
   ]
 }
 ```
+
+---
+
+## code-graph
+
+Use `code-graph` when a code snippet is easier to understand with a small call graph beside it.
+
+### Code-graph rules
+
+- Same source and highlight rules as `code-walk`.
+- Add an `svg` field containing the mini call graph.
+- `highlights[].graphNode` must match an SVG node `data-node-id`.
+- The runtime syncs highlights by that id: clicking a code line highlights the SVG node, and clicking a SVG node highlights the matching code line.

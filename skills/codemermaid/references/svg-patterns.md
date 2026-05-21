@@ -145,6 +145,8 @@ graph TD
 
 `code-graph` units use raw SVG because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. beautiful-mermaid cannot produce these attributes.
 
+Keep code-graph mini graphs small: 4-6 nodes is the usual range. Every clickable SVG node must include `data-node-id`, and every `highlights[].graphNode` in the paired code snippet must match one of those ids.
+
 ### SVG Skeleton
 
 ```html
