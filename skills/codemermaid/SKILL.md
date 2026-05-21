@@ -1,7 +1,7 @@
 ---
 name: codemermaid
 description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
-compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and beautiful-mermaid browser bundle for diagram rendering. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined). Vendor: vendor/beautiful-mermaid (MIT)."
+compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and the bundled beautiful-mermaid browser renderer. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined)."
 ---
 
 # CodeMermaid
@@ -32,7 +32,9 @@ Each HTML page links `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, a
 
 ## Parallel Generation Mode
 
-If subagents are available and the target repo has enough independent modules to benefit, use `references/subagent-generation.md`. The main agent remains coordinator: it owns module registry, filename registry, perspective list, index page, link graph, and final validation. Subagents may scan assigned areas, draft page content, and generate assigned `module-<name>.html` files, but they must not create unassigned files or make global architecture decisions.
+If subagents are available and the repo has enough independent modules, read `references/subagent-generation.md` before dispatching work.
+
+The main agent remains coordinator and owns the module registry, filename registry, perspective list, index page, link graph, and final validation. Subagents may only work inside assigned scopes.
 
 ## Phase 1: Scan
 
@@ -164,7 +166,7 @@ const INDEX = {
 
 ### Voice rules
 
-A teacher pointing at the thing. Signposted, opinionated, comparing to familiar mental models. See `references/voice-examples.md` for flat-vs-pointed pairs the AI MUST imitate. Anti-patterns: neutral description, academic filler ("it is important to note"), passive voice ("as we can see").
+Before writing generated prose, read `references/voice-examples.md`. Follow that file for voice, signposts, anti-patterns, and rewrite recipes.
 
 ### Code explanation depth (mandatory — do not skimp)
 
