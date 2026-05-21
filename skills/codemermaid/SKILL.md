@@ -481,7 +481,7 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 
 ## Design System
 
-Built-in Raycast-inspired dark theme. The full design system lives in `assets/style.css` — CSS variables, typography, shadows, colors, spacing. Read `references/design-system.md` and `references/DESIGN.md` for rationale.
+Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual rationale and token guidance, read `DESIGN.md` and `references/design-system.md`.
 
 ## Important Rules
 
@@ -515,22 +515,21 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 
 ```
 skills/codemermaid/
-  SKILL.md                            # This file (6-phase workflow)
+  SKILL.md
+  DESIGN.md
   references/
-    design-system.md                  # CSS/typography/shadow reference
-    DESIGN.md                         # Design rationale
-    svg-patterns.md                   # Mermaid diagram patterns + minimal SVG for code-graph
-    subagent-generation.md            # Optional parallel generation protocol
-    units-examples.md                 # 2-3 examples per unit kind
-    voice-examples.md                 # Flat-vs-pointed prose pairs
+    design-system.md
+    svg-patterns.md
+    subagent-generation.md
+    units-examples.md
+    voice-examples.md
   assets/
-    skeleton-essay.html               # Shell for essay pages (linked CSS/JS, beautiful-mermaid bundle)
-    skeleton-index.html               # Shell for index page (linked CSS/JS, beautiful-mermaid bundle)
-    style.css                         # Full design system CSS + beautiful-mermaid overrides
-    runtime.js                        # Runtime: TOC, quiz, annotation alignment/clicks, code-graph sync, zoom
-    beautiful-mermaid.bundle.js       # beautiful-mermaid browser bundle (vendored, MIT)
-    mermaid-bridge.js                 # Bridge: finds <pre class="mermaid">, renders via beautiful-mermaid
-vendor/beautiful-mermaid/             # Upstream source (lukilabs/beautiful-mermaid)
+    skeleton-essay.html
+    skeleton-index.html
+    style.css
+    runtime.js
+    beautiful-mermaid.bundle.js
+    mermaid-bridge.js
 ```
 
 ## Relationship to Other Skills
