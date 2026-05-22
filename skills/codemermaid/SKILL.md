@@ -299,6 +299,35 @@ Keep teaching snippets tight:
 - Do not highlight blank separator lines; move highlights to the nearest meaningful source line.
 - **Annotation-note alignment:** The note text must describe what happens on the highlighted line(s). If the note says "mergeMessage dedupes by id" but the highlighted line is `...state,`, the highlight is on the wrong line.
 
+### Code file action controls
+
+When a `code-walk` or `code-graph` unit has a real source file path, render file actions in the `.codewalk-head` next to the file label.
+
+Use an absolute file path in `data-copy-path` when the source repository path is known. Append `:{startLine}` when the unit provides `startLine`; otherwise append `:1`.
+
+Required HTML shape:
+
+```html
+<div class="codewalk-head">
+  <span class="codewalk-file">{FILE}</span>
+  <span class="file-actions">
+    <span class="editor-menu" data-editor-menu data-editor="cursor">
+      <button class="file-action-select editor-menu-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" data-editor-trigger>
+        <span data-editor-current>Cursor</span>
+        <span class="gg-chevron-down" aria-hidden="true"></span>
+      </button>
+      <span class="editor-menu-list" role="listbox" hidden data-editor-list>
+        <button class="editor-menu-item" type="button" role="option" aria-selected="true" data-editor-option="cursor">Cursor</button>
+        <button class="editor-menu-item" type="button" role="option" aria-selected="false" data-editor-option="vscode">VS Code</button>
+      </span>
+    </span>
+    <button class="file-action" type="button" data-copy-path="{ABSOLUTE_FILE_PATH}:{START_LINE}">Copy path</button>
+  </span>
+</div>
+```
+
+The selected editor option opens immediately. Selecting the already-active option still opens the file, because the menu uses buttons instead of a native `<select>`.
+
 ### Unit examples
 
 Before drafting unit data, read `references/units-examples.md` for concrete object shapes, unit-specific options, defaults, and interaction bindings.
@@ -353,6 +382,10 @@ For each page in the file list (Phase 5):
    - [ ] `build-up.html` exists, starts with a `concept`, contains at least one `quiz`, and ends with a `takeaway`
    - [ ] Build-Up copy describes a learning order, not an unverified implementation chronology
    - [ ] Every Build-Up step explains a capability change; it is not only a module inventory
+   - [ ] Every `whoa` unit has `angle`, `title`, and `body`
+   - [ ] Every `whoa.angle` is `code`, `product`, `ux`, or `architecture`
+   - [ ] `whoa` units use one visual treatment; no angle-specific color classes
+   - [ ] Every rendered file action with `data-copy-path` points to a real source file path and includes a line number
 5. **Dispatch a subagent reviewer** to validate the generated HTML
 6. **Write** the completed HTML to `docs/codemermaid/<filename>.html`
 
@@ -385,6 +418,21 @@ For each page in the file list (Phase 5):
   <!-- unit content HTML -->
 </section>
 ```
+
+For `whoa` units, render:
+
+```html
+<section class="unit unit-whoa" id="unit-{INDEX}" data-angle="{ANGLE}">
+  <div class="whoa-label">whoa · {ANGLE}</div>
+  <h2>{TITLE}</h2>
+  <p>{BODY}</p>
+  <div class="whoa-evidence">
+    <span>{EVIDENCE_ITEM}</span>
+  </div>
+</section>
+```
+
+Render `.whoa-evidence` only when evidence exists. Flatten evidence in this order: files, modules, interactions, constraints. Keep evidence text short enough to fit in a pill; use file basenames or repo-relative paths rather than long absolute paths inside evidence chips.
 
 **`<!-- SLOT:FOOTER -->`:**
 ```html
