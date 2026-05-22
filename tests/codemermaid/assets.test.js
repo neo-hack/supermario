@@ -195,3 +195,47 @@ test('SKILL.md no longer carries long per-unit example sections', () => {
   assert.doesNotMatch(skill, /^### Code-walk units$/m);
   assert.doesNotMatch(skill, /^### Code-graph units$/m);
 });
+
+test('SKILL.md defines build-up.html as a default perspective with reference handoff', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+
+  assert.match(skill, /build-up\.html/);
+  assert.match(skill, /Build-Up Walkthrough/);
+  assert.match(skill, /Architecture[^\n]+Build-Up|Build-Up[^\n]+Architecture/);
+  assert.match(skill, /Architecture and Build-Up are always included|Architecture.*Build-Up.*always included/);
+  assert.match(skill, /read `references\/build-up\.md`/);
+});
+
+test('build-up reference preserves detailed route rules', () => {
+  const buildUp = fs.readFileSync(path.join(root, 'references/build-up.md'), 'utf8');
+
+  assert.match(buildUp, /capability increment/);
+  assert.match(buildUp, /learning order/);
+  assert.match(buildUp, /not the actual development order|not a historical commit/);
+  assert.match(buildUp, /smallest useful behavior/);
+  assert.match(buildUp, /as many units as needed|no fixed number/);
+  assert.match(buildUp, /exact real source|exact real code/);
+  assert.match(buildUp, /diagram/);
+  assert.match(buildUp, /code-walk/);
+  assert.match(buildUp, /code-graph/);
+});
+
+test('Build-Up guidance allows optional module-level sections without forcing every module', () => {
+  const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
+  const buildUp = fs.readFileSync(path.join(root, 'references/build-up.md'), 'utf8');
+
+  assert.match(skill, /module-level Build-Up/i);
+  assert.match(buildUp, /module-level Build-Up/i);
+  assert.match(buildUp, /optional/i);
+  assert.match(buildUp, /do not force|not every module/i);
+  assert.match(buildUp, /natural internal progression|natural build-up path/i);
+});
+
+test('subagent generation keeps Build-Up routing coordinator-owned', () => {
+  const subagent = fs.readFileSync(path.join(root, 'references/subagent-generation.md'), 'utf8');
+
+  assert.match(subagent, /Build-Up route/);
+  assert.match(subagent, /build-up\.html/);
+  assert.match(subagent, /Coordinator Owns/);
+  assert.match(subagent, /must not.*build-up\.html|Do not write.*build-up\.html/i);
+});
