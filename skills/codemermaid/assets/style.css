@@ -406,7 +406,8 @@ h4 {
   font-size: 12px;
   color: var(--text-faint);
 }
-.codewalk-file {
+.codewalk-file,
+.codewalk-head > span:first-child:not(.file-actions) {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -521,6 +522,13 @@ h4 {
 .editor-menu-item[aria-selected="true"] {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
+}
+
+.editor-menu-item:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .file-action:focus,
