@@ -292,7 +292,8 @@ Use Mermaid for `diagram` units and raw inline SVG only for `code-graph` mini-gr
 |------|----------|-----------|
 | `index.html`            | `skeleton-index.html` | Always |
 | `architecture.html`     | `skeleton-essay.html` | Always |
-| `<perspective>.html`    | `skeleton-essay.html` | One per non-architecture perspective |
+| `build-up.html`         | `skeleton-essay.html` | Always |
+| `<perspective>.html`    | `skeleton-essay.html` | One per non-default perspective |
 | `module-<name>.html`    | `skeleton-essay.html` | One per discovered module |
 
 All generated course files go in `docs/codemermaid/`. Filenames are kebab-case except the fixed `index.html`.
@@ -323,6 +324,10 @@ For each page in the file list (Phase 5):
    - [ ] Quiz has exactly 1 option with `data-correct="true"`
    - [ ] No double HTML entity escaping — scan for `&amp;#` or `&amp;lt;` or `&amp;gt;` patterns and fix them
    - [ ] Mermaid syntax is valid — no unclosed brackets, no missing quotes in edge labels
+   - [ ] `index.html` links to `build-up.html` in the Perspectives section
+   - [ ] `build-up.html` exists, starts with a `concept`, contains at least one `quiz`, and ends with a `takeaway`
+   - [ ] Build-Up copy describes a learning order, not an unverified implementation chronology
+   - [ ] Every Build-Up step explains a capability change; it is not only a module inventory
 5. **Dispatch a subagent reviewer** to validate the generated HTML
 6. **Write** the completed HTML to `docs/codemermaid/<filename>.html`
 
@@ -478,6 +483,8 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 </div>
 ```
 
+Perspective cards should list default perspectives first: Architecture Overview, then Build-Up Walkthrough, followed by user-requested and auto-inferred perspectives. The Build-Up card must link to `build-up.html` and describe the gradual route from smallest useful capability to complete system.
+
 **`<!-- SLOT:MODULE_CARDS -->`:**
 ```html
 <div class="section">
@@ -494,21 +501,29 @@ Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual ra
 
 ## Important Rules
 
-1. **Real code only** — never invent, simplify, or modify code snippets.
-2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
-4. **Vanilla JS only** — no React, no build tools.
-5. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG (for `data-node-id` click-sync).
-6. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
-7. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
-8. **Consistent node IDs** — same module = same node ID across all pages.
-9. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
-10. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
+1. **Read Build-Up reference** — before creating `build-up.html` or a module-level Build-Up section, read `references/build-up.md`.
+2. **Default perspectives** — always generate `architecture.html` and `build-up.html`.
+3. **Real code only** — never invent, simplify, or modify code snippets.
+4. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
+5. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
+6. **Vanilla JS only** — no React, no build tools.
+7. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG for `data-node-id` click-sync.
+8. **Build-Up is learning order** — describe capability increments in the order that teaches the system, not unverified git or implementation history.
+9. **Module-level Build-Up is optional** — include it only when the module has a natural internal progression. Do not force it into every module page.
+10. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
+11. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
+12. **Consistent node IDs** — same module = same node ID across all pages.
+13. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
+14. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
+| Missing `build-up.html` | Always generate the required Build-Up Walkthrough perspective and link it from `index.html`. |
+| Build-Up reads like git history | Reframe it as reader learning order unless git history was explicitly inspected and cited. |
+| Build-Up is just a module list | Rewrite each step around a capability change and name the code that makes the change possible. |
+| Forced module-level Build-Up | Remove it when a normal code-walk teaches the module more clearly. |
 | Blank lines between code lines | `.line` spans inside `<pre>` must be adjacent — no newlines or spaces between them. |
 | Highlight points to wrong line | Count lines within the extracted snippet, not the original source file. |
 | Code snippet has invented lines | Paste the snippet back into a temp file and run the type checker. |
