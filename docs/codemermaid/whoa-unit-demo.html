@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whoa Unit Confirmed Style - CodeMermaid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../skills/codemermaid/assets/style.css">
+<style>
+  .demo-note {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.65;
+    max-width: 760px;
+    margin: -18px 0 32px;
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin: 20px 0 34px;
+  }
+
+  .whoa {
+    --whoa-accent: #ff6363;
+    --whoa-soft: rgba(255, 99, 99, 0.08);
+    --whoa-border: rgba(255, 99, 99, 0.38);
+    position: relative;
+  }
+
+  .whoa-card {
+    background:
+      linear-gradient(135deg, var(--whoa-soft), rgba(255, 255, 255, 0.015) 46%),
+      var(--surface);
+    border: 1px solid var(--whoa-border);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .whoa-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--whoa-accent);
+  }
+
+  .whoa-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--whoa-accent);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .whoa-label::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--whoa-accent);
+    box-shadow: 0 0 18px var(--whoa-accent);
+  }
+
+  .whoa h3 {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 21px;
+    line-height: 1.22;
+    letter-spacing: 0;
+  }
+
+  .whoa p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .whoa-evidence {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .whoa-evidence span {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--text-dim);
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .whoa-inline {
+    border-left: 3px solid var(--whoa-accent);
+    background: var(--whoa-soft);
+    padding: 24px 26px;
+    margin: 18px 0;
+    border-radius: 16px;
+    border-top: 1px solid var(--whoa-border);
+    border-right: 1px solid var(--whoa-border);
+    border-bottom: 1px solid var(--whoa-border);
+    box-shadow: var(--shadow-card);
+  }
+
+  .whoa-inline h3 {
+    font-size: 21px;
+    margin-bottom: 10px;
+  }
+
+  .whoa-inline .whoa-label {
+    margin-bottom: 8px;
+  }
+
+  .whoa-band {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    padding: 22px 24px;
+    background: linear-gradient(90deg, var(--whoa-soft), rgba(255, 255, 255, 0.012));
+    border: 1px solid var(--whoa-border);
+    border-radius: 14px;
+    margin: 18px 0;
+  }
+
+  .whoa-band .whoa-label {
+    margin: 2px 0 0;
+  }
+
+  .whoa-band h3 {
+    font-size: 19px;
+  }
+
+  .demo-verdict {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-top: 28px;
+  }
+
+  .demo-verdict h2 {
+    margin-top: 0;
+  }
+
+  @media (max-width: 860px) {
+    .demo-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .whoa-band {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="back-link" href="build-up-demo.html">← Build-Up demo</a>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">CodeMermaid visual draft · chat-kit</div>
+    <h1>Whoa Unit Confirmed Style</h1>
+    <p class="learning-promise">A single Raycast-style highlight card, shown with real examples from <code>/Users/bytedance/Projects/bugs/markone-rebase-only/aiden/chat-kit</code>.</p>
+    <ul class="prereqs">
+      <li>brainstorming only</li>
+      <li>not wired into generation</li>
+      <li>real project evidence</li>
+    </ul>
+  </section>
+
+  <p class="demo-note">The visual treatment is intentionally unified: near-black surface, subtle Raycast Red accent, cool border, medium-weight Inter text, and neutral evidence chips. The examples below are not generic: they point to actual chat-kit files and design choices.</p>
+
+  <section class="unit" id="option-a">
+    <span class="unit-kind">product whoa</span>
+    <h2>Prop-driven chat UI, not a transport framework</h2>
+    <p>This is a product-level whoa: it explains why chat-kit is easier to embed than a full agent runtime.</p>
+
+    <div class="whoa whoa-card" data-angle="product">
+      <div class="whoa-label">whoa · product</div>
+      <h3>ChatPanel renders the agent experience while the host keeps control.</h3>
+      <p><code>ChatPanel</code> accepts canonical SDK messages, pending permissions, composer callbacks, resources, toolkits, and custom slots. That makes chat-kit a reusable rendering surface: the host owns transport and business semantics, while the library owns the hard UI composition.</p>
+      <div class="whoa-evidence">
+        <span>src/components/ChatPanel.tsx</span>
+        <span>messages prop</span>
+        <span>renderComposer</span>
+        <span>messageSlots</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="option-b">
+    <span class="unit-kind">code whoa</span>
+    <h2>A small metadata trick keeps stream merging clean</h2>
+    <p>For <code>angle: "code"</code>, the whoa card appears after the relevant source. This example comes from <code>src/hooks/threadStreamReducer.ts</code>.</p>
+
+    <div class="codewalk-split">
+      <div class="codewalk-head">
+        <span>/Users/bytedance/Projects/bugs/markone-rebase-only/aiden/chat-kit/src/hooks/threadStreamReducer.ts</span>
+        <span class="file-actions">
+          <span class="editor-menu" data-editor-menu data-editor="cursor">
+            <button class="file-action-select editor-menu-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" data-editor-trigger>
+              <span data-editor-current>Cursor</span>
+              <span class="gg-chevron-down" aria-hidden="true"></span>
+            </button>
+            <span class="editor-menu-list" role="listbox" hidden data-editor-list>
+              <button class="editor-menu-item" type="button" role="option" aria-selected="true" data-editor-option="cursor">Cursor</button>
+              <button class="editor-menu-item" type="button" role="option" aria-selected="false" data-editor-option="vscode">VS Code</button>
+            </span>
+          </span>
+          <button
+            class="file-action"
+            type="button"
+            data-copy-path="/Users/bytedance/Projects/bugs/markone-rebase-only/aiden/chat-kit/src/hooks/threadStreamReducer.ts:69"
+          >Copy path</button>
+        </span>
+      </div>
+      <div class="codewalk-split-body">
+        <pre class="code-block"><span class="line" data-line="1"><span class="ln">1</span><span class="code-text">/**</span></span><span class="line" data-line="2"><span class="ln">2</span><span class="code-text"> * Attach non-enumerable stream metadata without changing the SDK wire shape.</span></span><span class="line" data-line="3"><span class="ln">3</span><span class="code-text"> *</span></span><span class="line" data-line="4"><span class="ln">4</span><span class="code-text"> * The reducer uses this metadata to dedupe user messages that may appear once</span></span><span class="line" data-line="5"><span class="ln">5</span><span class="code-text"> * from live events and again from a later snapshot. Keeping it non-enumerable</span></span><span class="line" data-line="6"><span class="ln">6</span><span class="code-text"> * prevents debug/export paths from leaking chat-kit-only fields.</span></span><span class="line" data-line="7"><span class="ln">7</span><span class="code-text"> */</span></span><span class="line line-hl" data-line="8"><span class="ln">8</span><span class="code-text">export function annotateThreadStreamMessage&lt;T extends SDKMessage&gt;(</span></span><span class="line" data-line="9"><span class="ln">9</span><span class="code-text">  message: T,</span></span><span class="line" data-line="10"><span class="ln">10</span><span class="code-text">  meta: ThreadStreamMessageMeta,</span></span><span class="line" data-line="11"><span class="ln">11</span><span class="code-text">): T {</span></span><span class="line" data-line="12"><span class="ln">12</span><span class="code-text">  const current = getThreadStreamMessageMeta(message)</span></span><span class="line" data-line="13"><span class="ln">13</span><span class="code-text">  if (current?.turnId === meta.turnId) {</span></span><span class="line" data-line="14"><span class="ln">14</span><span class="code-text">    return message</span></span><span class="line" data-line="15"><span class="ln">15</span><span class="code-text">  }</span></span><span class="line" data-line="16"><span class="ln">16</span><span class="code-text"></span></span><span class="line" data-line="17"><span class="ln">17</span><span class="code-text">  const next = { ...message } as T &amp; MessageShape</span></span><span class="line line-hl" data-line="18"><span class="ln">18</span><span class="code-text">  Object.defineProperty(next, THREAD_STREAM_MESSAGE_META, {</span></span><span class="line" data-line="19"><span class="ln">19</span><span class="code-text">    value: meta,</span></span><span class="line line-hl" data-line="20"><span class="ln">20</span><span class="code-text">    enumerable: false,</span></span><span class="line" data-line="21"><span class="ln">21</span><span class="code-text">    configurable: true,</span></span><span class="line" data-line="22"><span class="ln">22</span><span class="code-text">  })</span></span><span class="line" data-line="23"><span class="ln">23</span><span class="code-text">  return next</span></span><span class="line" data-line="24"><span class="ln">24</span><span class="code-text">}</span></span></pre>
+        <div class="codewalk-annotations">
+          <div class="codewalk-annotation" data-note-lines="8"><span class="annotation-line">line 8</span><p>The helper keeps the public SDKMessage type. Consumers do not need a chat-kit-specific message model.</p></div>
+          <div class="codewalk-annotation" data-note-lines="18"><span class="annotation-line">line 18</span><p>The metadata is attached only to a shallow copy, preserving existing message references when no metadata changes.</p></div>
+          <div class="codewalk-annotation" data-note-lines="20"><span class="annotation-line">line 20</span><p>Non-enumerable metadata means export/debug paths still see the SDK wire shape, not an internal reducer artifact.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="whoa whoa-inline" data-angle="code">
+      <div class="whoa-label">whoa · code</div>
+      <h3>The reducer adds memory without changing the protocol shape.</h3>
+      <p>The stream needs private identity hints to merge live events with later snapshots. Instead of mutating the SDK schema, chat-kit hides that memory behind a non-enumerable Symbol. The UI gets better dedupe behavior, and external callers still see clean SDK messages.</p>
+    </div>
+  </section>
+
+  <section class="unit" id="option-c">
+    <span class="unit-kind">more chat-kit candidates</span>
+    <h2>The same style can cover different kinds of real highlights</h2>
+    <p>These are candidate whoa units an agent could discover while reading this chat-kit repository. They use one visual style and different semantic labels.</p>
+
+    <div class="demo-grid">
+      <div class="whoa whoa-card" data-angle="product">
+        <div class="whoa-label">whoa · product</div>
+        <h3>The composer is one input, but many product controls.</h3>
+        <p><code>ChatComposer</code> combines prompt text, slash commands, mentions, attachments, permission mode, branch controls, model controls, plugins, MCP, workspace selection, and stop/send lifecycle. The product trick is that embedders can enable only the pieces they need.</p>
+        <div class="whoa-evidence">
+          <span>ChatComposer.tsx</span>
+          <span>slash commands</span>
+          <span>optional controls</span>
+        </div>
+      </div>
+
+      <div class="whoa whoa-card" data-angle="ux">
+        <div class="whoa-label">whoa · ux</div>
+        <h3>Tool results update only the renderer waiting for them.</h3>
+        <p><code>ToolResultProvider</code> keeps a stable external store and lets renderers subscribe by <code>tool_use_id</code>. A late tool result can wake the exact tool card that needs it without making the whole historical transcript repaint.</p>
+        <div class="whoa-evidence">
+          <span>ToolResultContext.tsx</span>
+          <span>useSyncExternalStore</span>
+          <span>tool_use_id</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="whoa whoa-card" data-angle="architecture">
+      <div class="whoa-label">whoa · architecture</div>
+      <h3>ChatPanel builds a transcript tree, then chooses the cheapest first paint.</h3>
+      <p>Completed history can render as a collapsed transcript first, then hydrate hidden internals on idle or expand. That keeps replay/read-only sessions responsive while preserving the full turn details when the reader asks for them.</p>
+      <div class="whoa-evidence">
+        <span>ChatPanel.tsx</span>
+        <span>deferCollapsedInitialRender</span>
+        <span>requestIdleCallback</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-verdict">
+    <span class="unit-kind">draft recommendation</span>
+    <h2>My read</h2>
+    <p><strong>Use one Raycast-style highlight card for every whoa unit.</strong> These chat-kit examples show why <code>angle</code> should be semantic: product, UX, code, and architecture moments can all share one visual treatment while pointing to different evidence.</p>
+  </section>
+</main>
+
+<script src="../../skills/codemermaid/assets/runtime.js"></script>
+</body>
+</html>
