@@ -11,8 +11,10 @@ The main agent is always the coordinator. It owns:
 - Filename registry.
 - Mermaid node id registry.
 - Perspective list.
+- Build-Up route.
 - Global voice, unit, storyboard, and link rules.
 - `index.html`.
+- `build-up.html`.
 - Final page graph and link closure.
 - Final `validate-units.js` runs.
 - Final browser/manual verification.
@@ -38,6 +40,7 @@ Workers may:
 - Scan assigned paths.
 - Scan related files discovered via imports/exports of assigned source (for cross-file storyboards).
 - Draft assigned page data.
+- Draft assigned Build-Up step fragments only when the coordinator provides exact capability, source files, node ids, and link targets.
 - Generate assigned `docs/codemermaid/module-<name>.html` files.
 - Draft local Mermaid diagrams and storyboards for assigned scope.
 
@@ -48,6 +51,8 @@ Workers must not:
 - Change global node ids or filenames.
 - Write `index.html`.
 - Write unassigned perspective pages.
+- Decide the Build-Up route.
+- Write `build-up.html` unless explicitly assigned that exact file by the coordinator.
 - Decide the final perspective list.
 - Skip validation for generated pages.
 
@@ -56,6 +61,8 @@ Workers must not:
 Before dispatching workers, prepare:
 
 - Assigned modules, source files, and output filenames.
+- Default perspective list with `architecture.html` and `build-up.html`.
+- Build-Up route with capability increments, covered modules, source files, and expected diagrams.
 - Global `INDEX` link rules.
 - Node id registry.
 - Template paths and assembly rules.
@@ -102,6 +109,30 @@ Rules:
 - Use inline markdown links only to registered pages.
 - Do not add modules, rename modules, or change node ids.
 - Return assumptions and requested links.
+```
+
+## Build-Up Fragment Worker Prompt
+
+```markdown
+You are drafting one assigned Build-Up fragment for codemermaid.
+
+Scope:
+- Capability increment: the coordinator-provided capability name
+- Source files: the exact assigned source paths
+- Covered modules: the exact assigned module names
+- Registered page: build-up.html
+- Registry: the coordinator-provided filenames and node ids
+
+Rules:
+- Read references/build-up.md before drafting.
+- Treat the route as a learning order, not a historical implementation order.
+- Explain what capability exists before this step, what capability appears after it, and why this code is needed now.
+- Use exact real code snippets.
+- Use Mermaid diagrams only when they clarify structure, flow, sequence, state, or before/after shape.
+- Use code-graph only when code lines need click-sync to a small SVG graph.
+- Do not change the Build-Up route.
+- Do not write build-up.html unless the coordinator explicitly assigns final assembly.
+- Return page data draft only.
 ```
 
 ## Scan Worker Prompt
