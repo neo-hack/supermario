@@ -6,7 +6,7 @@ compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and th
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — architecture views, default Build-Up walkthroughs, beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
 
 ## When to Use
 
@@ -23,9 +23,10 @@ Directory: `docs/codemermaid/`
 style.css                     <- Copied from assets/style.css
 runtime.js                    <- Copied from assets/runtime.js
 index.html                    <- Entry page (perspective + module cards)
-architecture.html             <- Architecture perspective (essay)
-<perspective>.html            <- Other perspectives (essays)
-module-<name>.html            <- Per-module deep dives (essays)
+architecture.html             <- Architecture perspective (essay, always generated)
+build-up.html                 <- Build-Up Walkthrough perspective (essay, always generated)
+<perspective>.html            <- Other user-requested or auto-inferred perspectives (essays)
+module-<name>.html            <- Per-module deep dives (essays, optional module-level Build-Up when useful)
 ```
 
 Each HTML page links `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The assembly process copies these assets from `assets/` to the output directory alongside the HTML files.
@@ -108,14 +109,16 @@ From scan results:
 
 **Prioritization:** If the codebase has more than 12 modules, organize into sub-graphs.
 
-6. **User perspective requirements** — parse user prompt for explicit perspective requests
-7. **Auto-infer perspectives** — from project characteristics:
-   - Has HTTP handlers → Data Flow perspective
+6. **Default perspective requirements** — Architecture and Build-Up are always included. `architecture.html` gives the finished-system map; `build-up.html` gives the gradual learning route from smallest useful capability to complete system.
+7. **User perspective requirements** — parse user prompt for explicit perspective requests. User-requested perspectives are mandatory.
+8. **Auto-infer perspectives** — from project characteristics:
+   - Has HTTP handlers, WebSocket, or event streams → Data Flow perspective
    - Has database/ORM → Data Model perspective
    - Has state management → State Machine perspective
    - 10+ modules → Module Dependency perspective
    - Has CI/CD config → Build Pipeline perspective
-8. **Merge perspective list** — user-specified (mandatory) + auto-inferred (supplementary), deduplicated. Architecture is always included. Every discovered module must be reachable from at least one perspective page
+9. **Merge perspective list** — default + user-specified + auto-inferred, deduplicated. Recommended index order: Architecture Overview, Build-Up Walkthrough, then user-requested and auto-inferred perspectives. Every discovered module must be reachable from at least one perspective page.
+10. **Derive Build-Up route** — before drafting `build-up.html`, read `references/build-up.md` and choose a reader-comprehension order from discovered modules and dependency evidence.
 
 ## Phase 3: Build Page Data
 
@@ -132,6 +135,8 @@ const COURSE = {
 };
 ```
 
+Module pages may include a module-level Build-Up section when the module has a natural internal progression. This section is optional; read `references/build-up.md` before adding one.
+
 ### PERSPECTIVE (per-perspective page, e.g. `architecture.html`)
 
 ```javascript
@@ -142,6 +147,10 @@ const PERSPECTIVE = {
   units: []
 };
 ```
+
+### BUILD_UP (default perspective page, `build-up.html`)
+
+Build-Up is a required perspective. Before drafting it, read `references/build-up.md` for route design, capability increments, examples, module-level Build-Up criteria, and Mermaid/code pairing rules.
 
 ### INDEX (entry page, `index.html`)
 
