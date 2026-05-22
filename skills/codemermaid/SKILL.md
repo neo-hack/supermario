@@ -433,6 +433,7 @@ For `whoa` units, render:
 ```
 
 Render `.whoa-evidence` only when evidence exists. Flatten evidence in this order: files, modules, interactions, constraints. Keep evidence text short enough to fit in a pill; use file basenames or repo-relative paths rather than long absolute paths inside evidence chips.
+For evidence chips, repeat one `<span>{EVIDENCE_ITEM}</span>` per flattened evidence item.
 
 **`<!-- SLOT:FOOTER -->`:**
 ```html
@@ -494,7 +495,8 @@ Render `.whoa-evidence` only when evidence exists. Flatten evidence in this orde
 **code-walk (split layout):**
 ```html
 <div class="codewalk-split">
-  <div class="codewalk-head"><span>{FILE}</span><span>{LANG}</span></div>
+  <!-- Use the Code file action controls header from above when a real source path exists. Otherwise render a simple header with <span class="codewalk-file">{FILE}</span>. -->
+  <div class="codewalk-head"><span class="codewalk-file">{FILE}</span><span>{LANG}</span></div>
   <div class="codewalk-split-body">
     <pre class="code-block">{LINES}</pre>
     <div class="codewalk-annotations">{ANNOTATIONS}</div>
@@ -511,7 +513,8 @@ Each annotation: `<div class="codewalk-annotation" data-note-lines="{LINES}"><sp
 **code-graph:**
 ```html
 <div class="codegraph-split">
-  <div class="codewalk-head"><span>{FILE}</span><span>{LANG}</span></div>
+  <!-- Use the Code file action controls header from above when a real source path exists. Otherwise render a simple header with <span class="codewalk-file">{FILE}</span>. -->
+  <div class="codewalk-head"><span class="codewalk-file">{FILE}</span><span>{LANG}</span></div>
   <div class="codegraph-split-body">
     <pre class="code-block">{LINES with data-graph-node}</pre>
     <div class="codegraph-graph">{SVG}</div>
