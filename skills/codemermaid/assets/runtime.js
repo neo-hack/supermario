@@ -298,11 +298,15 @@ function splitFileTarget(value) {
   };
 }
 
+function encodeEditorPath(filePath) {
+  return String(filePath || '').split('/').map(encodeURIComponent).join('/');
+}
+
 function openEditorPath(value, editor) {
   var target = splitFileTarget(value);
   if (!target.filePath) return;
   var scheme = editor === 'vscode' ? 'vscode' : 'cursor';
-  window.location.href = scheme + '://file/' + target.filePath + ':' + target.line;
+  window.location.href = scheme + '://file/' + encodeEditorPath(target.filePath) + ':' + target.line;
 }
 
 function closeEditorMenus(except) {
@@ -317,14 +321,20 @@ function closeEditorMenus(except) {
 }
 
 function copyEditorPath(value, button) {
-  var originalText = button.textContent;
+  var originalText = button.getAttribute('data-copy-label') || button.textContent;
+  button.setAttribute('data-copy-label', originalText);
+
   function markCopied() {
+    var existingTimer = button.getAttribute('data-copy-timer');
+    if (existingTimer) window.clearTimeout(Number(existingTimer));
     button.textContent = 'Copied';
     button.setAttribute('data-copy-state', 'copied');
-    window.setTimeout(function() {
+    var timer = window.setTimeout(function() {
       button.textContent = originalText;
       button.removeAttribute('data-copy-state');
+      button.removeAttribute('data-copy-timer');
     }, 1400);
+    button.setAttribute('data-copy-timer', String(timer));
   }
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
