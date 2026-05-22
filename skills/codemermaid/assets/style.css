@@ -462,6 +462,87 @@ pre.code-block .line.active-note-line {
 .unit-surprise h2 { color: var(--text); }
 .unit-surprise p { color: var(--text); font-size: 17px; }
 
+/* ===== WHOA (rare design highlight) ===== */
+.unit-whoa {
+  --whoa-accent: var(--accent);
+  --whoa-soft: rgba(255, 99, 99, 0.08);
+  --whoa-border: rgba(255, 99, 99, 0.34);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, var(--whoa-soft), rgba(255, 255, 255, 0.015) 48%),
+    var(--surface);
+  border: 1px solid var(--whoa-border);
+  border-radius: 16px;
+  padding: 24px 28px 26px;
+  box-shadow: var(--shadow-card);
+}
+
+.unit-whoa::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--whoa-accent);
+}
+
+.whoa-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: var(--whoa-accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.whoa-label::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--whoa-accent);
+  box-shadow: 0 0 18px var(--whoa-accent);
+}
+
+.unit-whoa h2,
+.unit-whoa h3 {
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.unit-whoa p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 0;
+}
+
+.whoa-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.whoa-evidence span {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
 /* ===== TAKEAWAY ===== */
 .unit-takeaway {
   margin-top: 80px;
@@ -885,5 +966,8 @@ pre.mermaid-error {
   .codegraph-split pre.code-block {
     border-right: 0;
     border-bottom: 1px solid var(--border);
+  }
+  .unit-whoa {
+    padding: 22px 20px 24px;
   }
 }
