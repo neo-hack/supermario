@@ -162,16 +162,40 @@ const INDEX = {
 };
 ```
 
-### Unit kinds (6 types)
+### Unit kinds (7 types)
 
 ```javascript
 { kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
 { kind: "quiz",        question, options: [{letter, text, correct}], explanation }
 { kind: "takeaway",    body }
 { kind: "diagram",     title, mermaid, caption, zoomable? }               // Mermaid syntax, zoomable defaults true
-{ kind: "code-walk",   title, file, code, highlights: [{line, note}], layout? }  // layout defaults "split"
-{ kind: "code-graph",  title, file, code, highlights: [{line, note, graphNode?}], svg }  // left code, right mini graph
+{ kind: "code-walk",   title, file, startLine?, code, highlights: [{line, note}], layout? }  // layout defaults "split"
+{ kind: "code-graph",  title, file, startLine?, code, highlights: [{line, note, graphNode?}], svg }  // left code, right mini graph
+{ kind: "whoa",        angle, title, body, evidence? }                    // angle: "code" | "product" | "ux" | "architecture"
 ```
+
+### Whoa unit rules
+
+Use `whoa` only for rare design moments that explain why the project is unusually well-designed. A normal course should contain about 3-5 `whoa` units total across all pages.
+
+Required fields:
+
+- `angle`: one of `code`, `product`, `ux`, or `architecture`.
+- `title`: a concrete statement of the design win.
+- `body`: explains the constraint, why the design is strong, and what would be worse without it.
+
+Optional `evidence` fields:
+
+```javascript
+{
+  files?: string[],
+  modules?: string[],
+  interactions?: string[],
+  constraints?: string[]
+}
+```
+
+Use one visual treatment for every angle. `angle` changes the label and placement, not the color palette.
 
 ### Voice rules
 

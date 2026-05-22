@@ -40,6 +40,52 @@ Plain prose, 60–150 words. The teacher pointing at a thing before showing code
 
 ---
 
+## whoa
+
+Rare highlight for a design choice that deserves extra attention. Use this when the reader should understand not only what the code does, but why the design is unusually strong.
+
+### Example 1 — Product boundary
+
+```javascript
+{
+  kind: "whoa",
+  angle: "product",
+  title: "The host owns the product policy; the component owns the conversation surface.",
+  body:
+    "The component is useful because it does not try to become the whole app. Transport, persistence, permissions, callbacks, and host slots stay outside the visible chat surface. That lets an embedder adopt the conversation UI without surrendering the product decisions around it.",
+  evidence: {
+    files: ["src/components/ChatPanel.tsx"],
+    modules: ["ChatPanel"],
+    constraints: ["embeddable UI", "host-controlled persistence", "optional extension points"]
+  }
+}
+```
+
+### Example 2 — Code boundary
+
+```javascript
+{
+  kind: "whoa",
+  angle: "code",
+  title: "Internal stream metadata does not leak into the SDK message shape.",
+  body:
+    "The reducer needs metadata to dedupe live events and later snapshots, but consumers still expect SDK-shaped messages. Attaching non-enumerable Symbol metadata gives the reducer its private bookkeeping without changing what debug, export, or host code sees.",
+  evidence: {
+    files: ["src/hooks/threadStreamReducer.ts"],
+    constraints: ["live stream dedupe", "snapshot replay", "public SDK compatibility"]
+  }
+}
+```
+
+### Whoa rules
+
+- Use about 3-5 `whoa` units total for a normal course.
+- Place `angle: "code"` after the proving `code-walk` or `code-graph`.
+- Place `angle: "product"`, `"ux"`, and `"architecture"` near the feature, interaction, or diagram that makes the point understandable.
+- Evidence can cite files, modules, interactions, or constraints. Do not invent evidence.
+
+---
+
 ## code-walk (split)
 
 Sticky code on the left, annotation cards on the right. Each annotation references a specific code line. Use when explanation has 2+ beats tied to specific lines.
