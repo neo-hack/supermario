@@ -79,7 +79,7 @@ Rare highlight for a design choice that deserves extra attention. Use this when 
 
 ### Whoa rules
 
-- Use about 3-5 `whoa` units total for a normal course.
+- Use zero `whoa` units when there is no strong evidence. When evidence exists, keep a normal course around 3-5 `whoa` units total.
 - Place `angle: "code"` after the proving `code-walk` or `code-graph`.
 - Place `angle: "product"`, `"ux"`, and `"architecture"` near the feature, interaction, or diagram that makes the point understandable.
 - Evidence can cite files, modules, interactions, or constraints. Do not invent evidence.

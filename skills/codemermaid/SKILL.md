@@ -6,7 +6,7 @@ compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and th
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — architecture views, default Build-Up walkthroughs, beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — architecture views, default Build-Up walkthroughs, beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph, whoa) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
 
 ## When to Use
 
@@ -176,7 +176,7 @@ const INDEX = {
 
 ### Whoa unit rules
 
-Use `whoa` only for rare design moments that explain why the project is unusually well-designed. A normal course should contain about 3-5 `whoa` units total across all pages.
+Use `whoa` only for rare design moments with strong evidence that explains why the project is unusually well-designed. Use zero `whoa` units when there is no strong evidence. When evidence exists, a normal course should stay around 3-5 `whoa` units total across all pages.
 
 Required fields:
 
@@ -292,6 +292,7 @@ Keep teaching snippets tight:
 - Trim leading and trailing blank lines from every `code` value.
 - Collapse repeated interior blank lines to one blank line.
 - Prefer `// ...` or `# ...` elision comments over airy blank rows when skipping irrelevant source.
+- `startLine` is the original source file line used for editor/file actions only; `highlights[].line` remains snippet-local after trimming.
 - Highlight numbers are 1-based and must match the visible line numbers **within the extracted snippet** after trimming.
 - **Verification rule:** Before finalizing a page, manually count lines in every `code` value. Ensure every `highlights[].line` points to a line that actually exists in that snippet and contains meaningful code.
 - **Common pitfall:** When extracting a 15-line function from a 200-line file, the highlights must reference line numbers 1–15 (the snippet), NOT the original file's line numbers 186–200.
