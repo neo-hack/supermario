@@ -11,7 +11,7 @@ test('skill metadata files exist and name the mockup skill', () => {
 
   assert.match(skill, /^name: mockup/m);
   assert.match(skill, /render-mockup\.mjs/);
-  assert.match(openai, /display_name: Mockup/);
+  assert.match(openai, /display_name:\s+"?Mockup"?/);
   assert.match(openai, /default_prompt:/);
 });
 

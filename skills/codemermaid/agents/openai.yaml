@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeMermaid"
+  short_description: "Generate interactive codebase courses"
+  default_prompt: "Use $codemermaid to create an interactive architecture walkthrough for this repository."

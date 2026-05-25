@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Review"
+  short_description: "Audit UI quality against Figma or live product"
+  default_prompt: "Use $ui-review to audit this product UI against the provided Figma design and return actionable findings."

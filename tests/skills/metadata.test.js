@@ -16,6 +16,14 @@ function getSkillFiles() {
     .sort();
 }
 
+function getSkillDirs() {
+  return fs.readdirSync(skillsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(skillsRoot, entry.name))
+    .filter((dir) => fs.existsSync(path.join(dir, 'SKILL.md')))
+    .sort();
+}
+
 function parseYaml(frontmatter, file) {
   try {
     return yaml.load(frontmatter);
@@ -44,5 +52,25 @@ test('all skills have valid frontmatter metadata', () => {
     assert.equal(typeof metadata.description, 'string', `${file} description must be a string`);
     assert.ok(metadata.description.length > 0, `${file} description must not be empty`);
     assert.ok(metadata.description.length <= 1024, `${file} description must be 1024 characters or less`);
+  }
+});
+
+test('all skills have OpenAI interface metadata', () => {
+  const dirs = getSkillDirs();
+
+  assert.ok(dirs.length > 0, 'expected at least one skill');
+
+  for (const dir of dirs) {
+    const file = path.join(dir, 'agents/openai.yaml');
+    assert.ok(fs.existsSync(file), `${file} must exist`);
+
+    const metadata = parseYaml(fs.readFileSync(file, 'utf8'), file);
+    assert.equal(typeof metadata.interface?.display_name, 'string', `${file} interface.display_name must be a string`);
+    assert.equal(typeof metadata.interface?.short_description, 'string', `${file} interface.short_description must be a string`);
+    assert.equal(typeof metadata.interface?.default_prompt, 'string', `${file} interface.default_prompt must be a string`);
+    assert.ok(
+      metadata.interface.default_prompt.includes(`$${path.basename(dir)}`),
+      `${file} interface.default_prompt must mention the skill invocation`,
+    );
   }
 });

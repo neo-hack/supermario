@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Code"
+  short_description: "Add high-value code annotations"
+  default_prompt: "Use $docs-code to analyze the codebase and add useful explanatory comments."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Docs"
+  short_description: "Create and improve project docs"
+  default_prompt: "Use $write-docs to improve the documentation for this repository."
