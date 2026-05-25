@@ -1,0 +1,4 @@
+interface:
+  display_name: "CI Setup"
+  short_description: "Set up JS developer tooling and CI"
+  default_prompt: "Use $ci to set up developer tooling, CI workflows, changesets, commitizen, husky, and lint-staged for this JavaScript or TypeScript project."
