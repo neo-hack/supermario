@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fast Commit"
+  short_description: "Stage changes and commit quickly"
+  default_prompt: "Use $fast-commit to stage the current changes and commit them with a suitable message."

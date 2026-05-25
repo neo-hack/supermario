@@ -1,3 +1,4 @@
-display_name: Mockup
-short_description: Wrap screenshots or webpages in browser and device frames.
-default_prompt: Create a polished framed PNG mockup from an image, URL, or local HTML file.
+interface:
+  display_name: "Mockup"
+  short_description: "Frame screenshots for product mockups"
+  default_prompt: "Use $mockup to create a polished framed PNG mockup from this image, URL, or local HTML file."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Request Plan Review"
+  short_description: "Render plans as reviewable HTML"
+  default_prompt: "Use $request-plan-review to render this markdown plan as a reviewable HTML page."
