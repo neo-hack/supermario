@@ -1,154 +1,122 @@
 ---
 name: ui-review
-description: Review a live product UI against a Figma design, design system, or general UI quality standards. Use when asked to audit UI, compare implementation to design, inspect visual polish, review responsive behavior, check interaction states, evaluate accessibility basics, or produce actionable UI findings for a product, app, website, or prototype.
+description: Review a live product UI against a design reference, design system, or general UI quality standards. Use when asked to audit UI, compare implementation to a design, inspect visual polish, review responsive behavior, check visible UI states, evaluate accessibility basics, score UI quality, detect generic AI-looking UI, or produce actionable UI findings for a product, app, website, or prototype.
 ---
 
 # UI Review
 
-Act as a senior product designer and frontend engineer. Review what users actually see and feel. When a Figma design is provided, treat it as the design target and compare the live product against it. When no Figma design is provided, review against the product type, design system docs, and general UI quality standards.
+Act as a UI implementation reviewer and senior product designer. Separate two jobs that are easy to confuse:
+
+1. **Implementation fidelity**: did the live product faithfully and professionally implement the supplied design reference?
+2. **UI quality**: is the design reference or resulting interface visually strong, accessible, responsive, consistent, and product-appropriate?
+
+When a design reference exists, fidelity comes first. Do not treat every deviation from a generic UI heuristic as a bug. Classify whether each issue is an implementation mismatch, design-system mismatch, runtime UI issue, or design-source concern.
 
 ## Inputs
 
 Collect only the missing context needed to proceed:
 
 - Product URL or local app URL
-- Figma URL, if available
-- Scope: full product, specific pages, or a specific flow
+- Design reference, if available: Figma, screenshots, Storybook, design system docs, annotated mockups, product specs, brand guidelines, or an existing product baseline
+- Scope: full product, specific pages, specific components, or visible states
 - Auth details, if needed
+- Review mode: quick, standard, deep, diff-aware, or regression
 - Output preference: findings only, findings plus fix plan, or findings plus code fixes
 
-If only a Figma URL is provided, perform a design-file critique. Do not claim implementation fidelity.
+If only a design reference is provided, critique the reference as a design artifact. Do not claim implementation fidelity.
 
-If only a product URL is provided, perform a live UI audit against general standards and any local design documentation.
+If only a product URL is provided, perform a live UI quality audit against project conventions and general UI standards.
 
-If both are provided, compare design intent to implementation.
+If both are provided, review fidelity first, then review UI quality.
+
+## Reference Guides
+
+Load these references as needed:
+
+- For design-reference comparison and implementation QA, read `references/implementation-fidelity.md`.
+- For first-impression, design-system extraction, detailed UI checklist, scoring, and generic/AI-looking UI detection, read `references/ui-quality.md`.
+
+Use both references when the user provides a design reference and a live product URL.
+For design-reference-only critiques or product-only audits, use `references/ui-quality.md`.
+
+## Standards Priority
+
+Use standards in this order:
+
+1. Design reference: Figma, screenshot, Storybook, spec, mockup, or product baseline.
+2. Project design system: tokens, components, CSS variables, Storybook, `DESIGN.md`, or UI guidelines.
+3. Existing shipped product conventions in nearby pages.
+4. General UI heuristics: readability, accessibility basics, consistency, responsiveness, and polish.
+
+Treat numeric values in the references as heuristics unless the design reference or design system defines them. Flag a value only when it conflicts with the design reference, breaks consistency, harms readability/accessibility, weakens visual hierarchy, or creates an implementation-quality problem.
 
 ## Modes
 
-- **Quick**: primary page plus 1-2 key screens. Use for fast polish checks.
+- **Quick**: primary page plus 1-2 key screens or states.
 - **Standard**: 3-6 important pages or states. Use by default.
-- **Deep**: major pages, key flows, responsive breakpoints, and interaction states. Use before launch or major releases.
+- **Deep**: 10-15 pages, major components, key visible states, and responsive breakpoints.
+- **Diff-aware**: if no URL is given but the repo has a feature branch, map changed files to affected routes and audit those surfaces.
+- **Regression**: compare against a previous report or baseline when available. Report new, resolved, and worsened findings.
 
 ## Workflow
 
-### 1. Identify The Review Target
+1. **Identify the review target**: classify product type, scope, design reference, and reviewed surfaces.
+2. **Inspect the design reference, if provided**: extract intended layout, typography, color, spacing, components, states, breakpoints, assets, and content.
+3. **Inspect the live product**: capture rendered desktop/mobile/tablet views, key states, and runtime-only visual issues.
+4. **Run fidelity review**: use `references/implementation-fidelity.md` when a design reference exists.
+5. **Run UI quality review**: use `references/ui-quality.md` for quality scoring and design-source concerns.
+6. **Classify findings**: separate implementation mismatches from design-source concerns.
+7. **Report results**: prioritize the findings that materially affect fidelity, visual hierarchy, responsiveness, accessibility basics, or polish.
 
-Classify the product before judging it:
+Review rendered UI before source code. Use source code only to understand or fix a finding.
 
-- **Marketing or landing page**: brand-forward, conversion-focused, narrative layout.
-- **App UI**: task-focused, data-dense, repeated use, workflow-oriented.
-- **Hybrid**: marketing shell with app-like sections.
-- **Commerce or content**: browsing, comparison, reading, checkout, publishing, or media consumption.
+## Finding Types
 
-Name the primary user goal and the most important action on each reviewed page.
+- **Implementation mismatch**: live product differs from the design reference in a meaningful way.
+- **Design-system mismatch**: live product or reference conflicts with project tokens, components, or established conventions.
+- **Runtime UI issue**: live product exposes a visible issue not covered by the design reference, such as layout shift, overflow, missing focus state, or broken loading state.
+- **Design-source concern**: the design reference itself has a UI quality issue, such as weak contrast, unclear hierarchy, missing states, or generic/template-like composition.
 
-If the repo contains `DESIGN.md`, `design-system.md`, Storybook docs, tokens, or UI guidelines, read them before judging visual choices.
+## Severity
 
-### 2. Inspect Figma When Available
-
-Use available Figma-reading tools for Figma URLs. If Figma tools are unavailable, ask the user for exported frames or screenshots.
-
-Extract the design intent:
-
-- Layout structure and page rhythm
-- Typography scale, weights, line-height, and typefaces
-- Color palette and semantic color usage
-- Spacing scale and alignment rules
-- Component variants and states
-- Desktop, tablet, and mobile frames
-- Primary actions and intended visual hierarchy
-
-Focus on meaningful differences. Pixel differences matter when they change hierarchy, rhythm, usability, accessibility, or brand quality.
-
-### 3. Inspect The Live Product
-
-Open the product in a browser when possible. Capture evidence for the reviewed scope:
-
-- Desktop screenshot
-- Mobile screenshot
-- Tablet screenshot when relevant
-- Key states: hover, focus, active, disabled, loading, empty, success, error
-- Console errors that affect UI behavior
-- Obvious performance or layout-shift issues
-
-Review the rendered UI first. Use source code only to understand or fix a finding.
-
-### 4. Evaluate UI Quality
-
-Check these categories:
-
-- **Visual hierarchy**: clear focal point, obvious primary action, scannable structure.
-- **Typography**: typeface fit, scale, line-height, measure, weight contrast, heading hierarchy.
-- **Color and contrast**: accessible contrast, semantic consistency, palette discipline.
-- **Spacing and layout**: rhythm, alignment, grid, density, white space, safe areas.
-- **Component consistency**: buttons, inputs, nav, cards, modals, tables, menus, badges.
-- **Interaction states**: hover, focus-visible, active, disabled, loading, success, error.
-- **Responsive behavior**: mobile layout quality, touch targets, no horizontal overflow.
-- **Content and microcopy**: clear labels, useful empty states, specific errors, no filler copy.
-- **Accessibility basics**: labels, landmarks, keyboard visibility, color-independent meaning.
-- **Implementation fidelity**: differences from Figma that affect user perception or usability.
-
-### 5. Watch For Generic UI Patterns
-
-Flag generic or template-like patterns when they weaken trust or product identity:
-
-- Purple or blue gradient SaaS look with no brand reason
-- Three-column feature grids with repeated icon-in-circle cards
-- Decorative blobs, floating shapes, or filler ornament
-- Everything centered without a clear scanning path
-- Same large border radius on every surface
-- Generic hero copy such as "Unlock the power of..."
-- Cards used as decoration rather than interaction
-- Weak brand or product identity in the first viewport
-- Repeated section rhythm where every block has the same visual weight
-
-Do not over-penalize common patterns when they fit the product. Explain the user impact.
-
-### 6. Compare Product To Figma
-
-For each meaningful mismatch, report:
-
-- What Figma intended
-- What the product shows
-- Why the difference matters
-- How to fix it
-
-Classify mismatch severity:
-
-- **Critical**: blocks use, breaks trust, or badly misrepresents the design.
-- **High**: damages first impression, hierarchy, accessibility, or responsive quality.
-- **Medium**: visible inconsistency or polish issue.
+- **Critical**: blocks use, badly breaks the rendered interface, or makes the product look untrustworthy.
+- **High**: damages fidelity, first impression, visual hierarchy, accessibility basics, responsive quality, or important UI states.
+- **Medium**: visible inconsistency or polish issue users will notice.
 - **Low**: minor detail that does not change user understanding.
-
-### 7. Produce Findings
-
-Prefer 5-10 strong findings over many vague notes. Each finding must be specific, evidence-backed, and actionable.
-
-Use this format:
-
-```markdown
-### FINDING-001: Primary CTA loses hierarchy on mobile
-
-Severity: High
-Category: Visual hierarchy / Responsive
-Evidence: screenshot path or browser observation
-Figma target: CTA is the strongest element below the headline.
-Product behavior: CTA wraps under secondary text and loses contrast.
-User impact: users scanning the mobile page do not get a clear next action.
-Recommendation: keep the CTA directly under the headline, use the primary token, and preserve a 44px minimum tap target.
-```
 
 ## Output Format
 
 Return:
 
 1. Summary verdict
-2. Design score: A-F
-3. Figma fidelity score, if Figma was provided: A-F
-4. Top findings ordered by severity
-5. Quick wins: 3-5 fixes under 30 minutes
-6. Deferred or product-decision items
-7. Optional implementation plan, if the user wants code changes
+2. Review scope and evidence captured
+3. Design reference used, if any
+4. Fidelity score, if a design reference was provided
+5. UI quality score and category grades
+6. Findings ordered by severity, each with a finding type
+7. Visible state coverage notes
+8. Responsive review notes
+9. Cross-page or cross-component UI consistency notes
+10. Quick wins: 3-5 fixes under 30 minutes
+11. Deferred or product-decision items
+12. Optional implementation plan, if the user wants code changes
+
+Use this finding format:
+
+```markdown
+### FINDING-001: Primary CTA spacing is tighter than the design reference
+
+Type: Implementation mismatch
+Severity: High
+Category: Spacing / Visual hierarchy
+Evidence: screenshot path, design reference observation, or browser observation
+Design reference: CTA sits 24px below the headline with strong primary contrast.
+Product behavior: CTA sits 12px below the headline and visually merges with secondary copy.
+User impact: the primary action is harder to scan and the hero loses intended hierarchy.
+Recommendation: match the reference spacing token and primary button treatment.
+```
+
+For product-only reviews, replace `Design reference` with `Expected standard`.
 
 ## Fixing Code
 
@@ -169,9 +137,10 @@ If a change affects interaction logic, add or update a focused regression test u
 
 ## Rules
 
-- Tie every finding to user impact.
-- Use screenshots, Figma observations, or browser observations as evidence.
+- Separate fidelity from quality.
+- Use screenshots, design-reference observations, or browser observations as evidence.
 - Respect the product type. Do not judge a dashboard like a landing page.
-- Be direct but practical: "change X to Y because Z."
+- Be direct and practical: change X to Y because Z.
 - Do not use vendor-specific paths, telemetry, or private workflow assumptions.
 - If project files are dirty, avoid broad edits and ask before making code changes.
+- Depth beats breadth: a few well-supported findings are better than many vague notes.
