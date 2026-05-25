@@ -1,12 +1,12 @@
 ---
 name: codemermaid
 description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
-compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and beautiful-mermaid browser bundle for diagram rendering. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined). Vendor: vendor/beautiful-mermaid (MIT)."
+compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and the bundled beautiful-mermaid browser renderer. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined)."
 ---
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
+Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — architecture views, default Build-Up walkthroughs, beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph, whoa) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
 
 ## When to Use
 
@@ -23,16 +23,19 @@ Directory: `docs/codemermaid/`
 style.css                     <- Copied from assets/style.css
 runtime.js                    <- Copied from assets/runtime.js
 index.html                    <- Entry page (perspective + module cards)
-architecture.html             <- Architecture perspective (essay)
-<perspective>.html            <- Other perspectives (essays)
-module-<name>.html            <- Per-module deep dives (essays)
+architecture.html             <- Architecture perspective (essay, always generated)
+build-up.html                 <- Build-Up Walkthrough perspective (essay, always generated)
+<perspective>.html            <- Other user-requested or auto-inferred perspectives (essays)
+module-<name>.html            <- Per-module deep dives (essays, optional module-level Build-Up when useful)
 ```
 
 Each HTML page links `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The assembly process copies these assets from `assets/` to the output directory alongside the HTML files.
 
 ## Parallel Generation Mode
 
-If subagents are available and the target repo has enough independent modules to benefit, use `references/subagent-generation.md`. The main agent remains coordinator: it owns module registry, filename registry, perspective list, index page, link graph, and final validation. Subagents may scan assigned areas, draft page content, and generate assigned `module-<name>.html` files, but they must not create unassigned files or make global architecture decisions.
+If subagents are available and the repo has enough independent modules, read `references/subagent-generation.md` before dispatching work.
+
+The main agent remains coordinator and owns the module registry, filename registry, perspective list, index page, link graph, and final validation. Subagents may only work inside assigned scopes.
 
 ## Phase 1: Scan
 
@@ -106,14 +109,16 @@ From scan results:
 
 **Prioritization:** If the codebase has more than 12 modules, organize into sub-graphs.
 
-6. **User perspective requirements** — parse user prompt for explicit perspective requests
-7. **Auto-infer perspectives** — from project characteristics:
-   - Has HTTP handlers → Data Flow perspective
+6. **Default perspective requirements** — Architecture and Build-Up are always included. `architecture.html` gives the finished-system map; `build-up.html` gives the gradual learning route from smallest useful capability to complete system.
+7. **User perspective requirements** — parse user prompt for explicit perspective requests. User-requested perspectives are mandatory.
+8. **Auto-infer perspectives** — from project characteristics:
+   - Has HTTP handlers, WebSocket, or event streams → Data Flow perspective
    - Has database/ORM → Data Model perspective
    - Has state management → State Machine perspective
    - 10+ modules → Module Dependency perspective
    - Has CI/CD config → Build Pipeline perspective
-8. **Merge perspective list** — user-specified (mandatory) + auto-inferred (supplementary), deduplicated. Architecture is always included. Every discovered module must be reachable from at least one perspective page
+9. **Merge perspective list** — default + user-specified + auto-inferred, deduplicated. Recommended index order: Architecture Overview, Build-Up Walkthrough, then user-requested and auto-inferred perspectives. Every discovered module must be reachable from at least one perspective page.
+10. **Derive Build-Up route** — before drafting `build-up.html`, read `references/build-up.md` and choose a reader-comprehension order from discovered modules and dependency evidence.
 
 ## Phase 3: Build Page Data
 
@@ -130,6 +135,8 @@ const COURSE = {
 };
 ```
 
+Module pages may include a module-level Build-Up section when the module has a natural internal progression. This section is optional; read `references/build-up.md` before adding one.
+
 ### PERSPECTIVE (per-perspective page, e.g. `architecture.html`)
 
 ```javascript
@@ -141,6 +148,10 @@ const PERSPECTIVE = {
 };
 ```
 
+### BUILD_UP (default perspective page, `build-up.html`)
+
+Build-Up is a required perspective. Before drafting it, read `references/build-up.md` for route design, capability increments, examples, module-level Build-Up criteria, and Mermaid/code pairing rules.
+
 ### INDEX (entry page, `index.html`)
 
 ```javascript
@@ -151,20 +162,44 @@ const INDEX = {
 };
 ```
 
-### Unit kinds (6 types)
+### Unit kinds (7 types)
 
 ```javascript
 { kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
 { kind: "quiz",        question, options: [{letter, text, correct}], explanation }
 { kind: "takeaway",    body }
 { kind: "diagram",     title, mermaid, caption, zoomable? }               // Mermaid syntax, zoomable defaults true
-{ kind: "code-walk",   title, file, code, highlights: [{line, note}], layout? }  // layout defaults "split"
-{ kind: "code-graph",  title, file, code, highlights: [{line, note, graphNode?}], svg }  // left code, right mini graph
+{ kind: "code-walk",   title, file, startLine?, code, highlights: [{line, note}], layout? }  // layout defaults "split"
+{ kind: "code-graph",  title, file, startLine?, code, highlights: [{line, note, graphNode?}], svg }  // left code, right mini graph
+{ kind: "whoa",        angle, title, body, evidence? }                    // angle: "code" | "product" | "ux" | "architecture"
 ```
+
+### Whoa unit rules
+
+Use `whoa` only for rare design moments with strong evidence that explains why the project is unusually well-designed. Use zero `whoa` units when there is no strong evidence. When evidence exists, a normal course should stay around 3-5 `whoa` units total across all pages.
+
+Required fields:
+
+- `angle`: one of `code`, `product`, `ux`, or `architecture`.
+- `title`: a concrete statement of the design win.
+- `body`: explains the constraint, why the design is strong, and what would be worse without it.
+
+Optional `evidence` fields:
+
+```javascript
+{
+  files?: string[],
+  modules?: string[],
+  interactions?: string[],
+  constraints?: string[]
+}
+```
+
+Use one visual treatment for every angle. `angle` changes the label and placement, not the color palette.
 
 ### Voice rules
 
-A teacher pointing at the thing. Signposted, opinionated, comparing to familiar mental models. See `references/voice-examples.md` for flat-vs-pointed pairs the AI MUST imitate. Anti-patterns: neutral description, academic filler ("it is important to note"), passive voice ("as we can see").
+Before writing generated prose, read `references/voice-examples.md`. Follow that file for voice, signposts, anti-patterns, and rewrite recipes.
 
 ### Code explanation depth (mandatory — do not skimp)
 
@@ -257,151 +292,53 @@ Keep teaching snippets tight:
 - Trim leading and trailing blank lines from every `code` value.
 - Collapse repeated interior blank lines to one blank line.
 - Prefer `// ...` or `# ...` elision comments over airy blank rows when skipping irrelevant source.
+- `startLine` is the original source file line used for editor/file actions only; `highlights[].line` remains snippet-local after trimming.
 - Highlight numbers are 1-based and must match the visible line numbers **within the extracted snippet** after trimming.
 - **Verification rule:** Before finalizing a page, manually count lines in every `code` value. Ensure every `highlights[].line` points to a line that actually exists in that snippet and contains meaningful code.
 - **Common pitfall:** When extracting a 15-line function from a 200-line file, the highlights must reference line numbers 1–15 (the snippet), NOT the original file's line numbers 186–200.
 - Do not highlight blank separator lines; move highlights to the nearest meaningful source line.
 - **Annotation-note alignment:** The note text must describe what happens on the highlighted line(s). If the note says "mergeMessage dedupes by id" but the highlighted line is `...state,`, the highlight is on the wrong line.
 
-### Concept units
+### Code file action controls
 
-```javascript
-{ kind: "concept", title: "Token extraction", body: "This middleware extracts the Bearer token from the Authorization header..." }
+When a `code-walk` or `code-graph` unit has a real source file path, render file actions in the `.codewalk-head` next to the file label.
+
+Use an absolute file path in `data-copy-path` when the source repository path is known. Append `:{startLine}` when the unit provides `startLine`; otherwise append `:1`.
+
+Required HTML shape:
+
+```html
+<div class="codewalk-head">
+  <span class="codewalk-file">{FILE}</span>
+  <span class="file-actions">
+    <span class="editor-menu" data-editor-menu data-editor="cursor">
+      <button class="file-action-select editor-menu-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" data-editor-trigger>
+        <span data-editor-current>Cursor</span>
+        <span class="gg-chevron-down" aria-hidden="true"></span>
+      </button>
+      <span class="editor-menu-list" role="listbox" hidden data-editor-list>
+        <button class="editor-menu-item" type="button" role="option" aria-selected="true" data-editor-option="cursor">Cursor</button>
+        <button class="editor-menu-item" type="button" role="option" aria-selected="false" data-editor-option="vscode">VS Code</button>
+      </span>
+    </span>
+    <button class="file-action" type="button" data-copy-path="{ABSOLUTE_FILE_PATH}:{START_LINE}">Copy path</button>
+  </span>
+</div>
 ```
 
-For surprising or counter-intuitive content, add `style: "callout"`:
+The selected editor option opens immediately. Selecting the already-active option still opens the file, because the menu uses buttons instead of a native `<select>`.
 
-```javascript
-{ kind: "concept", title: "This middleware doesn't throw", body: "Most auth middleware throws 401 on invalid tokens. This one doesn't...", style: "callout" }
-```
+### Unit examples
 
-Callout concepts render with a red border (`unit-surprise` class) — visually distinct from normal concepts.
+Before drafting unit data, read `references/units-examples.md` for concrete object shapes, unit-specific options, defaults, and interaction bindings.
 
-### Quiz units
-
-```javascript
-{
-  kind: "quiz",
-  question: "When the token is invalid (expired/bad signature), what does this middleware do?",
-  options: [
-    { letter: "A", text: "Throws a 401 Unauthorized error", correct: false },
-    { letter: "B", text: "Sets user to null and continues", correct: true },
-    { letter: "C", text: "Redirects to the login page", correct: false },
-    { letter: "D", text: "Returns an empty response", correct: false }
-  ],
-  explanation: "The middleware sets c.set('user', null) in the catch block, then next(). It doesn't throw, redirect, or stop the request."
-}
-```
-
-Quiz rules:
-- Exactly 4 options.
-- Exactly 1 option has `correct: true`.
-- `explanation` is shown after answering, regardless of correctness.
-- `letter` is A, B, C, D.
-
-### Diagram units
-
-```javascript
-{
-  kind: "diagram",
-  title: "Request flow path",
-  mermaid:
-`graph TD
-  Client["Browser"] -->|"HTTPS"| CDN["Edge CDN"]
-  CDN -->|"forwards"| App["app.fetch()"]
-  App -->|"runs middleware"| Auth["auth middleware"]
-  Auth -->|"sets ctx.user"| Handler["protected handler"]`,
-  caption: "Request flows from Client through Auth MW to Handler. Auth MW annotates, doesn't block.",
-  zoomable: true
-}
-```
-
-Diagram rules:
-- `mermaid` is Mermaid.js syntax. Read `references/svg-patterns.md` for diagram type templates and styling tokens.
-- `zoomable` defaults to `true`.
-- Nodes represent real components. Use descriptive kebab-case IDs.
-- `caption` is 1-2 sentences.
-- Supported diagram types: `graph TD` (flowchart), `graph LR` (left-to-right), `sequenceDiagram`, `stateDiagram-v2`. Choose the type that best fits the content.
-
-### Code-walk units
-
-```javascript
-{
-  kind: "code-walk",
-  title: "Token check before any handler",
-  file: "src/middleware/auth.ts",
-  code: `export const auth: Middleware = async (c, next) => {
-  const token = c.req.header('Authorization')?.slice(7);
-  if (!token) { c.set('user', null); return next(); }
-  try {
-    const user = await verify(token);
-    c.set('user', user);
-  } catch {
-    c.set('user', null);
-  }
-  return next();
-};`,
-  highlights: [
-    { line: 2, note: "Optional chaining — no crash if header is missing." },
-    { line: 5, note: "verify() throws on malformed tokens — caught below." },
-    { line: 8, note: "Does NOT throw — sets null user, continues. Downstream decides." }
-  ],
-  layout: "split"
-}
-```
-
-Code-walk rules:
-- `layout` defaults to `split` (code left, annotations right). `stacked` is alternative.
-- `highlights` is an array of `{ line, note }` objects. Line is 1-based within the snippet.
-- `code` is the exact, unmodified source snippet.
-
-### Code-graph units
-
-```javascript
-{
-  kind: "code-graph",
-  title: "auth in the call chain",
-  file: "src/middleware/auth.ts",
-  code: `export const auth: Middleware = async (c, next) => {
-  const token = c.req.header('Authorization')?.slice(7);
-  if (!token) { c.set('user', null); return next(); }
-  try {
-    const user = await verify(token);
-    c.set('user', user);
-  } catch {
-    c.set('user', null);
-  }
-  return next();
-};`,
-  highlights: [
-    { line: 2, note: "Extracts token from header.", graphNode: "auth-mw" },
-    { line: 5, note: "Calls verify() to validate JWT.", graphNode: "verify" },
-    { line: 10, note: "Calls next() to continue.", graphNode: "next" }
-  ],
-  svg: '<svg viewBox="0 0 280 200" ...>...</svg>'
-}
-```
-
-Code-graph rules:
-- Same as code-walk, plus a `svg` field containing a mini call-graph SVG.
-- `highlights[].graphNode` maps a code line to a SVG node `data-node-id`.
-- The runtime syncs highlights: clicking a code line highlights the SVG node, clicking a SVG node highlights the code line.
-- SVG should have 4-6 nodes showing the function's position in the call chain.
+Keep the unit-level traps in mind: callout concepts use `style: "callout"`, quizzes need exactly one correct answer, code-walk line numbers are snippet-local, and code-graph bindings must match SVG `data-node-id` values.
 
 ## Phase 4: Build Mermaid Diagrams
 
-All `diagram` units use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The `mermaid-bridge.js` script finds `<pre class="mermaid">` blocks and replaces them with rendered SVGs using the Raycast dark theme. Read `references/svg-patterns.md` for Mermaid diagram types, node styling, and dark theme tokens.
+Before writing diagrams, read `references/svg-patterns.md`.
 
-Key rules:
-- Use `graph TD` for top-down architecture diagrams, `graph LR` for data flow, `sequenceDiagram` for interactions, `stateDiagram-v2` for state machines.
-- Node IDs are kebab-case and must be consistent across pages (same module = same node ID everywhere).
-- Use descriptive node labels: `Auth["auth middleware"]` not just `A["auth"]`.
-- Edge labels use pipe syntax: `A -->|"label"| B`.
-- Dashed edges for optional/indirect: `A -.->|"optional"| B`.
-- The Raycast dark theme is configured in `mermaid-bridge.js` via the THEME object — do NOT inline theme overrides in individual diagrams.
-- Keep diagrams ≤ 8 nodes for readability. If a graph exceeds 8 nodes, split into multiple diagram units or use subgraphs.
-
-`code-graph` units still use raw inline SVG for their mini call-graph because the runtime needs `data-node-id` attributes for click-sync between code lines and graph nodes. beautiful-mermaid cannot produce these attributes. See `references/svg-patterns.md` for the minimal SVG reference for code-graph.
+Use Mermaid for `diagram` units and raw inline SVG only for `code-graph` mini-graphs that need `data-node-id` click-sync. Keep node IDs consistent across pages, use descriptive labels, and do not inline theme overrides; the Raycast dark theme is configured in `mermaid-bridge.js`.
 
 ## Phase 5: Generate Page List
 
@@ -409,7 +346,8 @@ Key rules:
 |------|----------|-----------|
 | `index.html`            | `skeleton-index.html` | Always |
 | `architecture.html`     | `skeleton-essay.html` | Always |
-| `<perspective>.html`    | `skeleton-essay.html` | One per non-architecture perspective |
+| `build-up.html`         | `skeleton-essay.html` | Always |
+| `<perspective>.html`    | `skeleton-essay.html` | One per non-default perspective |
 | `module-<name>.html`    | `skeleton-essay.html` | One per discovered module |
 
 All generated course files go in `docs/codemermaid/`. Filenames are kebab-case except the fixed `index.html`.
@@ -440,6 +378,14 @@ For each page in the file list (Phase 5):
    - [ ] Quiz has exactly 1 option with `data-correct="true"`
    - [ ] No double HTML entity escaping — scan for `&amp;#` or `&amp;lt;` or `&amp;gt;` patterns and fix them
    - [ ] Mermaid syntax is valid — no unclosed brackets, no missing quotes in edge labels
+   - [ ] `index.html` links to `build-up.html` in the Perspectives section
+   - [ ] `build-up.html` exists, starts with a `concept`, contains at least one `quiz`, and ends with a `takeaway`
+   - [ ] Build-Up copy describes a learning order, not an unverified implementation chronology
+   - [ ] Every Build-Up step explains a capability change; it is not only a module inventory
+   - [ ] Every `whoa` unit has `angle`, `title`, and `body`
+   - [ ] Every `whoa.angle` is `code`, `product`, `ux`, or `architecture`
+   - [ ] `whoa` units use one visual treatment; no angle-specific color classes
+   - [ ] Every rendered file action with `data-copy-path` points to a real source file path and includes a line number
 5. **Dispatch a subagent reviewer** to validate the generated HTML
 6. **Write** the completed HTML to `docs/codemermaid/<filename>.html`
 
@@ -472,6 +418,22 @@ For each page in the file list (Phase 5):
   <!-- unit content HTML -->
 </section>
 ```
+
+For `whoa` units, render:
+
+```html
+<section class="unit unit-whoa" id="unit-{INDEX}" data-angle="{ANGLE}">
+  <div class="whoa-label">whoa · {ANGLE}</div>
+  <h2>{TITLE}</h2>
+  <p>{BODY}</p>
+  <div class="whoa-evidence">
+    <span>{EVIDENCE_ITEM}</span>
+  </div>
+</section>
+```
+
+Render `.whoa-evidence` only when evidence exists. Flatten evidence in this order: files, modules, interactions, constraints. Keep evidence text short enough to fit in a pill; use file basenames or repo-relative paths rather than long absolute paths inside evidence chips.
+For evidence chips, repeat one `<span>{EVIDENCE_ITEM}</span>` per flattened evidence item.
 
 **`<!-- SLOT:FOOTER -->`:**
 ```html
@@ -533,7 +495,8 @@ For each page in the file list (Phase 5):
 **code-walk (split layout):**
 ```html
 <div class="codewalk-split">
-  <div class="codewalk-head"><span>{FILE}</span><span>{LANG}</span></div>
+  <!-- Use the Code file action controls header from above when a real source path exists. Otherwise render a simple header with <span class="codewalk-file">{FILE}</span>. -->
+  <div class="codewalk-head"><span class="codewalk-file">{FILE}</span><span>{LANG}</span></div>
   <div class="codewalk-split-body">
     <pre class="code-block">{LINES}</pre>
     <div class="codewalk-annotations">{ANNOTATIONS}</div>
@@ -550,7 +513,8 @@ Each annotation: `<div class="codewalk-annotation" data-note-lines="{LINES}"><sp
 **code-graph:**
 ```html
 <div class="codegraph-split">
-  <div class="codewalk-head"><span>{FILE}</span><span>{LANG}</span></div>
+  <!-- Use the Code file action controls header from above when a real source path exists. Otherwise render a simple header with <span class="codewalk-file">{FILE}</span>. -->
+  <div class="codewalk-head"><span class="codewalk-file">{FILE}</span><span>{LANG}</span></div>
   <div class="codegraph-split-body">
     <pre class="code-block">{LINES with data-graph-node}</pre>
     <div class="codegraph-graph">{SVG}</div>
@@ -595,6 +559,8 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 </div>
 ```
 
+Perspective cards should list default perspectives first: Architecture Overview, then Build-Up Walkthrough, followed by user-requested and auto-inferred perspectives. The Build-Up card must link to `build-up.html` and describe the gradual route from smallest useful capability to complete system.
+
 **`<!-- SLOT:MODULE_CARDS -->`:**
 ```html
 <div class="section">
@@ -607,25 +573,33 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 
 ## Design System
 
-Built-in Raycast-inspired dark theme. The full design system lives in `assets/style.css` — CSS variables, typography, shadows, colors, spacing. Read `references/design-system.md` and `references/DESIGN.md` for rationale.
+Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual rationale and token guidance, read `DESIGN.md` and `references/design-system.md`.
 
 ## Important Rules
 
-1. **Real code only** — never invent, simplify, or modify code snippets.
-2. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
-3. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
-4. **Vanilla JS only** — no React, no build tools.
-5. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG (for `data-node-id` click-sync).
-6. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
-7. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
-8. **Consistent node IDs** — same module = same node ID across all pages.
-9. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
-10. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
+1. **Read Build-Up reference** — before creating `build-up.html` or a module-level Build-Up section, read `references/build-up.md`.
+2. **Default perspectives** — always generate `architecture.html` and `build-up.html`.
+3. **Real code only** — never invent, simplify, or modify code snippets.
+4. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
+5. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
+6. **Vanilla JS only** — no React, no build tools.
+7. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG for `data-node-id` click-sync.
+8. **Build-Up is learning order** — describe capability increments in the order that teaches the system, not unverified git or implementation history.
+9. **Module-level Build-Up is optional** — include it only when the module has a natural internal progression. Do not force it into every module page.
+10. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
+11. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
+12. **Consistent node IDs** — same module = same node ID across all pages.
+13. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
+14. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
+| Missing `build-up.html` | Always generate the required Build-Up Walkthrough perspective and link it from `index.html`. |
+| Build-Up reads like git history | Reframe it as reader learning order unless git history was explicitly inspected and cited. |
+| Build-Up is just a module list | Rewrite each step around a capability change and name the code that makes the change possible. |
+| Forced module-level Build-Up | Remove it when a normal code-walk teaches the module more clearly. |
 | Blank lines between code lines | `.line` spans inside `<pre>` must be adjacent — no newlines or spaces between them. |
 | Highlight points to wrong line | Count lines within the extracted snippet, not the original source file. |
 | Code snippet has invented lines | Paste the snippet back into a temp file and run the type checker. |
@@ -641,22 +615,21 @@ Built-in Raycast-inspired dark theme. The full design system lives in `assets/st
 
 ```
 skills/codemermaid/
-  SKILL.md                            # This file (6-phase workflow)
+  SKILL.md
+  DESIGN.md
   references/
-    design-system.md                  # CSS/typography/shadow reference
-    DESIGN.md                         # Design rationale
-    svg-patterns.md                   # Mermaid diagram patterns + minimal SVG for code-graph
-    subagent-generation.md            # Optional parallel generation protocol
-    units-examples.md                 # 2-3 examples per unit kind
-    voice-examples.md                 # Flat-vs-pointed prose pairs
+    design-system.md
+    svg-patterns.md
+    subagent-generation.md
+    units-examples.md
+    voice-examples.md
   assets/
-    skeleton-essay.html               # Shell for essay pages (linked CSS/JS, beautiful-mermaid bundle)
-    skeleton-index.html               # Shell for index page (linked CSS/JS, beautiful-mermaid bundle)
-    style.css                         # Full design system CSS + beautiful-mermaid overrides
-    runtime.js                        # Runtime: TOC, quiz, annotation alignment/clicks, code-graph sync, zoom
-    beautiful-mermaid.bundle.js       # beautiful-mermaid browser bundle (vendored, MIT)
-    mermaid-bridge.js                 # Bridge: finds <pre class="mermaid">, renders via beautiful-mermaid
-vendor/beautiful-mermaid/             # Upstream source (lukilabs/beautiful-mermaid)
+    skeleton-essay.html
+    skeleton-index.html
+    style.css
+    runtime.js
+    beautiful-mermaid.bundle.js
+    mermaid-bridge.js
 ```
 
 ## Relationship to Other Skills

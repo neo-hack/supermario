@@ -32,6 +32,58 @@ Plain prose, 60–150 words. The teacher pointing at a thing before showing code
 }
 ```
 
+### Concept rules
+
+- Use `style: "callout"` for surprising or counter-intuitive content.
+- Callout concepts render with the red `unit-surprise` treatment.
+- Normal concept units should prepare the reader before code by explaining role, reasoning, and tradeoff.
+
+---
+
+## whoa
+
+Rare highlight for a design choice that deserves extra attention. Use this when the reader should understand not only what the code does, but why the design is unusually strong.
+
+### Example 1 — Product boundary
+
+```javascript
+{
+  kind: "whoa",
+  angle: "product",
+  title: "The host owns the product policy; the component owns the conversation surface.",
+  body:
+    "The component is useful because it does not try to become the whole app. Transport, persistence, permissions, callbacks, and host slots stay outside the visible chat surface. That lets an embedder adopt the conversation UI without surrendering the product decisions around it.",
+  evidence: {
+    files: ["src/components/ChatPanel.tsx"],
+    modules: ["ChatPanel"],
+    constraints: ["embeddable UI", "host-controlled persistence", "optional extension points"]
+  }
+}
+```
+
+### Example 2 — Code boundary
+
+```javascript
+{
+  kind: "whoa",
+  angle: "code",
+  title: "Internal stream metadata does not leak into the SDK message shape.",
+  body:
+    "The reducer needs metadata to dedupe live events and later snapshots, but consumers still expect SDK-shaped messages. Attaching non-enumerable Symbol metadata gives the reducer its private bookkeeping without changing what debug, export, or host code sees.",
+  evidence: {
+    files: ["src/hooks/threadStreamReducer.ts"],
+    constraints: ["live stream dedupe", "snapshot replay", "public SDK compatibility"]
+  }
+}
+```
+
+### Whoa rules
+
+- Use zero `whoa` units when there is no strong evidence. When evidence exists, keep a normal course around 3-5 `whoa` units total.
+- Place `angle: "code"` after the proving `code-walk` or `code-graph`.
+- Place `angle: "product"`, `"ux"`, and `"architecture"` near the feature, interaction, or diagram that makes the point understandable.
+- Evidence can cite files, modules, interactions, or constraints. Do not invent evidence.
+
 ---
 
 ## code-walk (split)
@@ -117,6 +169,14 @@ Sticky code on the left, annotation cards on the right. Each annotation referenc
 }
 ```
 
+### Code-walk rules
+
+- `layout` defaults to `split`, with code on the left and annotations on the right.
+- `stacked` is the alternative layout when horizontal space is too tight or the explanation reads better top-to-bottom.
+- `highlights` is an array of `{ line, note }` objects.
+- Highlight lines are snippet-local, 1-based line numbers after trimming the snippet.
+- `code` must be the exact, unmodified source snippet.
+
 ---
 
 ## takeaway
@@ -142,6 +202,18 @@ End-of-section recap. 2–4 sentences. Stronger styling than `concept` so reader
     "The router is a trie because lookup cost matters more than registration cost. Param names are bookkeeping; the actual match key is structural. Once you see this, every other choice in the file (no regex, no precompile step, no route ordering) lines up."
 }
 ```
+
+## quiz
+
+Checks whether the reader understood a design choice, not trivia.
+
+### Quiz rules
+
+- Exactly 4 options.
+- Option letters A-D.
+- Exactly 1 option has `correct: true`.
+- `explanation` is shown after answering, regardless of correctness.
+- The explanation must cite specific code evidence and briefly rule out the wrong answers.
 
 ---
 
@@ -326,3 +398,16 @@ Use storyboard for:
   ]
 }
 ```
+
+---
+
+## code-graph
+
+Use `code-graph` when a code snippet is easier to understand with a small call graph beside it.
+
+### Code-graph rules
+
+- Same source and highlight rules as `code-walk`.
+- Add an `svg` field containing the mini call graph.
+- `highlights[].graphNode` must match an SVG node `data-node-id`.
+- The runtime syncs highlights by that id: clicking a code line highlights the SVG node, and clicking a SVG node highlights the matching code line.

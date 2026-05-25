@@ -290,6 +290,115 @@ function initZoomOverlay() {
   window.addEventListener('mouseup', function() { dragging = false; overlay.classList.remove('dragging'); });
 }
 
+function splitFileTarget(value) {
+  var match = String(value || '').match(/^(.*?)(?::(\d+))?$/);
+  return {
+    filePath: match && match[1] ? match[1] : '',
+    line: match && match[2] ? match[2] : '1'
+  };
+}
+
+function encodeEditorPath(filePath) {
+  return String(filePath || '').split('/').map(encodeURIComponent).join('/');
+}
+
+function openEditorPath(value, editor) {
+  var target = splitFileTarget(value);
+  if (!target.filePath) return;
+  var scheme = editor === 'vscode' ? 'vscode' : 'cursor';
+  window.location.href = scheme + '://file/' + encodeEditorPath(target.filePath) + ':' + target.line;
+}
+
+function closeEditorMenus(except) {
+  var menus = document.querySelectorAll('[data-editor-menu]');
+  for (var i = 0; i < menus.length; i++) {
+    if (menus[i] === except) continue;
+    var trigger = menus[i].querySelector('[data-editor-trigger]');
+    var list = menus[i].querySelector('[data-editor-list]');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    if (list) list.hidden = true;
+  }
+}
+
+function copyEditorPath(value, button) {
+  var originalText = button.getAttribute('data-copy-label') || button.textContent;
+  button.setAttribute('data-copy-label', originalText);
+
+  function markCopied() {
+    var existingTimer = button.getAttribute('data-copy-timer');
+    if (existingTimer) window.clearTimeout(Number(existingTimer));
+    button.textContent = 'Copied';
+    button.setAttribute('data-copy-state', 'copied');
+    var timer = window.setTimeout(function() {
+      button.textContent = originalText;
+      button.removeAttribute('data-copy-state');
+      button.removeAttribute('data-copy-timer');
+    }, 1400);
+    button.setAttribute('data-copy-timer', String(timer));
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(value).then(markCopied).catch(function() {
+      window.prompt('Copy path', value);
+    });
+    return;
+  }
+
+  window.prompt('Copy path', value);
+}
+
+function initFileActions() {
+  var menus = document.querySelectorAll('[data-editor-menu]');
+  for (var i = 0; i < menus.length; i++) {
+    (function(menu) {
+      var trigger = menu.querySelector('[data-editor-trigger]');
+      var list = menu.querySelector('[data-editor-list]');
+      var current = menu.querySelector('[data-editor-current]');
+      var actions = menu.closest('.file-actions');
+      var copyButton = actions && actions.querySelector('[data-copy-path]');
+      var value = copyButton ? copyButton.getAttribute('data-copy-path') || '' : '';
+
+      if (trigger) {
+        trigger.addEventListener('click', function(event) {
+          event.stopPropagation();
+          var expanded = trigger.getAttribute('aria-expanded') === 'true';
+          closeEditorMenus(menu);
+          trigger.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          if (list) list.hidden = expanded;
+        });
+      }
+
+      var options = menu.querySelectorAll('[data-editor-option]');
+      for (var j = 0; j < options.length; j++) {
+        options[j].addEventListener('click', function(event) {
+          event.stopPropagation();
+          var editor = this.getAttribute('data-editor-option') || 'cursor';
+          menu.setAttribute('data-editor', editor);
+          if (current) current.textContent = editor === 'vscode' ? 'VS Code' : 'Cursor';
+          var allOptions = menu.querySelectorAll('[data-editor-option]');
+          for (var k = 0; k < allOptions.length; k++) {
+            allOptions[k].setAttribute('aria-selected', allOptions[k] === this ? 'true' : 'false');
+          }
+          closeEditorMenus();
+          openEditorPath(value, editor);
+        });
+      }
+    })(menus[i]);
+  }
+
+  var copyButtons = document.querySelectorAll('[data-copy-path]');
+  for (var b = 0; b < copyButtons.length; b++) {
+    copyButtons[b].addEventListener('click', function() {
+      copyEditorPath(this.getAttribute('data-copy-path') || '', this);
+    });
+  }
+
+  document.addEventListener('click', function() { closeEditorMenus(); });
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') closeEditorMenus();
+  });
+}
+
 function bootPage() {
   initTocScroll();
   initQuiz();
@@ -297,6 +406,7 @@ function bootPage() {
   initAnnotationResize();
   initCodeGraphSync();
   initZoomOverlay();
+  initFileActions();
 }
 
 document.addEventListener('DOMContentLoaded', bootPage);

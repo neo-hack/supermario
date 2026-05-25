@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build-Up Demo - CodeMermaid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../skills/codemermaid/assets/style.css">
+<script src="../../skills/codemermaid/assets/beautiful-mermaid.bundle.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="back-link" href="../superpowers/plans/2026-05-21-codemermaid-build-up.md">← Build-Up plan</a>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">CodeMermaid Demo</div>
+    <h1>Build-Up Walkthrough</h1>
+    <p class="learning-promise">A compact Build-Up preview using real code from <code>/Users/bytedance/Projects/bugs/mark3/aiden/chat-kit</code>: stream state, panel composition, message routing, and composer wiring.</p>
+    <ul class="prereqs">
+      <li>Architecture Overview</li>
+      <li>chat-kit source snippets</li>
+      <li>Mermaid + SVG</li>
+    </ul>
+  </section>
+
+  <nav class="toc">
+    <div class="toc-label">On this page</div>
+    <ol class="toc-list">
+      <li><a class="toc-item" href="#unit-0"><span class="toc-num">1</span>Smallest useful surface<span class="toc-kind">concept</span></a></li>
+      <li><a class="toc-item" href="#unit-1"><span class="toc-num">2</span>chat-kit route<span class="toc-kind">diagram</span></a></li>
+      <li><a class="toc-item" href="#unit-2"><span class="toc-num">3</span>MessageRouter boundary<span class="toc-kind">code-walk</span></a></li>
+      <li><a class="toc-item" href="#unit-3"><span class="toc-num">4</span>Panel composition<span class="toc-kind">code-graph</span></a></li>
+      <li><a class="toc-item" href="#unit-4"><span class="toc-num">5</span>Design check<span class="toc-kind">quiz</span></a></li>
+      <li><a class="toc-item" href="#unit-5"><span class="toc-num">6</span>What changed<span class="toc-kind">takeaway</span></a></li>
+    </ol>
+  </nav>
+
+  <section class="unit unit-surprise" id="unit-0">
+    <div class="unit-kind">concept</div>
+    <h2>Start with the visible transcript</h2>
+    <p>For chat-kit, the smallest useful surface is not the composer or the transport layer. It is a message appearing in the transcript. The Build-Up route should therefore start with <strong>how an SDKMessage becomes a visible card</strong>, then add stream merging, provider context, resources, permissions, and finally the composer.</p>
+  </section>
+
+  <section class="unit" id="unit-1">
+    <div class="unit-kind">diagram</div>
+    <h2>The route follows the real chat-kit data path</h2>
+    <figure class="figure unit-diagram">
+      <button class="zoom-btn" data-zoom-trigger>Zoom</button>
+      <pre class="mermaid">
+flowchart LR
+  A["AgentServer events"] -->|"merged by"| B["threadStreamReducer"]
+  B -->|"messages prop"| C["ChatPanel"]
+  C -->|"provider context"| D["ToolResultProvider"]
+  D -->|"one SDKMessage"| E["MessageRouter"]
+  E -->|"leaf UI"| F["User / Assistant / System cards"]
+  C -->|"bottom input"| G["ChatComposer"]
+      </pre>
+      <figcaption><strong>Build-Up route.</strong> The first stable lesson is message rendering; reducer, providers, resources, permissions, and composer controls can be layered after that.</figcaption>
+    </figure>
+  </section>
+
+  <section class="unit" id="unit-2">
+    <div class="unit-kind">code-walk</div>
+    <h2>MessageRouter is the first rendering boundary</h2>
+    <p>This excerpt is copied from <code>src/components/MessageRouter.tsx</code>. It shows why Build-Up can teach one SDK message before explaining the full panel.</p>
+    <div class="codewalk-split">
+      <div class="codewalk-head"><span>/Users/bytedance/Projects/bugs/mark3/aiden/chat-kit/src/components/MessageRouter.tsx</span><span>code-walk</span></div>
+      <div class="codewalk-split-body">
+        <pre class="code-block"><span class="line line-hl" data-line="1"><span class="ln">1</span><span class="code-text">  if (MessageUtil.isMeta(message)) {</span></span><span class="line" data-line="2"><span class="ln">2</span><span class="code-text">    return &lt;div className="py-1"&gt;&lt;MetaMessageCard message={message} /&gt;&lt;/div&gt;</span></span><span class="line" data-line="3"><span class="ln">3</span><span class="code-text">  }</span></span><span class="line" data-line="4"><span class="ln">4</span><span class="code-text"></span></span><span class="line line-hl" data-line="5"><span class="ln">5</span><span class="code-text">  if (MessageUtil.isUser(message)) {</span></span><span class="line" data-line="6"><span class="ln">6</span><span class="code-text">    if (!ContentBlockUtil.isRealUserMessage(message)) return null</span></span><span class="line" data-line="7"><span class="ln">7</span><span class="code-text">    const userMessageActions = messageSlots?.renderUserMessageActions?.({</span></span><span class="line" data-line="8"><span class="ln">8</span><span class="code-text">      message,</span></span><span class="line" data-line="9"><span class="ln">9</span><span class="code-text">      messageIndex,</span></span><span class="line" data-line="10"><span class="ln">10</span><span class="code-text">    })</span></span><span class="line" data-line="11"><span class="ln">11</span><span class="code-text">    const userMessageContent = messageSlots?.renderUserMessageContent?.({</span></span><span class="line" data-line="12"><span class="ln">12</span><span class="code-text">      message,</span></span><span class="line" data-line="13"><span class="ln">13</span><span class="code-text">      messageIndex,</span></span><span class="line" data-line="14"><span class="ln">14</span><span class="code-text">    })</span></span><span class="line" data-line="15"><span class="ln">15</span><span class="code-text">    return (</span></span><span class="line" data-line="16"><span class="ln">16</span><span class="code-text">      &lt;div className="py-1"&gt;</span></span><span class="line line-hl" data-line="17"><span class="ln">17</span><span class="code-text">        &lt;UserMessage</span></span><span class="line" data-line="18"><span class="ln">18</span><span class="code-text">          message={message}</span></span><span class="line" data-line="19"><span class="ln">19</span><span class="code-text">          error={userStatus?.error}</span></span><span class="line" data-line="20"><span class="ln">20</span><span class="code-text">          onErrorClick={userStatus?.onErrorClick}</span></span><span class="line" data-line="21"><span class="ln">21</span><span class="code-text">          contentOverride={userMessageContent}</span></span><span class="line" data-line="22"><span class="ln">22</span><span class="code-text">          actions={userMessageActions}</span></span><span class="line" data-line="23"><span class="ln">23</span><span class="code-text">        /&gt;</span></span><span class="line" data-line="24"><span class="ln">24</span><span class="code-text">      &lt;/div&gt;</span></span><span class="line" data-line="25"><span class="ln">25</span><span class="code-text">    )</span></span><span class="line" data-line="26"><span class="ln">26</span><span class="code-text">  }</span></span><span class="line" data-line="27"><span class="ln">27</span><span class="code-text"></span></span><span class="line line-hl" data-line="28"><span class="ln">28</span><span class="code-text">  if (MessageUtil.isAssistant(message)) {</span></span><span class="line" data-line="29"><span class="ln">29</span><span class="code-text">    return &lt;div className="py-1"&gt;&lt;AssistantMessage message={message} hideChevron={hideChevron} /&gt;&lt;/div&gt;</span></span><span class="line" data-line="30"><span class="ln">30</span><span class="code-text">  }</span></span></pre>
+        <div class="codewalk-annotations">
+          <div class="codewalk-annotation" data-note-lines="1"><span class="annotation-line">line 1</span><p>Meta messages get their own branch before normal user/assistant content. That tells the reader this router is a typed boundary, not a generic list renderer.</p></div>
+          <div class="codewalk-annotation" data-note-lines="5"><span class="annotation-line">line 5</span><p>The user branch filters synthetic/tool-result-only messages before rendering. Build-Up should explain this before adding turn collapse or time-travel actions.</p></div>
+          <div class="codewalk-annotation" data-note-lines="17"><span class="annotation-line">line 17</span><p>UserMessage receives host slots and status props here. This is where chat-kit lets the host add retry/edit behavior without changing the message card itself.</p></div>
+          <div class="codewalk-annotation" data-note-lines="28"><span class="annotation-line">line 28</span><p>The assistant branch is deliberately separate. Once this is clear, the course can introduce tool-use grouping inside AssistantMessage as the next capability.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="unit-3">
+    <div class="unit-kind">code-graph</div>
+    <h2>ChatPanel composes the transcript around MessageRouter</h2>
+    <p>This excerpt is copied from <code>src/components/ChatPanel.tsx</code>. The graph is useful here because the provider stack, transcript node, and optional resources are easier to read as a small call graph.</p>
+    <div class="codegraph-split">
+      <div class="codewalk-head"><span>/Users/bytedance/Projects/bugs/mark3/aiden/chat-kit/src/components/ChatPanel.tsx</span><span>code-graph</span></div>
+      <div class="codegraph-split-body">
+        <pre class="code-block"><span class="line line-hl" data-line="1" data-graph-node="toolkits"><span class="ln">1</span><span class="code-text">    &lt;ToolkitsProvider toolkits={toolkits}&gt;</span></span><span class="line line-hl" data-line="2" data-graph-node="results"><span class="ln">2</span><span class="code-text">      {/* ToolResultProvider indexes the same AgentServer message array that MessageRouter renders, so assistant tool_use blocks can subscribe to later user tool_result blocks by tool_use_id. */}</span></span><span class="line" data-line="3"><span class="ln">3</span><span class="code-text">      &lt;ToolResultProvider messages={renderedMessages}&gt;</span></span><span class="line" data-line="4"><span class="ln">4</span><span class="code-text">        &lt;SubagentProvider subagentGroups={resolvedSubagentGroups} taskMeta={taskMeta}&gt;</span></span><span class="line" data-line="5"><span class="ln">5</span><span class="code-text">        &lt;TurnSlotsProvider slots={turnSlots}&gt;</span></span><span class="line" data-line="6"><span class="ln">6</span><span class="code-text">          &lt;div className="relative h-full min-h-0"&gt;</span></span><span class="line line-hl" data-line="7" data-graph-node="layout"><span class="ln">7</span><span class="code-text">            {hasResources &amp;&amp; resources ? (</span></span><span class="line" data-line="8"><span class="ln">8</span><span class="code-text">              &lt;ChatPanelLayout config={layout}&gt;</span></span><span class="line line-hl" data-line="9" data-graph-node="transcript"><span class="ln">9</span><span class="code-text">                &lt;ChatPanelLayout.Main&gt;</span></span><span class="line" data-line="10"><span class="ln">10</span><span class="code-text">                  {transcriptNode}</span></span><span class="line" data-line="11"><span class="ln">11</span><span class="code-text">                &lt;/ChatPanelLayout.Main&gt;</span></span><span class="line line-hl" data-line="12" data-graph-node="resources"><span class="ln">12</span><span class="code-text">                &lt;ChatPanelLayout.Resource&gt;</span></span><span class="line" data-line="13"><span class="ln">13</span><span class="code-text">                  &lt;ResourcePanel config={resources} /&gt;</span></span><span class="line" data-line="14"><span class="ln">14</span><span class="code-text">                &lt;/ChatPanelLayout.Resource&gt;</span></span><span class="line" data-line="15"><span class="ln">15</span><span class="code-text">              &lt;/ChatPanelLayout&gt;</span></span><span class="line" data-line="16"><span class="ln">16</span><span class="code-text">            ) : transcriptNode}</span></span><span class="line" data-line="17"><span class="ln">17</span><span class="code-text">          &lt;/div&gt;</span></span></pre>
+        <div class="codegraph-graph">
+          <svg viewBox="0 0 340 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ChatPanel composition graph">
+            <defs>
+              <marker id="arrowhead-demo" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#9c9c9d"/>
+              </marker>
+            </defs>
+            <g class="node" data-node-id="toolkits">
+              <rect x="82" y="16" width="176" height="42" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="170" y="42" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">ToolkitsProvider</text>
+            </g>
+            <line x1="170" y1="58" x2="170" y2="88" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead-demo)"/>
+            <g class="node" data-node-id="results">
+              <rect x="72" y="92" width="196" height="42" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="170" y="118" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">ToolResultProvider</text>
+            </g>
+            <line x1="170" y1="134" x2="88" y2="170" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead-demo)"/>
+            <line x1="170" y1="134" x2="170" y2="170" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead-demo)"/>
+            <line x1="170" y1="134" x2="252" y2="170" stroke="#9c9c9d" stroke-width="1.5" marker-end="url(#arrowhead-demo)"/>
+            <g class="node" data-node-id="layout">
+              <rect x="20" y="176" width="136" height="42" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="88" y="202" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">layout gate</text>
+            </g>
+            <g class="node" data-node-id="transcript">
+              <rect x="102" y="224" width="136" height="42" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="170" y="250" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">transcriptNode</text>
+            </g>
+            <g class="node" data-node-id="resources">
+              <rect x="184" y="176" width="136" height="42" rx="8" fill="#161718" stroke="#252829" stroke-width="1.5"/>
+              <text x="252" y="202" text-anchor="middle" fill="#f9f9f9" font-family="Inter, sans-serif" font-size="13" font-weight="500">ResourcePanel</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="unit-4">
+    <div class="unit-kind">quiz</div>
+    <h2>Check the Build-Up rule</h2>
+    <div class="quiz">
+      <div class="quiz-question">In this chat-kit Build-Up path, why is <code>MessageRouter</code> a better first code-walk than <code>ChatComposer</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-correct="false"><span class="quiz-option-letter">A</span><span>Because ChatComposer has no user-facing behavior.</span></button>
+        <button class="quiz-option" data-correct="true"><span class="quiz-option-letter">B</span><span>Because it shows how one SDKMessage becomes a visible card, the smallest useful transcript behavior.</span></button>
+        <button class="quiz-option" data-correct="false"><span class="quiz-option-letter">C</span><span>Because MessageRouter owns AgentServer transport and WebSocket reconnects.</span></button>
+        <button class="quiz-option" data-correct="false"><span class="quiz-option-letter">D</span><span>Because composer controls are unrelated to chat-kit.</span></button>
+      </div>
+      <div class="quiz-explanation"><strong>B is correct.</strong> MessageRouter receives one SDKMessage and chooses the visible leaf component. ChatComposer matters later, but it is not the smallest route from streamed data to transcript UI.</div>
+    </div>
+  </section>
+
+  <section class="unit unit-takeaway" id="unit-5">
+    <div class="unit-kind">takeaway</div>
+    <p>For chat-kit, a strong Build-Up page would start at MessageRouter, then layer in threadStreamReducer, ToolResultProvider, ChatPanel layout, resource panels, permissions, and ChatComposer. That order teaches the visible transcript first, then explains the infrastructure that keeps it live and interactive.</p>
+  </section>
+
+  <footer class="page-footer">
+    <a class="next-link" href="../superpowers/plans/2026-05-21-codemermaid-build-up.md">Back to Build-Up plan</a>
+    <p class="recap">Demo page for previewing the current CodeMermaid essay styling against a proposed Build-Up perspective.</p>
+  </footer>
+</main>
+
+<div class="zoom-overlay" hidden>
+  <div class="zoom-stage"></div>
+  <div class="zoom-controls">
+    <button data-zoom-out aria-label="Zoom out" title="Zoom out">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+    </button>
+    <span class="zoom-level" data-zoom-level>100%</span>
+    <button data-zoom-reset aria-label="Reset zoom" title="Reset zoom">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+    </button>
+    <button data-zoom-in aria-label="Zoom in" title="Zoom in">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+    </button>
+    <button data-zoom-close aria-label="Close zoom" title="Close zoom">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="../../skills/codemermaid/assets/mermaid-bridge.js"></script>
+<script src="../../skills/codemermaid/assets/runtime.js"></script>
+</body>
+</html>
