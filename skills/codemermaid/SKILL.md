@@ -257,6 +257,22 @@ Prefer depth over brevity. These are upper bounds, not targets — write as much
 
 There is **no fixed unit budget**. A module page should include as many units as needed to teach its content thoroughly. If a page exceeds ~15 units, consider splitting into sub-modules.
 
+### Code-walk density (mandatory)
+
+Code-walk is the primary teaching unit — it shows real code with line-by-line explanation. A module page exists to teach the reader the module's code. If the reader finishes a module page without seeing most of its core source code, the page has failed.
+
+**Rules:**
+
+- Every core source file in a module MUST have at least one `code-walk`. A core file is one that defines the module's primary export, public interface, or contains non-trivial logic (not just re-exports or type definitions).
+- Every `diagram` unit on any page (perspective or module) shows edges/arrows representing real data flow or calls. The code that implements each edge MUST appear in a `code-walk` on the SAME page or on the target module's page. If a diagram shows "Hooks → Store", either that page or the hooks module page must have a code-walk showing the hook writing to the store.
+- For every 1 `concept` unit, there should be at least 1 `code-walk` unit. Concepts explain *why*; code-walks prove it with real code. A concept without a following code-walk is an unfulfilled promise to the reader.
+- The target ratio is `code-walk` ≥ `concept`. A module page with 3 concepts and 1 code-walk needs more code-walks.
+- `code-walk` count is NOT capped. A module with 5 core files should have roughly 5 code-walks — one per core file, covering its primary function or class.
+
+**ANTI-PATTERN: Concept-heavy pages.** A module page with 3+ concept units but only 1 code-walk means the reader is reading descriptions of code they never see. Every concept that mentions a specific function, class, pattern, or data structure MUST be followed by a code-walk that shows the relevant source.
+
+**ANTI-PATTERN: Diagram-only coverage.** A page contains a `diagram` unit showing edges between modules, but no code-walk on that page or the referenced module pages shows the code behind those edges. Every edge in a diagram represents real code — show it.
+
 ### Pedagogy enforcement (mandatory)
 
 Every generated page MUST satisfy these rules:
@@ -264,6 +280,7 @@ Every generated page MUST satisfy these rules:
 - Every module MUST have a non-empty `learningPromise`.
 - Every module's `units[]` MUST contain ≥ 1 `quiz`.
 - Every module's `units[]` MUST end with a `takeaway`.
+- Every module's `units[]` MUST contain enough `code-walk` units to cover its core source files (see "Code-walk density" above).
 - Every perspective's `units[]` MUST start with a `concept` and end with a `takeaway`.
 - There is no hard cap on unit count; quality of explanation determines the length.
 

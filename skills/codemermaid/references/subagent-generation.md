@@ -60,7 +60,8 @@ Workers must not:
 
 Before dispatching workers, prepare:
 
-- Assigned modules, source files, and output filenames.
+- **Filename registry** — a complete map of `{ module name → output filename }` (e.g. `{ "Composer" → "module-chat-composer.html" }`). Workers must use the exact filename from this map; they must NOT infer filenames from directory names or module display names.
+- Assigned modules, source files, and their **exact** output filenames from the registry above.
 - Default perspective list with `architecture.html` and `build-up.html`.
 - Build-Up route with capability increments, covered modules, source files, and expected diagrams.
 - Global `INDEX` link rules.
@@ -79,12 +80,13 @@ You are generating one assigned codemermaid module page.
 Scope:
 - Module: <module name>
 - Source files: <paths>
-- Output file: docs/codemermaid/module-<name>.html
+- Output file: <exact filename from coordinator registry, e.g. module-chat-composer.html>
 
 Rules:
 - Read assigned source files and their direct dependencies (via imports/exports).
 - Use exact real code snippets.
 - Follow global node ids and filename registry exactly.
+- **Use the exact output filename provided by the coordinator.** Do NOT infer or derive the filename from directory names, module display names, or source paths. If the coordinator says `module-chat-composer.html`, write `module-chat-composer.html` — not `module-composer.html` or `module-chat-composer.html`.
 - Use storyboard units for multi-step sequences, state transitions, and cross-file interactions.
 - Use code-walk units for single-file deep dives.
 - Do not write index.html or unassigned files.
@@ -199,7 +201,8 @@ Before accepting parallel work:
 
 - Every discovered module has exactly one page.
 - No duplicate `module-*.html` files exist.
-- Every module page linked from `index.html` exists.
+- **Every worker output file matches the coordinator's filename registry exactly** — reject any file whose name differs from the assigned name (e.g. worker wrote `module-composer.html` but registry says `module-chat-composer.html`).
+- Every module page linked from `index.html` exists and matches the filename registry.
 - Perspective links point to real registered pages.
 - All module pages pass validation.
 - Voice, pedagogy, storyboards, and code presentation rules are consistent.
