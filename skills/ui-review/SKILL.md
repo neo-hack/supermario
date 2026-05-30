@@ -5,12 +5,13 @@ description: Review a live product UI against a design reference, design system,
 
 # UI Review
 
-Act as a UI implementation reviewer and senior product designer. Separate two jobs that are easy to confuse:
+Act as a UI implementation reviewer and senior product designer. Separate three jobs:
 
 1. **Implementation fidelity**: did the live product faithfully and professionally implement the supplied design reference?
 2. **UI quality**: is the design reference or resulting interface visually strong, accessible, responsive, consistent, and product-appropriate?
+3. **Code compliance**: does the source code follow established web interface best practices for accessibility, forms, animation, typography, performance, and interaction?
 
-When a design reference exists, fidelity comes first. Do not treat every deviation from a generic UI heuristic as a bug. Classify whether each issue is an implementation mismatch, design-system mismatch, runtime UI issue, or design-source concern.
+When a design reference exists, fidelity comes first. Do not treat every deviation from a generic UI heuristic as a bug. Classify whether each issue is an implementation mismatch, design-system mismatch, runtime UI issue, design-source concern, or code compliance issue.
 
 ## Inputs
 
@@ -35,9 +36,11 @@ Load these references as needed:
 
 - For design-reference comparison and implementation QA, read `references/implementation-fidelity.md`.
 - For first-impression, design-system extraction, detailed UI checklist, scoring, and generic/AI-looking UI detection, read `references/ui-quality.md`.
+- For code-level compliance checks, read `references/code-compliance.md`. It fetches the latest Web Interface Guidelines dynamically instead of storing local rule copies.
 
-Use both references when the user provides a design reference and a live product URL.
-For design-reference-only critiques or product-only audits, use `references/ui-quality.md`.
+Use all three references when the user provides a design reference, a live product URL, and explicitly requests code-level review.
+For design-reference-only critiques or product-only visual audits, use `references/ui-quality.md`.
+For code-only reviews, use `references/code-compliance.md` and skip visual review.
 
 ## Standards Priority
 
@@ -65,10 +68,11 @@ Treat numeric values in the references as heuristics unless the design reference
 3. **Inspect the live product**: capture rendered desktop/mobile/tablet views, key states, and runtime-only visual issues.
 4. **Run fidelity review**: use `references/implementation-fidelity.md` when a design reference exists.
 5. **Run UI quality review**: use `references/ui-quality.md` for quality scoring and design-source concerns.
-6. **Classify findings**: separate implementation mismatches from design-source concerns.
-7. **Report results**: prioritize the findings that materially affect fidelity, visual hierarchy, responsiveness, accessibility basics, or polish.
+6. **Run code compliance review, if requested or in scope**: read `references/code-compliance.md`, fetch the latest rules, and check affected files. Report violations as `Code compliance issue` findings.
+7. **Classify findings**: separate implementation mismatches, design-source concerns, and code compliance issues.
+8. **Report results**: prioritize the findings that materially affect fidelity, visual hierarchy, responsiveness, accessibility basics, code correctness, or polish.
 
-Review rendered UI before source code. Use source code only to understand or fix a finding.
+Review rendered UI before source code. Use source code only to understand or fix a finding, or when running a code compliance review.
 
 ## Finding Types
 
@@ -76,6 +80,7 @@ Review rendered UI before source code. Use source code only to understand or fix
 - **Design-system mismatch**: live product or reference conflicts with project tokens, components, or established conventions.
 - **Runtime UI issue**: live product exposes a visible issue not covered by the design reference, such as layout shift, overflow, missing focus state, or broken loading state.
 - **Design-source concern**: the design reference itself has a UI quality issue, such as weak contrast, unclear hierarchy, missing states, or generic/template-like composition.
+- **Code compliance issue**: source code violates a web interface best practice, such as missing aria-label, wrong element semantics, missing prefers-reduced-motion, or transition: all. Evidence uses `file:line` format.
 
 ## Severity
 
@@ -93,13 +98,14 @@ Return:
 3. Design reference used, if any
 4. Fidelity score, if a design reference was provided
 5. UI quality score and category grades
-6. Findings ordered by severity, each with a finding type
-7. Visible state coverage notes
-8. Responsive review notes
-9. Cross-page or cross-component UI consistency notes
-10. Quick wins: 3-5 fixes under 30 minutes
-11. Deferred or product-decision items
-12. Optional implementation plan, if the user wants code changes
+6. Code compliance summary, only if code compliance was requested or run
+7. Findings ordered by severity, each with a finding type
+8. Visible state coverage notes
+9. Responsive review notes
+10. Cross-page or cross-component UI consistency notes
+11. Quick wins: 3-5 fixes under 30 minutes
+12. Deferred or product-decision items
+13. Optional implementation plan, if the user wants code changes
 
 Use this finding format:
 
@@ -115,6 +121,8 @@ Product behavior: CTA sits 12px below the headline and visually merges with seco
 User impact: the primary action is harder to scan and the hero loses intended hierarchy.
 Recommendation: match the reference spacing token and primary button treatment.
 ```
+
+For code compliance findings, follow the output format specified by the fetched Web Interface Guidelines. Do not rewrite guideline output unless the user asks for a unified report.
 
 For product-only reviews, replace `Design reference` with `Expected standard`.
 
