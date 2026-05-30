@@ -1,6 +1,6 @@
 ---
 name: ui-review
-description: Review a live product UI against a design reference, design system, or general UI quality standards. Use when asked to audit UI, compare implementation to a design, inspect visual polish, review responsive behavior, check visible UI states, evaluate accessibility basics, score UI quality, detect generic AI-looking UI, or produce actionable UI findings for a product, app, website, or prototype.
+description: Review UI implementation fidelity, visual quality, and optional code compliance. Use when asked to "compare product to design", "check if this matches the mockup", "review this UI", "audit visual polish", "critique this design", "check responsive states", "review UI code", or "check Web Interface Guidelines".
 ---
 
 # UI Review
@@ -41,6 +41,18 @@ Load these references as needed:
 Use all three references when the user provides a design reference, a live product URL, and explicitly requests code-level review.
 For design-reference-only critiques or product-only visual audits, use `references/ui-quality.md`.
 For code-only reviews, use `references/code-compliance.md` and skip visual review.
+
+## Which Reference To Use
+
+| User asks for | Read |
+| --- | --- |
+| "Does live match design?", "compare to mockup", "implementation QA" | `references/implementation-fidelity.md` |
+| "Is this UI good?", "visual polish", "review design", "audit product page" | `references/ui-quality.md` |
+| "Check UI code", "accessibility code review", "Web Interface Guidelines", "Vercel rules" | `references/code-compliance.md` |
+| Design reference + live URL | `implementation-fidelity.md`, then `ui-quality.md` |
+| Live URL only | `ui-quality.md` |
+| Design reference only | `ui-quality.md` |
+| Code files only | `code-compliance.md` |
 
 ## Standards Priority
 
