@@ -64,8 +64,13 @@ Work through interactive elements top-to-bottom, left-to-right. For each element
 4. **Screenshot after** the interaction.
 5. **Re-snapshot** to check what changed: `agent-browser snapshot`.
 6. **Check console** for errors triggered by the interaction: `agent-browser console`.
-7. **Judge** the interaction against the Intuition Criteria below.
-8. **Log** the observation. If an issue is found, assign a UX-NNN ID and record it.
+7. **Judge** the interaction against the Intuition Criteria below, and evaluate the interaction feel:
+   - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
+   - **Transition quality**: Are transitions intentional or generic/absent?
+   - **Feedback clarity**: Did the action clearly succeed or fail? Is the feedback immediate?
+   - **Form polish**: Focus states visible? Validation timing correct? Errors near the source?
+8. **Update the goodwill meter** based on drains and fills from this step.
+9. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ### Action Strategy
 
@@ -103,6 +108,65 @@ Increment `{NNN}` for each element explored (001, 002, 003...).
 The exploration ends naturally when all interactive elements on the page have been explored. After every element has been visited (or skipped with a documented reason), proceed to the Cleanup section.
 
 If a scroll reveals new interactive elements that were not in the initial snapshot, discover them with `agent-browser snapshot -i` after scrolling, add them to the queue, and continue the loop.
+
+## Narration Mode
+
+Explore in first person, as a real user who has never seen this page before. Name the specific element, its position, its visual weight. If you can't name it specifically, you're generating platitudes — look harder.
+
+```
+"I click the '引用资源' button... the page jumps to a different URL... a '正在备份' 
+overlay appears... everything is greyed out... I can't do anything... 5 seconds pass... 
+still backing up... 10 seconds... where did my text go? It's gone. I'm stuck."
+```
+
+Every observation in the exploration log should read like this — specific, first-person, naming what you see and how it feels. Not "the interaction lacked feedback" but "I clicked and nothing happened — did it work? I can't tell."
+
+## Goodwill Reservoir
+
+Track a running goodwill score as you explore. Start at 70/100. These scores are heuristic, not measured. The value is in identifying specific drains and fills, not the final number.
+
+### Drains (subtract)
+
+| Trigger | Points |
+|---------|--------|
+| Hidden information the user would want (pricing, status, progress) | -15 |
+| Action destroys user work without warning or confirmation | -15 |
+| Interstitials, forced tours, overlays blocking the task | -15 |
+| Format punishment (rejecting valid input like dashes in phone numbers) | -10 |
+| Unnecessary information requests | -10 |
+| Sloppy or unprofessional appearance | -10 |
+| Ambiguous choices that require thinking | -5 each |
+| No feedback after an action (did it work?) | -5 |
+| Inconsistent behavior (same pattern works differently elsewhere) | -5 |
+
+### Fills (add)
+
+| Trigger | Points |
+|---------|--------|
+| Top user tasks are obvious and prominent | +10 |
+| Graceful error recovery with specific fix instructions | +10 |
+| Saves steps (direct links, smart defaults, autofill) | +5 each |
+| Upfront about costs, limitations, or consequences | +5 |
+| Apologizes or explains when things go wrong | +5 |
+| Delightful micro-interaction that builds confidence | +5 |
+
+### Reporting
+
+At the end of the exploration, include a goodwill dashboard in the report:
+
+```
+Goodwill: 70 ██████████████████░░░░░░░░░░░░
+  Step 1: Focus input          70 → 70  (neutral, placeholder is clear)
+  Step 2: Type text             70 → 70  (send button enables, good)
+  Step 3: Click "引用资源"       70 → 45  (-15 text cleared without warning, -10 all buttons disabled)
+  Step 4: Wait for backup       45 → 40  (-5 no progress indication)
+  FINAL: 40/100 ⚠️ NEEDS WORK
+```
+
+Thresholds:
+- **Below 30**: Critical UX debt. Users are actively suffering.
+- **30–60**: Needs work. Cumulative friction is building.
+- **Above 60**: Healthy. Users feel in control.
 
 ## Intuition Criteria
 
@@ -193,6 +257,16 @@ The final report goes to `{OUTPUT_DIR}/report.md`:
 
 [... one entry per element explored ...]
 
+## Goodwill Dashboard
+
+```
+Goodwill: 70 ██████████████████░░░░░░░░░░░░
+  Step 1: [description]    70 → 75  (+5 reason)
+  Step 2: [description]    75 → 60  (-15 reason)
+  ...
+  FINAL: XX/100 [VERDICT]
+```
+
 ## Issues
 
 ### UX-001: [Short title]
@@ -208,6 +282,16 @@ The final report goes to `{OUTPUT_DIR}/report.md`:
 [... one block per issue ...]
 
 ## Summary
+
+### Goodwill
+| Field | Value |
+|-------|-------|
+| Final score | XX/100 |
+| Verdict | Critical UX Debt / Needs Work / Healthy |
+| Biggest drain | [what hurt most] |
+| Biggest fill | [what helped most] |
+
+### Issues
 | Severity | Count |
 |----------|-------|
 | High | N |
@@ -240,11 +324,12 @@ agent-browser close
 
 3. Re-read the report and update the summary counts to match actual issues found.
 
-4. Tell the user the report is ready and summarize: total issues, breakdown by severity, and the most critical items.
+4. Tell the user the report is ready and summarize: goodwill score with verdict, total issues, breakdown by severity, and the most critical items.
 
 ## Guidance
 
 - **Judge as a user, not a tester.** You are exploring like a real person who has never seen this page before. If something feels off, investigate.
+- **Narrate in first person.** "I click the button... nothing happens... did it work?" — not "the interaction lacked feedback." Specific, concrete, naming elements. If you can't name the element, you're generating platitudes.
 - **Write findings incrementally.** Append each issue to the report as you discover it. If the session is interrupted, findings are preserved. Never batch all issues for the end.
 - **Use the right snapshot command.** `snapshot -i` for finding clickable/fillable elements. `snapshot` (no flag) for reading page content and understanding context after an action.
 - **Screenshot each step.** Capture the before, the action, and the after so someone reading the report can follow along visually.
