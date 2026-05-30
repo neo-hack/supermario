@@ -52,6 +52,29 @@ agent-browser errors
 
 5. Count the interactive elements and classify them by role. Note the distribution in the report header (e.g., "5 buttons, 3 textboxes, 2 selects, 1 checkbox").
 
+## How Users Actually Behave
+
+These principles govern how real humans interact with interfaces. Apply them during exploration:
+
+- **Users scan, they don't read.** They look for something to click. Headings, bold text, links — anything that looks like a button. If your exploration narration reads like a novel, the page is failing the scan test.
+- **Users satisfice.** They pick the first reasonable option, not the best. If a dropdown has 20 options and the first one is wrong, flag it — most users will never see option 19.
+- **Users muddle through.** They don't read tooltips or discover hidden features. If an element requires explanation to use, the design has failed.
+- **Make clickable things obviously clickable.** No relying on hover states for discoverability. Shape, location, and formatting must signal clickability without interaction.
+- **Clarity trumps consistency.** If something being slightly inconsistent would make it significantly clearer, the inconsistency is the right call.
+
+## Trunk Test
+
+After the initial page load, answer these 6 questions. A FAIL on any is a HIGH issue:
+
+1. What site/app is this? (branding visible and identifiable)
+2. What page/screen am I on? (page name matches what I'd expect)
+3. What are the major sections? (primary nav or sidebar visible)
+4. What are my options at this level? (available actions obvious)
+5. Where am I in the scheme of things? (active state, breadcrumbs, or "you are here" indicator)
+6. How can I search? (search box findable without hunting)
+
+Score: PASS (all 6 clear) / PARTIAL (4-5) / FAIL (3 or fewer).
+
 ## Exploration Loop
 
 Work through interactive elements top-to-bottom, left-to-right. For each element:
@@ -62,15 +85,21 @@ Work through interactive elements top-to-bottom, left-to-right. For each element
 2. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
 3. **Wait** for the page to settle: `agent-browser wait 1000`.
 4. **Screenshot after** the interaction.
-5. **Re-snapshot** to check what changed: `agent-browser snapshot`.
+5. **Re-snapshot** to check what changed: `agent-browser snapshot`. Compare with the pre-action snapshot text — identify exactly which DOM nodes changed, appeared, or disappeared.
 6. **Check console** for errors triggered by the interaction: `agent-browser console`.
-7. **Judge** the interaction against the Intuition Criteria below, and evaluate the interaction feel:
+7. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
    - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
    - **Transition quality**: Are transitions intentional or generic/absent?
    - **Feedback clarity**: Did the action clearly succeed or fail? Is the feedback immediate?
    - **Form polish**: Focus states visible? Validation timing correct? Errors near the source?
-8. **Update the goodwill meter** based on drains and fills from this step.
-9. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
+8. **Content & microcopy check** on labels, errors, and feedback:
+   - Button labels specific ("Save API Key" not "Submit")?
+   - Error messages say what happened + why + what to do?
+   - No happy talk (welcome paragraphs, self-congratulatory text)?
+   - Loading states end with `…` ("Saving…" not "Saving...")?
+   - Destructive actions have confirmation?
+9. **Update the goodwill meter** based on drains and fills from this step.
+10. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ### Action Strategy
 
@@ -346,6 +375,16 @@ agent-browser close
 3. Re-read the report and update the summary counts to match actual issues found.
 
 4. Tell the user the report is ready and summarize: goodwill score with verdict, total issues, breakdown by severity, and the most critical items.
+
+## Snapshot Diff Technique
+
+`agent-browser` does not have a built-in diff command. To detect what changed after an interaction:
+
+1. Before the action: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
+2. After the action: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
+3. Diff them: `diff {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
+
+The diff shows exactly which elements appeared, disappeared, or changed text content. This catches state changes that are invisible in screenshots (e.g., aria-label updates, hidden field changes, class toggles).
 
 ## Guidance
 
