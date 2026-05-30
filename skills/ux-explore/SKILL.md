@@ -168,6 +168,27 @@ Thresholds:
 - **30–60**: Needs work. Cumulative friction is building.
 - **Above 60**: Healthy. Users feel in control.
 
+## Interaction States Checklist
+
+For each interactive element, verify these states are present and correct. Flag missing or broken states as issues.
+
+| # | State | What to check | Fail example |
+|---|-------|---------------|-------------|
+| 1 | Hover | Visual change on hover (color shift, underline, shadow) | Button looks identical with and without hover |
+| 2 | Focus | `focus-visible` ring present; never `outline: none` without replacement | Tabbing to a button shows no focus indicator |
+| 3 | Active/Pressed | Depth effect or color shift on press; `transform: scale(0.95)` or equivalent | Clicking a button feels like clicking dead air |
+| 4 | Disabled | Reduced opacity + `cursor: not-allowed`; visually distinct from enabled | Can't tell which buttons are clickable and which aren't |
+| 5 | Loading | Skeleton shapes match real content layout; spinner or progress bar during async work | Click submit → blank screen → result appears with no indication anything happened |
+| 6 | Empty | Warm message + primary action + visual (not just "No items.") | Empty list shows blank white space |
+| 7 | Error | Specific message + includes fix or next step; appears near the source | Generic "Something went wrong" with no context |
+| 8 | Success | Confirmation animation, color change, or toast; auto-dismiss after a few seconds | Action succeeds silently — user wonders if it worked |
+| 9 | Touch targets | All interactive elements >= 44px hit area; adequate spacing between adjacent targets | Tiny 20px icon button next to another tiny button — misclicks likely |
+| 10 | Cursor | `cursor: pointer` on all clickable elements; `cursor: not-allowed` on disabled | Clickable div shows default arrow cursor |
+
+### Mindless Choice Audit
+
+At every decision point (button, link, dropdown, modal choice), ask: is this a mindless click? Can I tell what happens next without thinking? If a click requires thought about whether it's the right choice, flag it as HIGH. Three mindless, unambiguous clicks beat one click that requires thought.
+
 ## Intuition Criteria
 
 Judge each interaction against these six dimensions. Log an issue when any dimension fails:
