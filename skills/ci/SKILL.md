@@ -1,13 +1,13 @@
 ---
 name: ci
-description: "Automated setup of developer-experience tooling: ESLint, changesets, husky, lint-staged, GitHub workflows, templates, and commitizen."
+description: "Automated setup of developer-experience tooling: ESLint, clippy, rustfmt, changesets, husky, lint-staged, GitHub workflows, templates, and commitizen. Supports JS, Rust, Mixed, and Tauri projects."
 ---
 
 # ci Skill
 
 ## Purpose
 
-Set up best-practice developer tooling in a JavaScript/TypeScript project. This skill detects the package manager, checks for existing configurations, copies asset files, edits `package.json`, and installs dependencies.
+Set up best-practice developer tooling in JavaScript/TypeScript, Rust, and Tauri projects. This skill detects the project type, checks for existing configurations, copies asset files, edits configuration files, and installs dependencies.
 
 ## Arguments
 
@@ -15,40 +15,55 @@ Set up best-practice developer tooling in a JavaScript/TypeScript project. This 
   - **Asset files**: overwrite unconditionally.
   - **`package.json` scripts**: merge new scripts; overwrite existing keys with skill defaults.
   - **`package.json` devDependencies**: merge new dependencies; if a version conflict exists, keep the higher semver version. If unparseable, overwrite with skill default.
+  - **`Cargo.toml` dev-dependencies**: merge new dependencies; overwrite existing keys with skill defaults.
   - **lint-staged config**: overwrite unconditionally.
 
 ## Execution Workflow
 
 ### Detect Environment
 
-1. Locate the project root by finding the nearest `package.json` upward from the current working directory.
-2. If no `package.json` is found, abort with: "No package.json found. Run this skill from the project root directory."
-3. Detect the package manager by checking lockfiles in this priority:
+1. Locate the project root by finding the nearest `package.json` or `Cargo.toml` upward from the current working directory.
+2. If neither is found, abort with: "No package.json or Cargo.toml found. Run this skill from the project root directory."
+3. Determine project type:
+   - `package.json` exists, no `Cargo.toml` at root or `src-tauri/` → **JS**
+   - `Cargo.toml` at root exists, no `package.json` → **Pure Rust**
+   - `package.json` exists + `Cargo.toml` at root → **Mixed**
+   - `package.json` exists + `src-tauri/Cargo.toml` exists → **Tauri**
+4. If JS-based (JS, Mixed, Tauri), detect the package manager by checking lockfiles:
    - `pnpm-lock.yaml` → **pnpm**
    - `bun.lock` or `bun.lockb` → **bun**
    - Default to **pnpm** if none found.
-4. Read `package.json` to inspect existing `scripts` and `devDependencies`.
+5. Read `package.json` (if present) to inspect existing `scripts` and `devDependencies`.
+6. Read `Cargo.toml` (if present) to inspect existing `[dev-dependencies]`.
 
 ### Check Existing Configs
 
 Scan the project for existing files that may conflict:
 
-| Asset | Target Path |
-|-------|-------------|
-| ESLint config | `eslint.config.mjs` |
-| CI workflow | `.github/workflows/ci.yml` |
-| Release workflow | `.github/workflows/release.yml` |
-| Snapshot release workflow | `.github/workflows/snapshot-release.yml` |
-| PR template | `.github/PULL_REQUEST_TEMPLATE.md` |
-| Bug report template | `.github/ISSUE_TEMPLATE/bug_report.md` |
-| Feature request template | `.github/ISSUE_TEMPLATE/feature_request.md` |
-| Changeset config | `.changeset/config.json` |
-| Husky pre-commit | `.husky/pre-commit` |
-| Husky pre-merge | `.husky/pre-merge` |
-| lint-staged config | `.lintstagedrc` |
-| dotfiles | `.czrc`, `.node-version` |
+| Asset | Target Path | JS | Mixed | Tauri | Pure Rust |
+|-------|-------------|:--:|:-----:|:-----:|:---------:|
+| ESLint config | `eslint.config.mjs` | ✓ | ✓ | ✓ | |
+| rustfmt config | `rustfmt.toml` | | ✓ | ✓ | ✓ |
+| CI workflow (JS) | `.github/workflows/ci.yml` | ✓ | ✓ | ✓ | |
+| CI workflow (Rust, mixed) | `.github/workflows/ci-rust.yml` | | ✓ | | |
+| CI workflow (Rust, Tauri) | `.github/workflows/ci-rust-tauri.yml` | | | ✓ | |
+| CI workflow (pure Rust) | `.github/workflows/ci.yml` | | | | ✓ |
+| Release workflow | `.github/workflows/release.yml` | ✓ | ✓ | ✓ | |
+| Snapshot release workflow | `.github/workflows/snapshot-release.yml` | ✓ | ✓ | ✓ | |
+| Tauri release workflow | `.github/workflows/release-tauri.yml` | | | ✓ | |
+| PR template | `.github/PULL_REQUEST_TEMPLATE.md` | ✓ | ✓ | ✓ | ✓ |
+| Bug report template | `.github/ISSUE_TEMPLATE/bug_report.md` | ✓ | ✓ | ✓ | ✓ |
+| Feature request template | `.github/ISSUE_TEMPLATE/feature_request.md` | ✓ | ✓ | ✓ | ✓ |
+| Changeset config | `.changeset/config.json` | ✓ | ✓ | ✓ | |
+| Changeset README | `.changeset/README.md` | ✓ | ✓ | ✓ | |
+| Husky pre-commit | `.husky/pre-commit` | ✓ | ✓ | ✓ | |
+| Husky pre-merge | `.husky/pre-merge` | ✓ | ✓ | ✓ | |
+| lint-staged config (JS) | `.lintstagedrc` | ✓ | | | |
+| lint-staged config (mixed) | `.lintstagedrc` | | ✓ | ✓ | |
+| .czrc | `.czrc` | ✓ | ✓ | ✓ | |
+| .node-version | `.node-version` | ✓ | ✓ | ✓ | |
 
-Build a conflict report listing every item that already exists.
+Build a conflict report listing every item that already exists for the detected project type.
 
 ### Prompt User on Conflicts
 
@@ -59,34 +74,68 @@ Build a conflict report listing every item that already exists.
 
 ### Copy Assets
 
-For each item approved (or with no conflict):
+For each item approved (or with no conflict), copy from `assets/<category>/` to the target path relative to the project root.
 
-Copy from `assets/<category>/` to the target path relative to the project root:
+**Common assets (all project types):**
+
+- `assets/templates/PULL_REQUEST_TEMPLATE.md` → `.github/PULL_REQUEST_TEMPLATE.md`
+- `assets/templates/ISSUE_TEMPLATE/bug_report.md` → `.github/ISSUE_TEMPLATE/bug_report.md`
+- `assets/templates/ISSUE_TEMPLATE/feature_request.md` → `.github/ISSUE_TEMPLATE/feature_request.md`
+
+**JS-only assets (JS, Mixed, Tauri):**
 
 - `assets/eslint/eslint.config.mjs` → `eslint.config.mjs`
 - `assets/workflows/<pm>/ci.yml` → `.github/workflows/ci.yml`
 - `assets/workflows/<pm>/release.yml` → `.github/workflows/release.yml`
 - `assets/workflows/<pm>/snapshot-release.yml` → `.github/workflows/snapshot-release.yml`
-- `assets/templates/PULL_REQUEST_TEMPLATE.md` → `.github/PULL_REQUEST_TEMPLATE.md`
-- `assets/templates/ISSUE_TEMPLATE/bug_report.md` → `.github/ISSUE_TEMPLATE/bug_report.md`
-- `assets/templates/ISSUE_TEMPLATE/feature_request.md` → `.github/ISSUE_TEMPLATE/feature_request.md`
 - `assets/changeset/config.json` → `.changeset/config.json`
 - `assets/changeset/README.md` → `.changeset/README.md`
 - `assets/husky/pre-commit` → `.husky/pre-commit`
 - `assets/husky/pre-merge` → `.husky/pre-merge`
-- `assets/lint-staged/lintstagedrc` → `.lintstagedrc`
 - `assets/dotfiles/cz-rc` → `.czrc`
 - `assets/dotfiles/node-version` → `.node-version`
 
 Where `<pm>` is the detected package manager (`pnpm` or `bun`).
 
-**Template substitution:** The husky scripts (`pre-commit`, `pre-merge`) contain the placeholder `{{PACKAGE_MANAGER}}`, which must be replaced with the detected package manager name before copying.
+**JS project lint-staged:**
+
+- `assets/lint-staged/lintstagedrc` → `.lintstagedrc`
+
+**Mixed/Tauri project lint-staged:**
+
+- `assets/lint-staged/lintstagedrc-mixed` → `.lintstagedrc`
+
+**Rust assets (Mixed, Tauri, Pure Rust):**
+
+- `assets/rust/rustfmt.toml` → `rustfmt.toml`
+
+**Mixed project Rust CI:**
+
+- `assets/workflows/rust/ci-rust.yml` → `.github/workflows/ci-rust.yml`
+
+**Tauri project Rust CI:**
+
+- `assets/workflows/rust/ci-rust-tauri.yml` → `.github/workflows/ci-rust-tauri.yml`
+
+**Tauri release:**
+
+- `assets/workflows/rust/release-tauri.yml` → `.github/workflows/release-tauri.yml`
+
+**Pure Rust CI:**
+
+- `assets/workflows/rust/ci.yml` → `.github/workflows/ci.yml`
+
+**Template substitution:**
+- The husky scripts (`pre-commit`, `pre-merge`) contain the placeholder `{{PACKAGE_MANAGER}}`, which must be replaced with the detected package manager name before copying.
+- The Tauri release workflow (`release-tauri.yml`) uses `pnpm` by default. If the detected package manager is `bun`, replace `pnpm/action-setup@v2` step with `oven-sh/setup-bun@v1`, `pnpm install --frozen-lockfile=false` with `bun install`. If `pnpm`, keep as-is.
 
 **Make husky scripts executable:** After copying, run `chmod +x` on `.husky/pre-commit` and `.husky/pre-merge`.
 
 Ensure target directories exist before copying.
 
-### Edit package.json
+### Edit Configuration Files
+
+#### JS/Mixed/Tauri: Edit package.json
 
 Add the following keys **only if they do not already exist or if overwrite was approved**:
 
@@ -100,6 +149,13 @@ Replace `<package_manager>` with the detected package manager name.
   "ci:prerelease": "<package_manager> run build && <package_manager> changeset publish --no-git-tag --tag snapshot",
   "lint:fix": "eslint . --fix",
   "prepare": "husky install"
+}
+```
+
+**Tauri-only additional script:**
+```json
+{
+  "release:tauri": "<package_manager> tauri build"
 }
 ```
 
@@ -120,24 +176,47 @@ If `--force` is active:
 - For scripts: overwrite existing keys with skill defaults.
 - For devDependencies: keep the higher semver version when conflicting. If unparseable, use skill default.
 
+#### Pure Rust: Edit Cargo.toml
+
+Add the following to `[dev-dependencies]` **only if it does not already exist or if overwrite was approved**:
+
+```toml
+[dev-dependencies]
+cargo-husky = { version = "1", default-features = false, features = ["precommit-hook", "run-cargo-fmt", "run-cargo-clippy"] }
+```
+
+If `[dev-dependencies]` section does not exist, create it. If `cargo-husky` already exists under `[dev-dependencies]`, skip (or overwrite if `--force`).
+
 ### Run Package Install
 
-Execute the detected package manager's install command:
+**JS/Mixed/Tauri:** Execute the detected package manager's install command:
 - **pnpm**: `pnpm install`
 - **bun**: `bun install`
+
+**Pure Rust:** Skip. No package install step needed.
 
 If install fails, capture stderr, display a concise error, and advise the user to run install manually.
 
 ### Verification
 
-List everything that was created, modified, or skipped in a final summary. Confirm successful completion.
+List everything that was created, modified, or skipped in a final summary. Include:
+
+- Project type detected (JS / Mixed / Tauri / Pure Rust)
+- All files created, modified, or skipped
+- **Mixed/Tauri projects**: reminder to install `cargo-sort` (`cargo install cargo-sort`) for lint-staged Cargo.toml sorting
+- **Tauri projects**: reminder that `tauri-action` requires `GITHUB_TOKEN` with `contents: write` permission
+- **Pure Rust projects**: reminder that `cargo-husky` hooks activate on first `cargo test`
+
+Confirm successful completion.
 
 ## Error Handling
 
-- **No package.json**: Abort immediately with clear message.
+- **No package.json or Cargo.toml**: Abort immediately with clear message.
 - **File copy failures** (e.g., permission denied): Continue with remaining steps. Report failure in summary.
 - **Install failures**: Surface stderr. Advise manual install. Do not retry.
 - **Partial failures**: Always complete the full workflow and report what succeeded vs. failed.
+- **No Cargo.toml but Rust assets requested**: Skip Rust assets and warn.
+- **Tauri detection without @tauri-apps/cli in dependencies**: Warn that Tauri CLI may need to be installed.
 
 ## Rollback
 

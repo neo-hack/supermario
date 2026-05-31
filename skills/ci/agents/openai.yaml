@@ -1,4 +1,4 @@
 interface:
   display_name: "CI Setup"
-  short_description: "Set up JS developer tooling and CI"
-  default_prompt: "Use $ci to set up developer tooling, CI workflows, changesets, commitizen, husky, and lint-staged for this JavaScript or TypeScript project."
+  short_description: "Set up developer tooling and CI for JS, Rust, and Tauri projects"
+  default_prompt: "Use $ci to set up developer tooling, CI workflows, changesets, commitizen, husky, lint-staged, clippy, and rustfmt for this project. Supports JavaScript, TypeScript, Rust, mixed JS+Rust, and Tauri projects."
