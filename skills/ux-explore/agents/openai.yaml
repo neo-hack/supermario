@@ -1,0 +1,4 @@
+interface:
+  display_name: "UX Explore"
+  short_description: "Explore page interactions for UX issues"
+  default_prompt: "Use $ux-explore to explore this web page's interactions and report UX issues."

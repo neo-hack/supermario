@@ -25,7 +25,7 @@ If the user says something like "explore example.com", start immediately. Do not
 1. Create output directories and start the report file:
 
 ```bash
-mkdir -p {OUTPUT_DIR}/screenshots
+mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots
 ```
 
 2. Launch the browser and wait for the page to fully load:
@@ -85,7 +85,7 @@ Work through interactive elements top-to-bottom, left-to-right. For each element
 2. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
 3. **Wait** for the page to settle: `agent-browser wait 1000`.
 4. **Screenshot after** the interaction.
-5. **Re-snapshot** to check what changed: `agent-browser snapshot`. Compare with the pre-action snapshot text — identify exactly which DOM nodes changed, appeared, or disappeared.
+5. **Diff the snapshot** to check what changed: `agent-browser diff snapshot`. Use `agent-browser snapshot` only when the diff needs more page context.
 6. **Check console** for errors triggered by the interaction: `agent-browser console`.
 7. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
    - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
@@ -378,11 +378,11 @@ agent-browser close
 
 ## Snapshot Diff Technique
 
-`agent-browser` does not have a built-in diff command. To detect what changed after an interaction:
+Use `agent-browser diff snapshot` to detect what changed after an interaction:
 
-1. Before the action: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
-2. After the action: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
-3. Diff them: `diff {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
+1. Before the action: run `agent-browser snapshot` to establish the session baseline, or save it with `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
+2. After the action: run `agent-browser diff snapshot`, or `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
+3. If you need a permanent after-state archive, save it after diffing: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
 
 The diff shows exactly which elements appeared, disappeared, or changed text content. This catches state changes that are invisible in screenshots (e.g., aria-label updates, hidden field changes, class toggles).
 
