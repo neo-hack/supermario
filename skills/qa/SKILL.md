@@ -78,15 +78,15 @@ agent-browser errors
 The user provides a qa.md file with test scenarios in this format:
 
 ```xml
-<scenario name="登录流程" url="/login">
-  <action>填写 Email 为 test@example.com</action>
-  <expect>无报错</expect>
+<scenario name="Login flow" url="/login">
+  <action>Fill Email with test@example.com</action>
+  <expect>No error appears</expect>
 
-  <action>填写 Password 为 wrong-password</action>
-  <expect>无报错</expect>
+  <action>Fill Password with wrong-password</action>
+  <expect>No error appears</expect>
 
-  <action>点击 "Sign In" 按钮</action>
-  <expect>出现错误提示 "邮箱或密码不正确"</expect>
+  <action>Click the "Sign In" button</action>
+  <expect>An error message appears: "Email or password is incorrect"</expect>
 </scenario>
 ```
 
@@ -150,20 +150,20 @@ For each test file in the detected directory:
 
 - Identify `describe` / `it` / `test` blocks -> use as `<scenario name>`
 - Extract interaction calls as `<action>` text:
-  - Cypress: `cy.get().click()` -> "点击 {element} 按钮"
-  - Cypress: `cy.get().type()` -> "填写 {field} 为 {value}"
-  - Playwright: `page.click()` -> "点击 {element}"
-  - Playwright: `page.fill()` -> "填写 {field} 为 {value}"
+  - Cypress: `cy.get().click()` -> "Click {element}"
+  - Cypress: `cy.get().type()` -> "Fill {field} with {value}"
+  - Playwright: `page.click()` -> "Click {element}"
+  - Playwright: `page.fill()` -> "Fill {field} with {value}"
   - Playwright: `page.goto()` -> scenario `url` attribute
-  - Jest/Vitest: `fireEvent.click()` -> "点击 {element}"
+  - Jest/Vitest: `fireEvent.click()` -> "Click {element}"
   - RSpec: `click_button` / `fill_in` -> equivalent actions
 - Extract assertion calls as `<expect>` text:
-  - Cypress: `cy.contains('text')` -> "出现 'text'"
-  - Cypress: `cy.get('.error').should('be.visible')` -> "错误提示可见"
-  - Playwright: `expect(page.locator()).toContainText('text')` -> "包含文字 'text'"
-  - Playwright: `expect(page).toHaveURL('/path')` -> "跳转到 /path"
-  - Jest: `expect(element.textContent).toContain('text')` -> "包含文字 'text'"
-  - RSpec: `expect(page).to have_text('text')` -> "包含文字 'text'"
+  - Cypress: `cy.contains('text')` -> "Text 'text' appears"
+  - Cypress: `cy.get('.error').should('be.visible')` -> "Error message is visible"
+  - Playwright: `expect(page.locator()).toContainText('text')` -> "Contains text 'text'"
+  - Playwright: `expect(page).toHaveURL('/path')` -> "Navigates to /path"
+  - Jest: `expect(element.textContent).toContain('text')` -> "Contains text 'text'"
+  - RSpec: `expect(page).to have_text('text')` -> "Contains text 'text'"
 - Convert selector-based code to natural language descriptions
 
 Example transformation:
@@ -175,21 +175,21 @@ test('login with wrong password', async ({ page }) => {
   await page.fill('[name="email"]', 'test@example.com');
   await page.fill('[name="password"]', 'wrong-password');
   await page.click('button[type="submit"]');
-  await expect(page.locator('.error')).toContainText('邮箱或密码不正确');
+  await expect(page.locator('.error')).toContainText('Email or password is incorrect');
 });
 ```
 
 ```xml
 <!-- Generated qa.md -->
 <scenario name="login with wrong password" url="/login">
-  <action>填写 email 为 test@example.com</action>
-  <expect>无报错</expect>
+  <action>Fill email with test@example.com</action>
+  <expect>No error appears</expect>
 
-  <action>填写 password 为 wrong-password</action>
-  <expect>无报错</expect>
+  <action>Fill password with wrong-password</action>
+  <expect>No error appears</expect>
 
-  <action>点击 submit 按钮</action>
-  <expect>出现错误提示 "邮箱或密码不正确"</expect>
+  <action>Click the submit button</action>
+  <expect>An error message appears: "Email or password is incorrect"</expect>
 </scenario>
 ```
 
@@ -423,7 +423,7 @@ The final report goes to `{OUTPUT_DIR}/report.md`.
 
 ### Scenario: {name}
 - <action>{action text}</action>  PASS
-- <action>{action text}</action>  FAIL -- 期望 "{expect text}"，实际 {what happened}
+- <action>{action text}</action>  FAIL -- expected "{expect text}", actual {what happened}
 
 [... one section per scenario ...]
 
@@ -470,18 +470,18 @@ agent-browser close
 
 6. Ask the user:
 
-> "是否将本次探索结果更新到 qa.md？"
+> "Update qa.md with this exploration result?"
 
 Options:
 - **Create qa.md**: scaffold all discovered interactive elements as `<action>` tags with actual observed behavior written into `<expect>`. Example:
 
 ```xml
 <scenario name="{page name}" url="{url}">
-  <action>点击 "Submit" 按钮</action>
-  <expect>出现 "保存成功" 提示，按钮变灰</expect>
+  <action>Click the "Submit" button</action>
+  <expect>A "Saved successfully" message appears and the button becomes disabled</expect>
 
-  <action>填写 Email 为 test@example.com</action>
-  <expect>无报错，输入框显示填入内容</expect>
+  <action>Fill Email with test@example.com</action>
+  <expect>No error appears and the input shows the entered value</expect>
 </scenario>
 ```
 
