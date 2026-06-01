@@ -16,7 +16,7 @@ test('QA skill delegates mode details to references', () => {
   for (const reference of [
     'references/free-exploration.md',
     'references/case-verification.md',
-    'references/init-from-e2e.md',
+    'references/init-qa.md',
     'references/evidence-and-reporting.md',
     'references/issue-taxonomy.md',
     'references/stopping-criteria.md',
@@ -34,7 +34,7 @@ test('QA skill delegates mode details to references', () => {
 test('QA references preserve executable browser and reporting rules', () => {
   const freeExploration = read('references/free-exploration.md');
   const caseVerification = read('references/case-verification.md');
-  const initFromE2e = read('references/init-from-e2e.md');
+  const initFromE2e = read('references/init-qa.md');
   const evidence = read('references/evidence-and-reporting.md');
 
   assert.match(freeExploration, /agent-browser diff snapshot --baseline/);

@@ -49,7 +49,7 @@ Then read the mode-specific reference:
 
 | Situation | Read |
 |-----------|------|
-| User passed `--init` | `references/init-from-e2e.md`, then `references/case-verification.md` |
+| User passed `--init` | `references/init-qa.md`, then `references/case-verification.md` |
 | qa.md exists or was provided | `references/case-verification.md` |
 | No qa.md | `references/free-exploration.md` |
 | Scenarios leave uncovered interactive elements | `references/free-exploration.md` |
@@ -97,7 +97,7 @@ Follow the selected reference exactly:
 
 - For free exploration, run the queue and action strategy in `references/free-exploration.md`.
 - For qa.md verification, parse and execute scenarios with `references/case-verification.md`.
-- For `--init`, generate qa.md with `references/init-from-e2e.md`, then immediately verify the generated scenarios.
+- For `--init`, generate qa.md with `references/init-qa.md`, then immediately verify the generated scenarios.
 
 When case verification completes, free-explore any interactive elements that were not covered by scenario actions.
 

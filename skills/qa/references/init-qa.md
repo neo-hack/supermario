@@ -1,4 +1,4 @@
-# Init From E2E
+# Init QA
 
 Use this mode when the user passes `--init`. Generate qa.md from existing E2E tests, then immediately run case verification with the generated file.
 
