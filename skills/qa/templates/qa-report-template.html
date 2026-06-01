@@ -72,12 +72,33 @@ a:hover { text-decoration: underline; }
 }
 .section-dark h2 { color: var(--on-dark); }
 
-.session-info {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px;
-  max-width: 600px; margin: 0 auto;
+.tldr {
+  display: grid; grid-template-columns: minmax(180px, 0.35fr) 1fr; gap: 40px;
+  align-items: center;
 }
-.session-info dt { color: var(--ink-muted-48); }
-.session-info dd { font-weight: 600; }
+.tldr-score .value {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 72px; font-weight: 600; line-height: 1;
+}
+.tldr-score .label { font-size: 21px; font-weight: 600; margin-top: 8px; }
+.tldr-copy { font-size: 21px; line-height: 1.38; margin-bottom: 22px; }
+.meta-tags, .summary-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.meta-tag, .summary-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); padding: 6px 12px;
+  font-size: 13px; font-weight: 600; color: var(--ink-muted-80);
+  max-width: 100%;
+}
+.meta-tag.url {
+  max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.summary-tag.critical { color: var(--critical); }
+.summary-tag.high { color: var(--high); }
+.summary-tag.medium { color: #8a6d00; }
+.summary-tag.low { color: var(--low); }
 
 .score-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
@@ -166,23 +187,14 @@ a:hover { text-decoration: underline; }
 .severity-badge.medium { background: rgba(255, 204, 0, 0.12); color: #b38600; }
 .severity-badge.low { background: rgba(52, 199, 89, 0.12); color: var(--low); }
 
-.summary-row {
-  display: flex; gap: 32px; justify-content: center;
-}
-.summary-item { text-align: center; }
-.summary-item .count {
-  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
-  font-size: 40px; font-weight: 600;
-}
-.summary-item .label { font-size: 14px; color: var(--ink-muted-48); }
-
 @media (max-width: 760px) {
   .hero, .section, .section-alt, .section-dark { padding: 40px 24px; }
   .hero h1 { font-size: 40px; }
   .hero .subtitle { font-size: 21px; }
+  .tldr { grid-template-columns: 1fr; gap: 24px; }
+  .tldr-score .value { font-size: 56px; }
   .score-grid { grid-template-columns: repeat(2, 1fr); }
-  .step-photos, .session-info { grid-template-columns: 1fr; }
-  .summary-row { flex-wrap: wrap; gap: 20px; }
+  .step-photos { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -194,15 +206,30 @@ a:hover { text-decoration: underline; }
 </div>
 
 <div class="section-alt">
-  <h2>Session</h2>
-  <dl class="session-info">
-    <dt>URL</dt><dd>{url}</dd>
-    <dt>Date</dt><dd>{date}</dd>
-    <dt>Mode</dt><dd>{mode}</dd>
-    <dt>Elements found</dt><dd>{count}</dd>
-    <dt>Elements explored</dt><dd>{count}</dd>
-    <dt>Issues</dt><dd>{count}</dd>
-  </dl>
+  <h2>TL;DR</h2>
+  <div class="tldr">
+    <div class="tldr-score">
+      <div class="value">{finalScore}</div>
+      <div class="label">{verdict}</div>
+    </div>
+    <div>
+      <p class="tldr-copy">Top issue: {title}. Review the failing scenario and snapshot diff before release.</p>
+      <div class="summary-tags">
+        <span class="summary-tag critical">{N} Critical</span>
+        <span class="summary-tag high">{N} High</span>
+        <span class="summary-tag medium">{N} Medium</span>
+        <span class="summary-tag low">{N} Low</span>
+      </div>
+      <div class="meta-tags" style="margin-top:16px">
+        <span class="meta-tag">{mode}</span>
+        <span class="meta-tag">{date}</span>
+        <span class="meta-tag">{count} elements found</span>
+        <span class="meta-tag">{count} explored</span>
+        <span class="meta-tag">{count} issues</span>
+        <span class="meta-tag url">{url}</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="section-dark">
@@ -270,17 +297,6 @@ a:hover { text-decoration: underline; }
       <span>@e{N} {role} "{label}"</span>
     </div>
     <p>{description}</p>
-  </div>
-</div>
-
-<!-- Summary -->
-<div class="section-dark">
-  <h2>Summary</h2>
-  <div class="summary-row">
-    <div class="summary-item"><div class="count" style="color:var(--critical)">{N}</div><div class="label">Critical</div></div>
-    <div class="summary-item"><div class="count" style="color:var(--high)">{N}</div><div class="label">High</div></div>
-    <div class="summary-item"><div class="count" style="color:var(--medium)">{N}</div><div class="label">Medium</div></div>
-    <div class="summary-item"><div class="count" style="color:var(--low)">{N}</div><div class="label">Low</div></div>
   </div>
 </div>
 
