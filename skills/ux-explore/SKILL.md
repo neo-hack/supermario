@@ -1,6 +1,6 @@
 ---
 name: ux-explore
-description: Systematically explore a web page's interactive elements using agent-browser, record every interaction with screenshots and video, and produce a structured report identifying unintuitive UX patterns. Use when asked to "explore this page", "test UX", "check interaction intuition", "audit interactions", "UX review", or "find UX issues on this page".
+description: Use when asked to explore, test UX, check interaction intuition, audit interactions, review UX, or find unintuitive behavior on a web page with agent-browser.
 argument-hint: "<url> [output-dir]"
 arguments:
   - url
@@ -25,7 +25,7 @@ If the user says something like "explore example.com", start immediately. Do not
 1. Create output directories and start the report file:
 
 ```bash
-mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots
+mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots {OUTPUT_DIR}/diffs
 ```
 
 2. Launch the browser and wait for the page to fully load:
@@ -82,24 +82,25 @@ Work through interactive elements top-to-bottom, left-to-right. For each element
 ### Per-Element Workflow
 
 1. **Screenshot before** the interaction.
-2. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
-3. **Wait** for the page to settle: `agent-browser wait 1000`.
-4. **Screenshot after** the interaction.
-5. **Diff the snapshot** to check what changed: `agent-browser diff snapshot`. Use `agent-browser snapshot` only when the diff needs more page context.
-6. **Check console** for errors triggered by the interaction: `agent-browser console`.
-7. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
+2. **Capture the baseline snapshot**: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`.
+3. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
+4. **Wait** for the page to settle: `agent-browser wait 1000`.
+5. **Screenshot after** the interaction.
+6. **Diff the snapshot**: `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt`. Use `agent-browser snapshot` only when the diff needs more page context.
+7. **Check console** for errors triggered by the interaction: `agent-browser console`.
+8. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
    - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
    - **Transition quality**: Are transitions intentional or generic/absent?
    - **Feedback clarity**: Did the action clearly succeed or fail? Is the feedback immediate?
    - **Form polish**: Focus states visible? Validation timing correct? Errors near the source?
-8. **Content & microcopy check** on labels, errors, and feedback:
+9. **Content & microcopy check** on labels, errors, and feedback:
    - Button labels specific ("Save API Key" not "Submit")?
    - Error messages say what happened + why + what to do?
    - No happy talk (welcome paragraphs, self-congratulatory text)?
    - Loading states end with `…` ("Saving…" not "Saving...")?
    - Destructive actions have confirmation?
-9. **Update the goodwill meter** based on drains and fills from this step.
-10. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
+10. **Update the goodwill meter** based on drains and fills from this step.
+11. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ### Action Strategy
 
@@ -143,7 +144,7 @@ If a scroll reveals new interactive elements that were not in the initial snapsh
 Explore in first person, as a real user who has never seen this page before. Name the specific element, its position, its visual weight. If you can't name it specifically, you're generating platitudes — look harder.
 
 ```
-"I click the '引用资源' button... the page jumps to a different URL... a '正在备份' 
+"I click the 'Attach resources' button... the page jumps to a different URL... a 'Backing up'
 overlay appears... everything is greyed out... I can't do anything... 5 seconds pass... 
 still backing up... 10 seconds... where did my text go? It's gone. I'm stuck."
 ```
@@ -187,7 +188,7 @@ At the end of the exploration, include a goodwill dashboard in the report:
 Goodwill: 70 ██████████████████░░░░░░░░░░░░
   Step 1: Focus input          70 → 70  (neutral, placeholder is clear)
   Step 2: Type text             70 → 70  (send button enables, good)
-  Step 3: Click "引用资源"       70 → 45  (-15 text cleared without warning, -10 all buttons disabled)
+  Step 3: Click "Attach resources" 70 → 45  (-15 text cleared without warning, -10 all buttons disabled)
   Step 4: Wait for backup       45 → 40  (-5 no progress indication)
   FINAL: 40/100 ⚠️ NEEDS WORK
 ```
@@ -302,6 +303,7 @@ The final report goes to `{OUTPUT_DIR}/report.md`:
 - **Before**: ![step-001](screenshots/step-001.png)
 - **Action**: click @e3
 - **After**: ![step-001-after](screenshots/step-001-after.png)
+- **Diff**: [step-001 diff](diffs/step-001.txt)
 - **Observation**: [what happened, what changed]
 - **Issue**: None / UX-NNN
 
@@ -352,6 +354,7 @@ Goodwill: 70 ██████████████████░░░░�
 ## Artifacts
 - Full video: explore-video.webm
 - Screenshots: screenshots/
+- Snapshot diffs: diffs/
 ```
 
 **Important:** Re-read the report after finishing exploration and update the summary severity counts so they match the actual issues found. Every `### UX-` block must be reflected in the totals.
@@ -381,7 +384,7 @@ agent-browser close
 Use `agent-browser diff snapshot` to detect what changed after an interaction:
 
 1. Before the action: run `agent-browser snapshot` to establish the session baseline, or save it with `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
-2. After the action: run `agent-browser diff snapshot`, or `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
+2. After the action: run `agent-browser diff snapshot`, or save it with `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt`
 3. If you need a permanent after-state archive, save it after diffing: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-after.txt`
 
 The diff shows exactly which elements appeared, disappeared, or changed text content. This catches state changes that are invisible in screenshots (e.g., aria-label updates, hidden field changes, class toggles).
@@ -391,7 +394,7 @@ The diff shows exactly which elements appeared, disappeared, or changed text con
 - **Judge as a user, not a tester.** You are exploring like a real person who has never seen this page before. If something feels off, investigate.
 - **Narrate in first person.** "I click the button... nothing happens... did it work?" — not "the interaction lacked feedback." Specific, concrete, naming elements. If you can't name the element, you're generating platitudes.
 - **Write findings incrementally.** Append each issue to the report as you discover it. If the session is interrupted, findings are preserved. Never batch all issues for the end.
-- **Use the right snapshot command.** `snapshot -i` for finding clickable/fillable elements. `snapshot` (no flag) for reading page content and understanding context after an action.
+- **Use the right snapshot command.** `snapshot -i` finds clickable/fillable elements. `agent-browser diff snapshot --baseline` records what changed after an action. `snapshot` (no flag) reads page content when the diff needs more context.
 - **Screenshot each step.** Capture the before, the action, and the after so someone reading the report can follow along visually.
 - **Match evidence to issue type.** Every issue needs a screenshot reference. If the issue involves user interaction or state change, reference both the before and after screenshots.
 - **Check console periodically.** Run `agent-browser console` and `agent-browser errors` every few interactions. Some issues are invisible in the UI but show up as JS errors or failed network requests.
