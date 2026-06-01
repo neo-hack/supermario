@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report - {DOMAIN}</title>
+<style>
+:root {
+  --primary: #0066cc;
+  --primary-focus: #0071e3;
+  --primary-on-dark: #2997ff;
+  --ink: #1d1d1f;
+  --body-on-dark: #ffffff;
+  --body-muted: #cccccc;
+  --ink-muted-80: #333333;
+  --ink-muted-48: #7a7a7a;
+  --divider-soft: #f0f0f0;
+  --hairline: #e0e0e0;
+  --canvas: #ffffff;
+  --parchment: #f5f5f7;
+  --surface-pearl: #fafafc;
+  --surface-tile-1: #272729;
+  --surface-tile-2: #2a2a2c;
+  --surface-black: #000000;
+  --on-primary: #ffffff;
+  --on-dark: #ffffff;
+  --critical: #ff3b30;
+  --high: #ff9500;
+  --medium: #ffcc00;
+  --low: #34c759;
+  --pass: #34c759;
+  --fail: #ff3b30;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 17px; font-weight: 400; line-height: 1.47; letter-spacing: 0;
+  color: var(--ink); background: var(--canvas);
+}
+img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.hero {
+  background: var(--surface-black); color: var(--on-dark);
+  padding: 80px 80px 96px; text-align: center;
+}
+.hero h1 {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 56px; font-weight: 600; line-height: 1.07; letter-spacing: 0; margin-bottom: 16px;
+}
+.hero .subtitle {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 28px; font-weight: 400; line-height: 1.14; letter-spacing: 0; color: var(--body-muted);
+}
+
+.section {
+  padding: 64px 80px;
+}
+.section-alt {
+  padding: 64px 80px;
+  background: var(--parchment);
+}
+.section-dark {
+  padding: 64px 80px;
+  background: var(--surface-black);
+  color: var(--on-dark);
+}
+.section h2, .section-alt h2, .section-dark h2 {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 40px; font-weight: 600; line-height: 1.1; margin-bottom: 32px;
+}
+.section-dark h2 { color: var(--on-dark); }
+
+.session-info {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px;
+  max-width: 600px; margin: 0 auto;
+}
+.session-info dt { color: var(--ink-muted-48); }
+.session-info dd { font-weight: 600; }
+
+.score-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  max-width: 900px; margin: 0 auto;
+}
+.score-card {
+  background: var(--surface-tile-1); border-radius: 8px; padding: 24px;
+  text-align: center;
+}
+.score-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--body-muted); margin-bottom: 8px; }
+.score-card .value { font-family: "SF Pro Display", system-ui, -apple-system, sans-serif; font-size: 32px; font-weight: 600; }
+.score-card .weight { font-size: 12px; color: var(--body-muted); margin-top: 4px; }
+
+.score-total {
+  text-align: center; margin-top: 32px;
+}
+.score-total .value {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 64px; font-weight: 600;
+}
+.score-total .verdict {
+  font-size: 21px; font-weight: 600; margin-top: 8px;
+}
+
+.scenario-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 32px;
+}
+.scenario-table th {
+  text-align: left; padding: 12px 16px; border-bottom: 2px solid var(--hairline);
+  font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted-48);
+}
+.scenario-table td { padding: 12px 16px; border-bottom: 1px solid var(--divider-soft); }
+
+.scenario-detail { margin-bottom: 40px; }
+.scenario-detail h3 {
+  font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 21px; font-weight: 600; margin-bottom: 16px;
+}
+.action-result {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--divider-soft);
+}
+.action-result .tag {
+  font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.tag-pass { background: rgba(52, 199, 89, 0.12); color: var(--pass); }
+.tag-fail { background: rgba(255, 59, 48, 0.12); color: var(--fail); }
+.action-result .text { flex: 1; }
+.action-result .detail { color: var(--ink-muted-48); font-size: 14px; margin-top: 4px; }
+
+.step-entry { margin-bottom: 32px; }
+.step-entry h4 {
+  font-size: 17px; font-weight: 600; margin-bottom: 12px;
+}
+.step-photos {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.step-photos figure { margin: 0; }
+.step-photos figcaption {
+  font-size: 12px; color: var(--ink-muted-48); text-align: center; margin-top: 8px;
+}
+.step-diff { margin-top: 12px; font-size: 14px; }
+
+.issue-card {
+  background: var(--canvas); border-radius: 8px; padding: 24px; margin-bottom: 16px;
+  border: 1px solid var(--hairline);
+}
+.issue-card.critical { border-left: 4px solid var(--critical); }
+.issue-card.high { border-left: 4px solid var(--high); }
+.issue-card.medium { border-left: 4px solid var(--medium); }
+.issue-card.low { border-left: 4px solid var(--low); }
+.issue-card h4 { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+.issue-meta {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.issue-meta span {
+  font-size: 14px; color: var(--ink-muted-48);
+}
+.severity-badge {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: 4px;
+}
+.severity-badge.critical { background: rgba(255, 59, 48, 0.12); color: var(--critical); }
+.severity-badge.high { background: rgba(255, 149, 0, 0.12); color: var(--high); }
+.severity-badge.medium { background: rgba(255, 204, 0, 0.12); color: #b38600; }
+.severity-badge.low { background: rgba(52, 199, 89, 0.12); color: var(--low); }
+
+.summary-row {
+  display: flex; gap: 32px; justify-content: center;
+}
+.summary-item { text-align: center; }
+.summary-item .count {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 40px; font-weight: 600;
+}
+.summary-item .label { font-size: 14px; color: var(--ink-muted-48); }
+
+@media (max-width: 760px) {
+  .hero, .section, .section-alt, .section-dark { padding: 40px 24px; }
+  .hero h1 { font-size: 40px; }
+  .hero .subtitle { font-size: 21px; }
+  .score-grid { grid-template-columns: repeat(2, 1fr); }
+  .step-photos, .session-info { grid-template-columns: 1fr; }
+  .summary-row { flex-wrap: wrap; gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>QA Report</h1>
+  <p class="subtitle">{URL} - {DATE}</p>
+</div>
+
+<div class="section-alt">
+  <h2>Session</h2>
+  <dl class="session-info">
+    <dt>URL</dt><dd>{url}</dd>
+    <dt>Date</dt><dd>{date}</dd>
+    <dt>Mode</dt><dd>{mode}</dd>
+    <dt>Elements found</dt><dd>{count}</dd>
+    <dt>Elements explored</dt><dd>{count}</dd>
+    <dt>Issues</dt><dd>{count}</dd>
+  </dl>
+</div>
+
+<div class="section-dark">
+  <h2>Health Score</h2>
+  <div class="score-grid">
+    <div class="score-card"><div class="label">Console</div><div class="value">{score}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Links</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Visual</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Functional</div><div class="value">{score}</div><div class="weight">20%</div></div>
+    <div class="score-card"><div class="label">UX</div><div class="value">{score}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Performance</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Content</div><div class="value">{score}</div><div class="weight">5%</div></div>
+    <div class="score-card"><div class="label">Accessibility</div><div class="value">{score}</div><div class="weight">15%</div></div>
+  </div>
+  <div class="score-total">
+    <div class="value">{finalScore}</div>
+    <div class="verdict">{verdict}</div>
+  </div>
+</div>
+
+<!-- Case verification mode: Scenario Results section -->
+<div class="section">
+  <h2>Scenario Results</h2>
+  <table class="scenario-table">
+    <thead><tr><th>Scenario</th><th>Total</th><th>PASS</th><th>FAIL</th></tr></thead>
+    <tbody>
+      <tr><td>{name}</td><td>{total}</td><td>{pass}</td><td>{fail}</td></tr>
+    </tbody>
+  </table>
+
+  <div class="scenario-detail">
+    <h3>{scenario name}</h3>
+    <div class="action-result">
+      <span class="tag tag-pass">PASS</span>
+      <div class="text">{action text}</div>
+    </div>
+    <div class="action-result">
+      <span class="tag tag-fail">FAIL</span>
+      <div class="text">{action text}<div class="detail">{expected} vs {actual}</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Exploration Log -->
+<div class="section-alt">
+  <h2>Exploration Log</h2>
+  <div class="step-entry">
+    <h4>Step {N}: {action description}</h4>
+    <div class="step-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
+    <p class="step-diff"><a href="diffs/step-{NNN}.txt">Snapshot diff</a></p>
+  </div>
+</div>
+
+<!-- Issues -->
+<div class="section">
+  <h2>Issues</h2>
+  <div class="issue-card high">
+    <h4>ISSUE-{NNN}: {title}</h4>
+    <div class="issue-meta">
+      <span class="severity-badge high">High</span>
+      <span>{category}</span>
+      <span>@e{N} {role} "{label}"</span>
+    </div>
+    <p>{description}</p>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="section-dark">
+  <h2>Summary</h2>
+  <div class="summary-row">
+    <div class="summary-item"><div class="count" style="color:var(--critical)">{N}</div><div class="label">Critical</div></div>
+    <div class="summary-item"><div class="count" style="color:var(--high)">{N}</div><div class="label">High</div></div>
+    <div class="summary-item"><div class="count" style="color:var(--medium)">{N}</div><div class="label">Medium</div></div>
+    <div class="summary-item"><div class="count" style="color:var(--low)">{N}</div><div class="label">Low</div></div>
+  </div>
+</div>
+
+</body>
+</html>

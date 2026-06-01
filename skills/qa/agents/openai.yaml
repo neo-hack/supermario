@@ -1,0 +1,4 @@
+interface:
+  display_name: "QA"
+  short_description: "Test web pages and report bugs"
+  default_prompt: "Use $qa to test this web page with agent-browser and produce a QA report."
