@@ -155,7 +155,7 @@ a:hover { text-decoration: underline; }
   font-size: 17px; font-weight: 600; margin-bottom: 12px;
 }
 .step-photos {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
 }
 .step-photos figure { margin: 0; }
 .step-photos figcaption {
@@ -280,6 +280,7 @@ a:hover { text-decoration: underline; }
     <h4>Step {N}: {action description}</h4>
     <div class="step-photos">
       <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
       <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
     </div>
     <p class="step-diff"><a href="diffs/step-{NNN}.txt">Snapshot diff</a></p>

@@ -53,3 +53,26 @@ test('QA references preserve executable browser and reporting rules', () => {
   assert.match(evidence, /templates\/qa-report-template\.html/);
   assert.match(evidence, /baseline\.json/);
 });
+
+test('QA reports show before, target, and after screenshots', () => {
+  const freeExploration = read('references/free-exploration.md');
+  const caseVerification = read('references/case-verification.md');
+  const evidence = read('references/evidence-and-reporting.md');
+  const markdownTemplate = read('templates/qa-report-template.md');
+  const htmlTemplate = read('templates/qa-report-template.html');
+
+  assert.match(freeExploration, /agent-browser highlight @eN/);
+  assert.match(freeExploration, /screenshots\/step-\{NNN\}-target\.png/);
+  assert.match(caseVerification, /screenshots\/step-\{NNN\}-target\.png/);
+  assert.match(evidence, /step-001-target\.png/);
+  assert.match(evidence, /before, target, and after/);
+
+  assert.match(markdownTemplate, /\*\*Before\*\*: !\[step-\{NNN\}\]/);
+  assert.match(markdownTemplate, /\*\*Target\*\*: !\[step-\{NNN\}-target\]/);
+  assert.match(markdownTemplate, /\*\*After\*\*: !\[step-\{NNN\}-after\]/);
+
+  assert.match(htmlTemplate, /grid-template-columns: repeat\(3, 1fr\)/);
+  assert.match(htmlTemplate, /screenshots\/step-\{NNN\}\.png[^]*<figcaption>Before<\/figcaption>/);
+  assert.match(htmlTemplate, /screenshots\/step-\{NNN\}-target\.png[^]*<figcaption>Target<\/figcaption>/);
+  assert.match(htmlTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
+});

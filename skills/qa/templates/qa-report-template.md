@@ -34,6 +34,7 @@
 
 ### Step {N}: {Action description}
 - **Before**: ![step-{NNN}](screenshots/step-{NNN}.png)
+- **Target**: ![step-{NNN}-target](screenshots/step-{NNN}-target.png)
 - **Action**: {action command}
 - **After**: ![step-{NNN}-after](screenshots/step-{NNN}-after.png)
 - **Diff**: [step-{NNN} diff](diffs/step-{NNN}.txt)
@@ -53,7 +54,7 @@
 | **Severity** | critical / high / medium / low |
 | **Category** | visual / functional / ux / content / performance / console / accessibility |
 | **Element** | @e{N} role "label" |
-| **Evidence** | step-{NNN} screenshots, diffs/step-{NNN}.txt |
+| **Evidence** | step-{NNN} before/target/after screenshots, diffs/step-{NNN}.txt |
 | **Description** | {what is wrong, what was expected, what actually happened} |
 | **Recommendation** | {how to fix it} |
 

@@ -8,6 +8,7 @@ Use this reference in every mode. It defines artifact layout, scoring, report st
 screenshots/
   initial.png
   step-001.png
+  step-001-target.png
   step-001-after.png
   issue-001-result.png
 diffs/
@@ -22,6 +23,7 @@ baseline.json
 Every action gets:
 
 - A before screenshot.
+- A highlighted target screenshot showing the element that will be operated on.
 - A pre-action snapshot baseline.
 - An after screenshot.
 - An `agent-browser diff snapshot --baseline` artifact.
@@ -35,7 +37,7 @@ agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/issue-{NNN}-result.
 
 ## Evidence Tiers
 
-- Interactive bugs: before screenshot, baseline snapshot, action, after screenshot, snapshot diff, console/errors.
+- Interactive bugs: before screenshot, highlighted target screenshot, baseline snapshot, action, after screenshot, snapshot diff, console/errors.
 - Static bugs: annotated screenshot, current snapshot if helpful, console/errors if relevant.
 - Intermittent bugs: two attempts when practical, with both observations documented.
 
@@ -97,10 +99,10 @@ Save the baseline as `{OUTPUT_DIR}/baseline.json`:
 
 Write `{OUTPUT_DIR}/report.md` as you work. Append each step, PASS/FAIL result, and issue immediately.
 
-Every exploration step entry must include before/after screenshot links:
+Every exploration step entry must include before, target, and after screenshot links:
 
 ```markdown
-![Before](screenshots/step-001.png) ![After](screenshots/step-001-after.png)
+![Before](screenshots/step-001.png) ![Target](screenshots/step-001-target.png) ![After](screenshots/step-001-after.png)
 ```
 
 In the HTML report, use `<img>` tags inside the step-photos grid:
@@ -108,6 +110,7 @@ In the HTML report, use `<img>` tags inside the step-photos grid:
 ```html
 <div class="step-photos">
   <figure><img src="screenshots/step-001.png" alt="Before"><figcaption>Before</figcaption></figure>
+  <figure><img src="screenshots/step-001-target.png" alt="Target"><figcaption>Target</figcaption></figure>
   <figure><img src="screenshots/step-001-after.png" alt="After"><figcaption>After</figcaption></figure>
 </div>
 ```
@@ -154,7 +157,7 @@ Before finishing:
 
 - Count issues by severity again and update Summary.
 - Ensure every issue has evidence.
-- Ensure every step has before/after screenshots and a snapshot diff.
+- Ensure every step has before, target, and after screenshots plus a snapshot diff.
 - Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
 - Ensure `baseline.json` matches the final score and issue list.
 - Ensure report links are relative to the output directory.

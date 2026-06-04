@@ -28,30 +28,37 @@ agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}.png
 agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt
 ```
 
-3. Execute the operation based on the element role.
-4. Wait for the page to settle:
+3. Highlight the target element and capture the target screenshot:
+
+```bash
+agent-browser highlight @eN
+agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png
+```
+
+4. Execute the operation based on the element role.
+5. Wait for the page to settle:
 
 ```bash
 agent-browser wait 1000
 ```
 
-5. Screenshot after:
+6. Screenshot after:
 
 ```bash
 agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-after.png
 ```
 
-6. Capture the snapshot diff:
+7. Capture the snapshot diff:
 
 ```bash
 agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt
 ```
 
-7. Run `agent-browser snapshot` only if the diff needs more context.
-8. Run `agent-browser console` and `agent-browser errors`.
-9. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
-10. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
-11. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
+8. Run `agent-browser snapshot` only if the diff needs more context.
+9. Run `agent-browser console` and `agent-browser errors`.
+10. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
+11. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
+12. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
 
 ## Action Strategy
 

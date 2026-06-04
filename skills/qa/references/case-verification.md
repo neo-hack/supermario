@@ -44,6 +44,7 @@ agent-browser wait 1000
 - Capture baseline snapshot: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`
 - Run `agent-browser snapshot -i` and match the action to the closest current element.
 - Record coverage with stable traits: URL/path, role, accessible name/label, nearby text, and action text.
+- Highlight the matched target and save target evidence: `agent-browser highlight @eN` then `agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png`.
 - Execute the operation with the current `@eN`.
 - Wait: `agent-browser wait 1000`.
 - Screenshot after: `{OUTPUT_DIR}/screenshots/step-{NNN}-after.png`
