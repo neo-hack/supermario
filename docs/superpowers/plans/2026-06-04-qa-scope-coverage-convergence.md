@@ -14,7 +14,7 @@
 
 | Path | Responsibility |
 |------|----------------|
-| `skills/qa/SKILL.md` | Main router. Adds scope-trigger routing and mode applicability for coverage. |
+| `skills/qa/SKILL.md` | Main router. Adds scope-trigger routing, convergence threshold input guidance, and mode applicability for coverage. |
 | `skills/qa/references/scope-resolution.md` | New shared reference that resolves natural-language component scope before free/case/init execution. |
 | `skills/qa/references/free-exploration.md` | Adds scoped queue building, `coverage.json`, convergence loop, and P0 halt behavior for free mode. |
 | `skills/qa/references/case-verification.md` | Applies resolved scope to scenario execution and uncovered-element coverage. |
@@ -219,6 +219,7 @@ git commit -m "feat(qa): add scope resolution guidance"
 
 **Files:**
 - Modify: `tests/qa/structure.test.js`
+- Modify: `skills/qa/SKILL.md`
 - Modify: `skills/qa/references/free-exploration.md`
 - Modify: `skills/qa/references/stopping-criteria.md`
 - Modify: `skills/qa/references/evidence-and-reporting.md`
@@ -229,11 +230,18 @@ Append this test to `tests/qa/structure.test.js`:
 
 ```js
 test('QA free exploration uses a coverage ledger and convergence loop', () => {
+  const skill = read('SKILL.md');
   const freeExploration = read('references/free-exploration.md');
   const stopping = read('references/stopping-criteria.md');
   const evidence = read('references/evidence-and-reporting.md');
 
+  assert.match(skill, /convergence threshold/i);
+  assert.match(skill, /--converge-stable-passes/);
+  assert.match(skill, /stablePassesRequired/);
+
   assert.match(freeExploration, /coverage\.json/);
+  assert.match(freeExploration, /coverageThresholds/);
+  assert.match(freeExploration, /stablePassesRequired/);
   assert.match(freeExploration, /discovered/);
   assert.match(freeExploration, /pending/);
   assert.match(freeExploration, /visited/);
@@ -245,12 +253,13 @@ test('QA free exploration uses a coverage ledger and convergence loop', () => {
   assert.match(freeExploration, /stablePasses/);
 
   assert.match(stopping, /pending is empty/);
-  assert.match(stopping, /stablePasses >= 2/);
+  assert.match(stopping, /stablePasses >= coverageThresholds\.stablePassesRequired/);
   assert.match(stopping, /scroll boundary/);
   assert.match(stopping, /popover|dialog|menu/);
 
   assert.match(evidence, /coverage\.json/);
   assert.match(evidence, /Coverage Status/);
+  assert.match(evidence, /Stable pass threshold/);
 });
 ```
 
@@ -264,7 +273,21 @@ pnpm test -- tests/qa/structure.test.js
 
 Expected: FAIL because the free exploration reference does not define a ledger or convergence loop.
 
-- [ ] **Step 3: Update free exploration queue section**
+- [ ] **Step 3: Update QA input docs for configurable convergence**
+
+In `skills/qa/SKILL.md`, add this row to the Inputs table after `Output directory`:
+
+```markdown
+| Convergence threshold | No | `2` stable passes | Set with `--converge-stable-passes N` or natural language such as "stop after 3 stable passes" |
+```
+
+Then add this paragraph after the Inputs table:
+
+```markdown
+The convergence threshold controls how many consecutive discovery passes may find no new in-scope elements before coverage stops. Default: `stablePassesRequired = 2`. Use a higher value for dynamic pages that reveal controls late; use a lower value only when the user explicitly prefers speed over exhaustiveness.
+```
+
+- [ ] **Step 4: Update free exploration queue section**
 
 Replace the `## Queue` section in `skills/qa/references/free-exploration.md` with:
 
@@ -279,6 +302,9 @@ Use this shape:
 {
   "scope": null,
   "status": "running",
+  "coverageThresholds": {
+    "stablePassesRequired": 2
+  },
   "stablePasses": 0,
   "discovered": [],
   "pending": [],
@@ -288,6 +314,8 @@ Use this shape:
   "halted": null
 }
 ```
+
+`coverageThresholds.stablePassesRequired` defaults to 2. If the user sets `--converge-stable-passes N` or gives an equivalent natural-language instruction, use that value and record it in `coverage.json`.
 
 Each element uses a stable key:
 
@@ -308,7 +336,7 @@ Do not use `@eN` as the stable key. Refs are only valid for the current snapshot
 7. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope elements to `pending`.
 ```
 
-- [ ] **Step 4: Add convergence loop to free exploration**
+- [ ] **Step 5: Add convergence loop to free exploration**
 
 Add this section before `## Action Strategy` in `skills/qa/references/free-exploration.md`:
 
@@ -324,12 +352,12 @@ Continue until the queue converges:
 5. Discover again with `agent-browser snapshot -i --json`.
 6. If no new stable keys appear, increment `stablePasses`.
 7. If new stable keys appear, add them to `pending` and set `stablePasses` to 0.
-8. Stop only when `pending` is empty, `stablePasses >= 2`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
+8. Stop only when `pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
 
 For scoped exploration, apply every convergence check only to the resolved scope and to overlays triggered by that scope.
 ```
 
-- [ ] **Step 5: Update stopping criteria**
+- [ ] **Step 6: Update stopping criteria**
 
 Replace the Free Exploration Mode bullets in `skills/qa/references/stopping-criteria.md` with:
 
@@ -338,7 +366,7 @@ The exploration ends only when coverage converges:
 
 - `{OUTPUT_DIR}/coverage.json` exists and is current.
 - `pending` is empty.
-- `stablePasses >= 2`.
+- `stablePasses >= coverageThresholds.stablePassesRequired`.
 - The scope container or page has reached its scroll boundary.
 - No open menu, popover, dialog, tooltip, or dynamically revealed panel remains unexplored.
 - Every discovered in-scope stable key is in `visited`, `skipped`, `outOfScope`, or `halted`.
@@ -347,7 +375,7 @@ The exploration ends only when coverage converges:
 No issue count limit exists. Keep going until coverage converges or a confirmed P0 halt stops exploration.
 ```
 
-- [ ] **Step 6: Update evidence reference artifacts**
+- [ ] **Step 7: Update evidence reference artifacts**
 
 In `skills/qa/references/evidence-and-reporting.md`, add `coverage.json` to the artifact layout:
 
@@ -375,11 +403,12 @@ Every final report must include coverage status:
 | Out of scope | {count} |
 | Pending | {count} |
 | Stable passes | {count} |
+| Stable pass threshold | {count} |
 | Halt reason | none / {ISSUE-NNN title} |
 ```
 ```
 
-- [ ] **Step 7: Run tests to verify pass**
+- [ ] **Step 8: Run tests to verify pass**
 
 Run:
 
@@ -389,10 +418,10 @@ pnpm test -- tests/qa/structure.test.js
 
 Expected: PASS for the coverage convergence test.
 
-- [ ] **Step 8: Commit coverage convergence**
+- [ ] **Step 9: Commit coverage convergence**
 
 ```bash
-git add skills/qa/references/free-exploration.md skills/qa/references/stopping-criteria.md skills/qa/references/evidence-and-reporting.md tests/qa/structure.test.js
+git add skills/qa/SKILL.md skills/qa/references/free-exploration.md skills/qa/references/stopping-criteria.md skills/qa/references/evidence-and-reporting.md tests/qa/structure.test.js
 git commit -m "feat(qa): add coverage convergence rules"
 ```
 
@@ -661,12 +690,14 @@ test('QA report templates include coverage status', () => {
   assert.match(markdownTemplate, /## Coverage Status/);
   assert.match(markdownTemplate, /Status \| completed \/ halted/);
   assert.match(markdownTemplate, /Pending \| \{count\}/);
+  assert.match(markdownTemplate, /Stable pass threshold \| \{count\}/);
   assert.match(markdownTemplate, /Halt reason \| none \/ ISSUE-\{NNN\}/);
 
   assert.match(htmlTemplate, /<h2>Coverage Status<\/h2>/);
   assert.match(htmlTemplate, /coverage-grid/);
   assert.match(htmlTemplate, /\{coverageStatus\}/);
   assert.match(htmlTemplate, /\{pendingCount\}/);
+  assert.match(htmlTemplate, /\{stablePassThreshold\}/);
   assert.match(htmlTemplate, /\{haltReason\}/);
 
   assert.match(evidence, /Coverage Status/);
@@ -701,6 +732,7 @@ Add this section to `skills/qa/templates/qa-report-template.md` after `## Health
 | Out of scope | {count} |
 | Pending | {count} |
 | Stable passes | {count} |
+| Stable pass threshold | {count} |
 | Halt reason | none / ISSUE-{NNN} |
 ```
 
@@ -738,6 +770,7 @@ Add this section to `skills/qa/templates/qa-report-template.html` after the Heal
     <div class="coverage-pill"><div class="label">Skipped</div><div class="value">{skippedCount}</div></div>
     <div class="coverage-pill"><div class="label">Out of scope</div><div class="value">{outOfScopeCount}</div></div>
     <div class="coverage-pill"><div class="label">Pending</div><div class="value">{pendingCount}</div></div>
+    <div class="coverage-pill"><div class="label">Stable pass threshold</div><div class="value">{stablePassThreshold}</div></div>
     <div class="coverage-pill"><div class="label">Halt reason</div><div class="value">{haltReason}</div></div>
   </div>
 </div>
@@ -843,7 +876,7 @@ Spec coverage:
 
 - Natural-language scope resolution is implemented by Task 1.
 - Scoped queue rules and scope keys are implemented by Tasks 1 and 2.
-- Coverage ledger and convergence loop are implemented by Task 2.
+- Coverage ledger, configurable convergence threshold, and convergence loop are implemented by Task 2.
 - P0 halt behavior is implemented by Task 3.
 - Coverage applicability across free, scoped, case, init, and multi-page modes is implemented by Task 4.
 - Report visibility for coverage status is implemented by Task 5.
@@ -857,6 +890,6 @@ Placeholder scan:
 
 Type consistency:
 
-- `coverage.json` uses the same fields across tasks: `scope`, `status`, `stablePasses`, `discovered`, `pending`, `visited`, `skipped`, `outOfScope`, and `halted`.
+- `coverage.json` uses the same fields across tasks: `scope`, `status`, `coverageThresholds`, `stablePasses`, `discovered`, `pending`, `visited`, `skipped`, `outOfScope`, and `halted`.
 - `scopeKey` is named consistently in scope resolution, coverage, and report sections.
 - `pending`, `visited`, `skipped`, and `outOfScope` are named consistently across references and templates.
