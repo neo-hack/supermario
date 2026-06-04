@@ -1,0 +1,309 @@
+- generic [ref=e1] clickable [onclick]
+  - generic
+    - link "AIDEN" [ref=e2]
+      - Video
+      - StaticText "AIDEN"
+    - generic [ref=e3] clickable [cursor:pointer, onclick, tabindex]
+      - image "folder_stroked"
+      - StaticText "Sparks Space"
+      - image "chevron_down"
+    - button [ref=e4]
+      - generic [ref=e10] clickable [cursor:pointer, onclick]
+        - image
+    - generic
+      - StaticText "任务列表"
+      - generic [ref=e11] clickable [cursor:pointer, onclick]
+        - image
+      - generic [ref=e12] clickable [onclick, tabindex]
+        - generic [ref=e17] clickable [onclick]
+          - button [ref=e18]
+            - image
+    - generic
+      - generic
+        - generic
+          - link "你好 USER 今天 16:30 待命 更多操作" [ref=e19]
+            - StaticText "你好"
+            - generic
+              - image "USER"
+              - StaticText "今天 16:30"
+              - StaticText "待命"
+            - button "更多操作" [ref=e42]
+              - generic [ref=e62] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 16:12 运行失败 更多操作" [ref=e20]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 16:12"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e43]
+              - generic [ref=e63] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 16:09 待命 更多操作" [ref=e21]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 16:09"
+              - StaticText "待命"
+            - button "更多操作" [ref=e44]
+              - generic [ref=e64] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 15:16 待命 更多操作" [ref=e22]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 15:16"
+              - StaticText "待命"
+            - button "更多操作" [ref=e45]
+              - generic [ref=e65] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "/aiden-base:repo-search hi USER 今天 14:16 运行中 更多操作" [ref=e23]
+            - StaticText "/aiden-base:repo-search hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 14:16"
+              - StaticText "运行中"
+            - button "更多操作" [ref=e46]
+              - generic [ref=e66] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 13:56 待命 更多操作" [ref=e24]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 13:56"
+              - StaticText "待命"
+            - button "更多操作" [ref=e47]
+              - generic [ref=e67] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 13:55 运行失败 更多操作" [ref=e25]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 13:55"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e48]
+              - generic [ref=e68] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 11:43 待命 更多操作" [ref=e26]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 11:43"
+              - StaticText "待命"
+            - button "更多操作" [ref=e49]
+              - generic [ref=e69] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 11:22 待命 更多操作" [ref=e27]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 11:22"
+              - StaticText "待命"
+            - button "更多操作" [ref=e50]
+              - generic [ref=e70] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 10:22 待命 更多操作" [ref=e28]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 10:22"
+              - StaticText "待命"
+            - button "更多操作" [ref=e51]
+              - generic [ref=e71] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 今天 10:18 运行失败 更多操作" [ref=e29]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "今天 10:18"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e52]
+              - generic [ref=e72] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "readme.md 里面有什么内容 USER 今天 10:14 运行失败 更多操作" [ref=e30]
+            - StaticText "readme.md 里面有什么内容"
+            - generic
+              - image "USER"
+              - StaticText "今天 10:14"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e53]
+              - generic [ref=e73] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "hi USER 昨天 21:12 运行失败 更多操作" [ref=e31]
+            - StaticText "hi"
+            - generic
+              - image "USER"
+              - StaticText "昨天 21:12"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e54]
+              - generic [ref=e74] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "你好 USER 昨天 19:47 待命 更多操作" [ref=e32]
+            - StaticText "你好"
+            - generic
+              - image "USER"
+              - StaticText "昨天 19:47"
+              - StaticText "待命"
+            - button "更多操作" [ref=e55]
+              - generic [ref=e75] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "你好 USER 昨天 19:37 待命 更多操作" [ref=e33]
+            - StaticText "你好"
+            - generic
+              - image "USER"
+              - StaticText "昨天 19:37"
+              - StaticText "待命"
+            - button "更多操作" [ref=e56]
+              - generic [ref=e76] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "你好 USER 昨天 19:29 运行失败 更多操作" [ref=e34]
+            - StaticText "你好"
+            - generic
+              - image "USER"
+              - StaticText "昨天 19:29"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e57]
+              - generic [ref=e77] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "请只回复 DETAIL_INPUT_SLASH_READY，不要输出其他内容。 USER 昨天 18:39 运行失败 更多操作" [ref=e35]
+            - StaticText "请只回复 DETAIL_INPUT_SLASH_READY，不要输出其他内容。"
+            - generic
+              - image "USER"
+              - StaticText "昨天 18:39"
+              - StaticText "运行失败"
+            - button "更多操作" [ref=e58]
+              - generic [ref=e78] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "分析项目 USER 昨天 17:22 待命 更多操作" [ref=e36]
+            - StaticText "分析项目"
+            - generic
+              - image "USER"
+              - StaticText "昨天 17:22"
+              - StaticText "待命"
+            - button "更多操作" [ref=e59]
+              - generic [ref=e79] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "分析当前项目 USER 昨天 16:57 待命 更多操作" [ref=e37]
+            - StaticText "分析当前项目"
+            - generic
+              - image "USER"
+              - StaticText "昨天 16:57"
+              - StaticText "待命"
+            - button "更多操作" [ref=e60]
+              - generic [ref=e80] clickable [cursor:pointer, onclick]
+                - image "more"
+          - link "你好 USER 昨天 16:57 待命 更多操作" [ref=e38]
+            - StaticText "你好"
+            - generic
+              - image "USER"
+              - StaticText "昨天 16:57"
+              - StaticText "待命"
+            - button "更多操作" [ref=e61]
+              - generic [ref=e81] clickable [cursor:pointer, onclick]
+                - image "more"
+    - button "项目详情" [ref=e5]
+      - image
+      - StaticText "项目详情"
+      - image
+    - button "基础信息" [ref=e13]
+      - StaticText "基础信息"
+    - button "模型配置" [ref=e14]
+      - StaticText "模型配置"
+    - button "触发器配置" [ref=e15]
+      - StaticText "触发器配置"
+    - button "研发团队" [ref=e6]
+      - image
+      - StaticText "研发团队"
+    - button "代码仓库" [ref=e7]
+      - image
+      - StaticText "代码仓库"
+    - button "扩展能力" [ref=e8]
+      - image
+      - StaticText "扩展能力"
+    - listitem [level=1, ref=e16] clickable [onclick]
+      - image "蒋威"
+    - StaticText "jiangwei.xian"
+    - button "个人设置" [ref=e9]
+      - image "setting_stroked"
+  - generic
+    - region "Chat transcript" [ref=e39]
+      - generic
+        - image [ref=e82] clickable [cursor:pointer, onclick]
+        - generic [ref=e83] clickable [onclick]
+          - StaticText "帮我写一个 hello world 函数"
+        - generic [ref=e84] clickable [onclick]
+          - StaticText "等待执行"
+        - button "仅仓库成员可见" [expanded=false, ref=e85]
+          - image
+          - StaticText "仅仓库成员可见"
+        - image
+        - StaticText "1"
+        - image "USER"
+        - image
+        - StaticText "基础模式"
+        - image
+        - StaticText "自定义镜像：hub.byted.org/faas/ies.sdma.runner.release:bf1e9b729983d9bceba51c368e0d532e_nydus"
+        - StaticText "[aiden-preview] 正在下载 hdt-cli 中..."
+        - button "复制" [ref=e89]
+        - StaticText "[code-server] 触发 session start"
+        - button "复制" [ref=e90]
+        - StaticText "帮我写一个 hello world 函数"
+        - button "复制" [ref=e91]
+        - StaticText "✻"
+        - generic
+        - StaticText "[aiden-preview] hdt-cli 下载完成，正在启动 hdt start..."
+        - button "复制" [ref=e92]
+        - StaticText "[aiden-preview] hdt start 启动完成，正在打开连接..."
+        - button "复制" [ref=e93]
+        - StaticText "✻"
+        - generic
+          - StaticText "Reasoni"
+        - generic
+          - textbox "Markdown editor" [ref=e107]: 
+
+            - paragraph
+              - StaticText "/ 调用命令，@ 上下文资源"
+              - LineBreak "\n"
+          - generic [ref=e94] clickable [onclick]
+            - button "引用资源" [ref=e108]
+          - generic [ref=e95] clickable [onclick]
+            - button "插入命令" [ref=e109]
+          - button "附加文件" [ref=e96]
+          - button "绕过权限" [expanded=false, ref=e97]
+            - StaticText "绕过权限"
+          - button "上下文窗口" [ref=e98]
+          - button "停止当前回合" [ref=e99]
+    - separator "Resize key results panel" [ref=e40] focusable [tabindex]: 33.99700164794922
+      - generic
+    - region "Key results" [ref=e41]
+      - complementary "Resources panel"
+        - generic
+          - button "展开面板" [ref=e100]
+          - heading "Aiden Preview" [level=2, ref=e101]
+          - StaticText "更新于 今天 16:35"
+          - StaticText "|"
+          - button "复制链接" [ref=e102]
+          - button "重新加载" [ref=e103]
+          - button "全屏展示" [ref=e104]
+          - button "在浏览器打开" [ref=e105]
+          - Iframe "http://localhost:3005/panel/33ad9856-6085-42e7-80ea-b0c4b5c99b40" [ref=e106]
+            - generic
+              - tablist
+                - tab "真机" [selected, ref=e110]
+                  - image
+                  - StaticText "真机"
+                  - image
+                - tab "终端" [ref=e111]
+                  - image
+                  - StaticText "终端"
+                  - image
+                - button [expanded=false, ref=e112]
+                  - image
+              - tabpanel "真机"
+                - textbox "请输入 schema 地址（如 sslocal://xxx）" [ref=e113]
+                - StaticText "输入地址并按回车开始预览"
+        - navigation "Key result resources" [ref=e86]
+          - button "Collapse resources" [ref=e87]
+          - button "Aiden Preview plugin" [ref=e88]
+            - StaticText "Aiden Preview"
+- generic

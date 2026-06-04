@@ -1,0 +1,44 @@
+- generic
+  - generic
+    - generic
+      - generic
+        - image
+        - generic
+          - StaticText "字节跳动统一登录平台"
+          - StaticText "我们将始终为您提供安全可靠的身份认证和授权服务"
+        - generic "Tag: CN" [ref=e3] clickable [onclick]
+          - StaticText "CN"
+    - generic
+      - generic [ref=e2] clickable [cursor:pointer, onclick, tabindex]
+        - image
+        - StaticText "简体中文"
+        - image
+      - generic
+        - StaticText "输入账号"
+        - form
+          - LabelText
+          - generic [ref=e11] clickable [onclick]
+            - textbox "请输入邮箱前缀或邮箱地址" [required, ref=e12]: test@bytedance.com
+              - StaticText "test@bytedance.com"
+          - button "下一步" [ref=e6]
+            - generic [ref=e10] clickable [cursor:pointer, onclick]
+              - StaticText "下一步"
+      - generic
+        - StaticText "其他登录方式"
+        - generic
+          - generic [ref=e7] focusable [tabindex]
+            - image [ref=e13] clickable [cursor:pointer, onclick]
+          - generic [ref=e8] focusable [tabindex]
+            - image [ref=e14] clickable [cursor:pointer, onclick]
+          - generic [ref=e9] focusable [tabindex]
+            - image [ref=e15] clickable [cursor:pointer, onclick]
+      - paragraph
+        - StaticText "Copyright"
+      - paragraph
+        - StaticText "2026字节跳动统一登录平台"
+      - image
+      - generic
+        - link "京公网安备 11000002002068号" [ref=e4]
+        - link "京ICP备12025439号-7" [ref=e5]
+  - generic [ref=e1] clickable [cursor:pointer, onclick]
+    - image

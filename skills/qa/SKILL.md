@@ -107,7 +107,7 @@ After all required interactions are complete:
 
 1. Compute the final 8-dimension health score using `references/evidence-and-reporting.md`.
 2. Re-read the report and make summary counts match actual issues.
-3. Generate `{OUTPUT_DIR}/report.html` from `{OUTPUT_DIR}/report.md` using `templates/qa-report-template.html`.
+3. Generate `{OUTPUT_DIR}/report.html` from `{OUTPUT_DIR}/report.md` using `templates/qa-report-template.html`. Every exploration step and issue card must include `<img>` tags referencing the actual before/after screenshots in `screenshots/`. Do not write a step or issue without linking its evidence images.
 4. Save `{OUTPUT_DIR}/baseline.json`.
 5. Close the browser:
 

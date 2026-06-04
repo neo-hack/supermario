@@ -97,6 +97,23 @@ Save the baseline as `{OUTPUT_DIR}/baseline.json`:
 
 Write `{OUTPUT_DIR}/report.md` as you work. Append each step, PASS/FAIL result, and issue immediately.
 
+Every exploration step entry must include before/after screenshot links:
+
+```markdown
+![Before](screenshots/step-001.png) ![After](screenshots/step-001-after.png)
+```
+
+In the HTML report, use `<img>` tags inside the step-photos grid:
+
+```html
+<div class="step-photos">
+  <figure><img src="screenshots/step-001.png" alt="Before"><figcaption>Before</figcaption></figure>
+  <figure><img src="screenshots/step-001-after.png" alt="After"><figcaption>After</figcaption></figure>
+</div>
+```
+
+A step without screenshot images is incomplete and must not be committed.
+
 Required top-level sections:
 
 - Title: `# QA Report: {URL}`
@@ -138,5 +155,6 @@ Before finishing:
 - Count issues by severity again and update Summary.
 - Ensure every issue has evidence.
 - Ensure every step has before/after screenshots and a snapshot diff.
+- Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
 - Ensure `baseline.json` matches the final score and issue list.
 - Ensure report links are relative to the output directory.

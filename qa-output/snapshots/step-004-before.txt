@@ -1,0 +1,46 @@
+- generic
+  - generic
+    - generic
+      - generic
+        - image
+        - generic
+          - StaticText "字节跳动统一登录平台"
+          - StaticText "我们将始终为您提供安全可靠的身份认证和授权服务"
+        - generic "Tag: CN" [ref=e3] clickable [onclick]
+          - StaticText "CN"
+    - generic
+      - generic [ref=e2] clickable [cursor:pointer, onclick, tabindex]
+        - image
+        - StaticText "简体中文"
+        - image
+      - generic
+        - generic
+          - generic [ref=e6] clickable [cursor:pointer, onclick]
+            - image
+            - StaticText "返回"
+          - StaticText "输入密码"
+          - StaticText "test@bytedance.com"
+        - form
+          - LabelText
+          - generic
+            - generic [ref=e10] clickable [onclick]
+              - textbox "请输入密码" [required, ref=e11]
+              - button "Show password" [ref=e12]
+                - image "eye_closed_solid"
+            - paragraph
+          - button "登录" [ref=e7]
+            - generic [ref=e8] clickable [cursor:pointer, onclick]
+              - StaticText "登录"
+          - paragraph
+            - generic [ref=e9] clickable [cursor:pointer, onclick, tabindex]
+              - StaticText "忘记密码"
+      - paragraph
+        - StaticText "Copyright"
+      - paragraph
+        - StaticText "2026字节跳动统一登录平台"
+      - image
+      - generic
+        - link "京公网安备 11000002002068号" [ref=e4]
+        - link "京ICP备12025439号-7" [ref=e5]
+  - generic [ref=e1] clickable [cursor:pointer, onclick]
+    - image

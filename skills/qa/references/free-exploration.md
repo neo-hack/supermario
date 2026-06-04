@@ -51,6 +51,7 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 8. Run `agent-browser console` and `agent-browser errors`.
 9. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
 10. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
+11. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
 
 ## Action Strategy
 
