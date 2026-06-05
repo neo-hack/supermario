@@ -18,6 +18,7 @@ snapshots/
 report.md
 report.html
 baseline.json
+coverage.json
 ```
 
 Every action gets:
@@ -117,12 +118,34 @@ In the HTML report, use `<img>` tags inside the step-photos grid:
 
 A step without screenshot images is incomplete and must not be committed.
 
+## Coverage Status
+
+Every final report must include coverage status:
+
+```markdown
+## Coverage Status
+
+| Field | Value |
+|-------|-------|
+| Status | completed / halted |
+| Scope | full page / {scopeKey} |
+| Discovered | {count} |
+| Visited | {count} |
+| Skipped | {count} |
+| Out of scope | {count} |
+| Pending | {count} |
+| Stable passes | {count} |
+| Stable pass threshold | {count} |
+| Halt reason | none / {ISSUE-NNN title} |
+```
+
 Required top-level sections:
 
 - Title: `# QA Report: {URL}`
 - Summary: TL;DR with final score, issue counts, and top risks.
 - Session Info: URL, date, mode, qa.md source if any, counts, artifact directory.
 - Health Score: category table and final score.
+- Coverage Status: status, scope, ledger counts, stable passes, threshold, and halt reason.
 - Scenario Results: only in case verification or init mode.
 - Exploration Log or Uncovered Elements: step-by-step action evidence.
 - Issues: one block per issue.

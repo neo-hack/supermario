@@ -22,8 +22,11 @@ Systematically test a web page as a user, record evidence for every action, and 
 | qa.md | No | - | Scenario file with `<scenario>` blocks |
 | `--init` | No | false | Generate qa.md from existing E2E tests before verification |
 | Output directory | No | `./qa-output/` | Where to save artifacts |
+| Convergence threshold | No | `2` stable passes | Set with `--converge-stable-passes N` or natural language such as "stop after 3 stable passes" |
 
 If the user gives a URL, start immediately. Ask only when the URL is missing or the target cannot be opened.
+
+The convergence threshold controls how many consecutive discovery passes may find no new in-scope elements before coverage stops. Default: `stablePassesRequired = 2`. Use a higher value for dynamic pages that reveal controls late; use a lower value only when the user explicitly prefers speed over exhaustiveness.
 
 ## Hard Rules
 

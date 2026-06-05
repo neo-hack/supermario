@@ -4,13 +4,17 @@
 
 ### Free Exploration Mode
 
-The exploration ends when **all interactive elements on the page have been explored**.
+The exploration ends only when coverage converges:
 
-- After the initial `snapshot -i`, all discovered elements enter a queue
-- Elements are processed top-to-bottom, left-to-right
-- If scrolling reveals new elements (via `snapshot -i` after scroll), add them to the queue
-- No issue count limit -- keep going until the queue is empty
-- Skip elements per the Skip Rules (disabled, hidden, already visited, external links)
+- `{OUTPUT_DIR}/coverage.json` exists and is current.
+- pending is empty.
+- stablePasses >= coverageThresholds.stablePassesRequired.
+- The scope container or page has reached its scroll boundary.
+- No open menu, popover, dialog, tooltip, or dynamically revealed panel remains unexplored.
+- Every discovered in-scope stable key is in `visited`, `skipped`, `outOfScope`, or `halted`.
+- No confirmed P0 halt is active.
+
+No issue count limit exists. Keep going until coverage converges or a confirmed P0 halt stops exploration.
 
 ### Case Verification Mode
 

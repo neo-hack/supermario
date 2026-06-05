@@ -95,3 +95,36 @@ test('QA skill routes natural-language component focus through scope resolution'
   assert.match(scope, /scopeKey/);
   assert.match(scope, /out-of-scope/);
 });
+
+test('QA free exploration uses a coverage ledger and convergence loop', () => {
+  const skill = read('SKILL.md');
+  const freeExploration = read('references/free-exploration.md');
+  const stopping = read('references/stopping-criteria.md');
+  const evidence = read('references/evidence-and-reporting.md');
+
+  assert.match(skill, /convergence threshold/i);
+  assert.match(skill, /--converge-stable-passes/);
+  assert.match(skill, /stablePassesRequired/);
+
+  assert.match(freeExploration, /coverage\.json/);
+  assert.match(freeExploration, /coverageThresholds/);
+  assert.match(freeExploration, /stablePassesRequired/);
+  assert.match(freeExploration, /discovered/);
+  assert.match(freeExploration, /pending/);
+  assert.match(freeExploration, /visited/);
+  assert.match(freeExploration, /skipped/);
+  assert.match(freeExploration, /outOfScope/);
+  assert.match(freeExploration, /halted/);
+  assert.match(freeExploration, /agent-browser snapshot -i --json/);
+  assert.match(freeExploration, /stable key/);
+  assert.match(freeExploration, /stablePasses/);
+
+  assert.match(stopping, /pending is empty/);
+  assert.match(stopping, /stablePasses >= coverageThresholds\.stablePassesRequired/);
+  assert.match(stopping, /scroll boundary/);
+  assert.match(stopping, /popover|dialog|menu/);
+
+  assert.match(evidence, /coverage\.json/);
+  assert.match(evidence, /Coverage Status/);
+  assert.match(evidence, /Stable pass threshold/);
+});

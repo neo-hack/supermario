@@ -2,15 +2,48 @@
 
 Use this mode when no qa.md exists, or after case verification to cover interactive elements that were not exercised by scenarios.
 
+## Coverage Ledger
+
+Free exploration must maintain `{OUTPUT_DIR}/coverage.json`. Do not rely on conversation memory to decide what remains.
+
+Use this shape:
+
+```json
+{
+  "scope": null,
+  "status": "running",
+  "coverageThresholds": {
+    "stablePassesRequired": 2
+  },
+  "stablePasses": 0,
+  "discovered": [],
+  "pending": [],
+  "visited": [],
+  "skipped": [],
+  "outOfScope": [],
+  "halted": null
+}
+```
+
+`coverageThresholds.stablePassesRequired` defaults to 2. If the user sets `--converge-stable-passes N` or gives an equivalent natural-language instruction, use that value and record it in `coverage.json`.
+
+Each element uses a stable key:
+
+```text
+scopeKey + "|" + path + "|" + role + "|" + accessibleName + "|" + nearbyText + "|" + actionKind
+```
+
+Do not use `@eN` as the stable key. Refs are only valid for the current snapshot.
+
 ## Queue
 
-1. Run `agent-browser snapshot -i`.
-2. Build an interaction queue from visible enabled elements.
-3. Sort top-to-bottom, left-to-right.
-4. Record stable traits for each queued element: URL/path, role, accessible name/label, nearby text, and visible position.
-5. After scrolling or opening a panel, run `agent-browser snapshot -i` again and append newly discovered elements.
-
-Do not rely on `@eN` across snapshots. Use it only for the current action after rematching stable traits.
+1. Run `agent-browser snapshot -i --json`.
+2. Normalize each visible enabled interactive element into a stable key.
+3. Add unseen in-scope elements to `discovered` and `pending`.
+4. Sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
+5. Before each action, rematch the stable key to the current `@eN`.
+6. Move completed elements from `pending` to `visited`, `skipped`, or `outOfScope`.
+7. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope elements to `pending`.
 
 ## Per-Element Workflow
 
@@ -59,6 +92,21 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 10. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
 11. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
 12. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
+
+## Convergence Loop
+
+Continue until the queue converges:
+
+1. If `pending` has an item, process exactly one item through the per-element workflow.
+2. After the action, discover again with `agent-browser snapshot -i --json`.
+3. If new in-scope stable keys appear, add them to `pending` and set `stablePasses` to 0.
+4. If `pending` is empty, scroll the scope container. If no scope exists, scroll the page.
+5. Discover again with `agent-browser snapshot -i --json`.
+6. If no new stable keys appear, increment `stablePasses`.
+7. If new stable keys appear, add them to `pending` and set `stablePasses` to 0.
+8. Stop only when `pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
+
+For scoped exploration, apply every convergence check only to the resolved scope and to overlays triggered by that scope.
 
 ## Action Strategy
 
