@@ -76,6 +76,15 @@ When a test has multiple actions before its first assertion, add neutral expecta
 
 Write generated qa.md to `{OUTPUT_DIR}/qa.md`.
 
+## Scope And Coverage
+
+If a resolved scope exists before init QA:
+
+- Generate qa.md only from E2E actions and assertions that apply to the resolved scope when that relationship can be determined.
+- If E2E tests cannot be mapped to the resolved scope, keep the generated qa.md complete but mark out-of-scope scenarios before execution.
+- After generated qa.md self-verification, run coverage for uncovered elements.
+- In scoped init QA, uncovered coverage is limited to in-scope elements.
+
 ## Self-Verify
 
 After generating qa.md:

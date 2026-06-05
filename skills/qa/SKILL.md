@@ -111,6 +111,17 @@ Follow the selected reference exactly:
 
 When case verification completes, free-explore any interactive elements that were not covered by scenario actions.
 
+## Coverage Applicability
+
+Coverage applies by mode:
+
+- Free exploration: required. Maintain `coverage.json` and run the convergence loop.
+- Scoped free exploration: required, but only inside the resolved scope and overlays triggered by that scope.
+- Case verification: partial. Execute scenarios first, then run coverage for uncovered elements.
+- Scoped case verification: partial, only for uncovered in-scope elements.
+- Init QA: generate qa.md, verify generated scenarios, then run coverage for uncovered elements.
+- Multi-page: disabled unless the user explicitly requests multi-page or same-origin following.
+
 ## Cleanup
 
 After all required interactions are complete:

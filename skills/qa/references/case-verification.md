@@ -71,6 +71,15 @@ When matching action text to elements:
 - If multiple elements match, choose the visible enabled element closest to the action language and current scenario context.
 - If no credible match exists, mark the action FAIL with an issue explaining the missing or unmatchable control.
 
+## Scoped Case Verification
+
+If a resolved scope exists:
+
+- Execute scenario actions that target elements inside the resolved scope.
+- If an action targets an element outside the resolved scope, mark it out-of-scope unless the user explicitly allowed it.
+- After scenarios complete, run coverage only for uncovered in-scope elements.
+- Do not explore header, footer, global navigation, or unrelated page controls.
+
 ## Coverage Tracking
 
 Track scenario coverage by stable traits, not by `@eN`. A covered element record should include:

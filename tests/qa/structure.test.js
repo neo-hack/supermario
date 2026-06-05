@@ -145,3 +145,22 @@ test('QA coverage halts after confirmed P0 bugs with evidence', () => {
   assert.match(evidence, /Halted after ISSUE-/);
   assert.match(evidence, /pending elements were not explored/);
 });
+
+test('QA applies coverage by mode with scoped boundaries', () => {
+  const skill = read('SKILL.md');
+  const caseVerification = read('references/case-verification.md');
+  const initQa = read('references/init-qa.md');
+
+  assert.match(skill, /Coverage applies/i);
+  assert.match(skill, /free exploration.*required/i);
+  assert.match(skill, /case verification.*uncovered/i);
+  assert.match(skill, /multi-page.*explicit/i);
+
+  assert.match(caseVerification, /resolved scope/);
+  assert.match(caseVerification, /outside the resolved scope/);
+  assert.match(caseVerification, /uncovered in-scope elements/);
+
+  assert.match(initQa, /resolved scope/);
+  assert.match(initQa, /generated qa\.md/);
+  assert.match(initQa, /coverage for uncovered elements/);
+});
