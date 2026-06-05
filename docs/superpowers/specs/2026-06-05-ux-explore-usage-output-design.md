@@ -2,10 +2,12 @@
 
 ## Goal
 
-Extend `ux-explore` free mode so it produces two distinct Markdown artifacts:
+Extend `ux-explore` free mode so it produces two distinct Markdown artifacts and matching HTML previews:
 
 - `ux-report.md`: UX findings, friction, goodwill score, issues, screenshots, and snapshot diffs.
+- `ux-report.html`: rendered UX report for review.
 - `usage.md`: product usage documentation discovered during exploration, focused on what users can do and the steps that complete each capability.
+- `usage.html`: rendered usage guide for review.
 
 The change keeps `ux-explore` useful for UX issue discovery while also turning free exploration into a lightweight product capability discovery pass.
 
@@ -22,11 +24,13 @@ Those paths are not necessarily UX issues. They are usage knowledge. Keeping the
 
 ## Proposed Output Model
 
-Free mode writes both files into `{OUTPUT_DIR}`:
+Free mode writes these files into `{OUTPUT_DIR}`:
 
 ```text
 ux-report.md
+ux-report.html
 usage.md
+usage.html
 explore-video.webm
 screenshots/
 snapshots/
@@ -36,6 +40,39 @@ diffs/
 `ux-report.md` replaces the current `report.md` role. It remains the main UX assessment artifact.
 
 `usage.md` is a discovered usage guide. It records feature paths in a way a person can read and a future agent can reuse as journey input.
+
+`ux-report.html` and `usage.html` are generated from the Markdown artifacts using skill-owned templates:
+
+```text
+skills/ux-explore/templates/ux-report-template.html
+skills/ux-explore/templates/usage-template.html
+```
+
+The two HTML outputs use separate templates because the UX report and usage guide have different information architecture. The UX report needs issue severity, goodwill, interaction evidence, and three screenshots per step. The usage guide needs capability sections, ordered steps, results, related controls, and evidence links.
+
+## Evidence Model
+
+Every interactive step must capture three screenshots, matching the QA skill evidence model:
+
+```text
+screenshots/step-001.png
+screenshots/step-001-target.png
+screenshots/step-001-after.png
+```
+
+The per-step sequence is:
+
+```bash
+agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}.png
+agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt
+agent-browser highlight @eN
+agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png
+# perform the interaction
+agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-after.png
+agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt
+```
+
+`step-{NNN}.png` shows the state before acting. `step-{NNN}-target.png` shows the highlighted target element. `step-{NNN}-after.png` shows the resulting state. A step without all three screenshots and a snapshot diff is incomplete.
 
 ## `ux-report.md`
 
@@ -49,8 +86,11 @@ diffs/
 - Summary.
 - Artifact links.
 - A link to `usage.md`.
+- A link to `usage.html`.
 
 It should not try to explain every discovered product capability in detail. When a step reveals a coherent feature path, the report can reference the matching section in `usage.md`.
+
+The HTML version should render step evidence with a three-column image grid: Before, Target, After.
 
 ## `usage.md`
 
@@ -96,6 +136,8 @@ Each usage entry should include:
 - Evidence: step numbers and artifacts that support the path.
 - Limitations: optional notes when the path is partial or blocked.
 
+The HTML version should render each usage entry as a readable capability section with the same fields and links back to relevant evidence. It does not need to duplicate every screenshot from the UX report; evidence links are enough unless a screenshot is central to understanding the capability.
+
 ## Free Mode Behavior
 
 Free mode continues to explore the page top-to-bottom, left-to-right and judge interactions against UX criteria. During that same exploration, it should maintain a usage draft:
@@ -129,7 +171,10 @@ Use `usage.md` for discovered product usage. Do not call it `journey-report.md`,
 - Every `usage.md` entry must have evidence references.
 - `usage.md` should avoid UX severity labels.
 - UX problems discovered while using a capability still belong in `ux-report.md`.
-- `ux-report.md` should include an `Artifacts` link to `usage.md`.
+- `ux-report.md` should include `Artifacts` links to `usage.md`, `usage.html`, `ux-report.html`, screenshots, snapshots, and diffs.
+- `usage.md` should include an `Artifacts` link to `usage.html`.
+- `ux-report.html` and `usage.html` must be generated during cleanup.
+- The generated HTML should be checked for relative links and image references.
 - If no coherent capability is discovered, `usage.md` should still exist and state that no complete usage path was observed.
 
 ## Testing Strategy
@@ -137,10 +182,15 @@ Use `usage.md` for discovered product usage. Do not call it `journey-report.md`,
 Add structure tests for `skills/ux-explore/SKILL.md` that verify:
 
 - The skill references `ux-report.md`.
+- The skill references `ux-report.html`.
 - The skill references `usage.md`.
+- The skill references `usage.html`.
 - Free mode is required to maintain a usage draft.
 - `usage.md` includes Purpose, Entry point, Steps, Result, Related controls, Evidence, and Limitations.
-- `ux-report.md` links to `usage.md`.
+- UX steps require before, target, and after screenshots.
+- `ux-report.md` links to `usage.md` and `usage.html`.
+- The skill references `templates/ux-report-template.html` and `templates/usage-template.html`.
+- The template files contain required structural markers, including a three-column step evidence grid for the UX report and capability sections for usage.
 - The skill body remains English-only.
 
 No runtime runner is added. The behavior is encoded in skill instructions and enforced by structure tests, matching the existing skill-test pattern.
@@ -148,7 +198,6 @@ No runtime runner is added. The behavior is encoded in skill instructions and en
 ## Out Of Scope
 
 - Automatic replay of `usage.md`.
-- A separate `usage.html` renderer.
 - Runtime parsing of `usage.md` into journey mode.
 - Coverage ledger or convergence changes for `ux-explore`.
 - Changes to the QA skill.
