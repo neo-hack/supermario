@@ -13,6 +13,7 @@ The exploration ends only when coverage converges:
 - No open menu, popover, dialog, tooltip, or dynamically revealed panel remains unexplored.
 - Every discovered in-scope stable key is in `visited`, `skipped`, `outOfScope`, or `halted`.
 - No confirmed P0 halt is active.
+- Stop immediately after evidence and one minimal reproduction confirm a P0 halt.
 
 No issue count limit exists. Keep going until coverage converges or a confirmed P0 halt stops exploration.
 

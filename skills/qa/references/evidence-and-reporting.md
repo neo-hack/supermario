@@ -139,6 +139,14 @@ Every final report must include coverage status:
 | Halt reason | none / {ISSUE-NNN title} |
 ```
 
+When coverage halts, include this sentence directly under the Coverage Status table:
+
+```markdown
+Halted after ISSUE-001 (P0). 7/19 elements explored. 12 pending elements were not explored because the page entered an unrecoverable state.
+```
+
+Do not count pending elements as passed.
+
 Required top-level sections:
 
 - Title: `# QA Report: {URL}`

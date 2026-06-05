@@ -108,6 +108,37 @@ Continue until the queue converges:
 
 For scoped exploration, apply every convergence check only to the resolved scope and to overlays triggered by that scope.
 
+## P0 Halt
+
+If an interaction appears to trigger a P0 bug:
+
+1. Mark the issue as `critical` and `P0 candidate`.
+2. Capture after screenshot, target screenshot, snapshot diff, console, and errors.
+3. Attempt one minimal reproduction from a clean page state:
+
+```bash
+agent-browser reload
+agent-browser wait 1000
+```
+
+4. Repeat only the shortest action sequence that caused the P0.
+5. If reproduced, mark the issue as `confirmed P0`.
+6. Set `coverage.json.status` to `halted`.
+7. Set `coverage.json.halted`:
+
+```json
+{
+  "issueId": "ISSUE-001",
+  "reason": "confirmed P0: submit causes unrecoverable blank screen",
+  "lastStep": "step-007",
+  "remainingPending": 12
+}
+```
+
+8. Stop coverage. Do not continue exploring polluted state.
+
+If the issue does not reproduce, mark it intermittent and continue only if the page returns to a trustworthy state.
+
 ## Action Strategy
 
 | Role | Action | Details |

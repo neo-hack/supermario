@@ -17,6 +17,19 @@ Reference for categorizing issues found during QA testing. Read this at the star
 | **medium** | Feature works but with noticeable problems, workaround exists |
 | **low** | Minor cosmetic or polish issue |
 
+## P0 / Critical Halt Triggers
+
+P0 is the subset of Critical issues that should halt coverage after confirmation:
+
+- Blank screen, crash, or unrecoverable page state.
+- Core workflow is blocked, such as login, submit, save, checkout, payment, or deploy.
+- User data is lost or overwritten.
+- Security or permission boundary is visibly broken.
+- Infinite loading prevents further trustworthy exploration.
+- The resolved scope root disappears or becomes unusable.
+
+P0 requires evidence and one minimal reproduction attempt before halting.
+
 ## Categories
 
 ### Visual / UI

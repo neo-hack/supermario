@@ -128,3 +128,20 @@ test('QA free exploration uses a coverage ledger and convergence loop', () => {
   assert.match(evidence, /Coverage Status/);
   assert.match(evidence, /Stable pass threshold/);
 });
+
+test('QA coverage halts after confirmed P0 bugs with evidence', () => {
+  const taxonomy = read('references/issue-taxonomy.md');
+  const freeExploration = read('references/free-exploration.md');
+  const stopping = read('references/stopping-criteria.md');
+  const evidence = read('references/evidence-and-reporting.md');
+
+  assert.match(taxonomy, /P0/);
+  assert.match(taxonomy, /data loss|blank screen|core workflow|security/i);
+  assert.match(freeExploration, /confirmed P0/);
+  assert.match(freeExploration, /halted/);
+  assert.match(freeExploration, /remainingPending/);
+  assert.match(freeExploration, /minimal reproduction/i);
+  assert.match(stopping, /confirmed P0 halt/);
+  assert.match(evidence, /Halted after ISSUE-/);
+  assert.match(evidence, /pending elements were not explored/);
+});
