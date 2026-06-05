@@ -25,6 +25,21 @@
 | Accessibility | | 15% | |
 | **Total** | | | **/100** |
 
+## Coverage Status
+
+| Field | Value |
+|-------|-------|
+| Status | completed / halted |
+| Scope | full page / {scopeKey} |
+| Discovered | {count} |
+| Visited | {count} |
+| Skipped | {count} |
+| Out of scope | {count} |
+| Pending | {count} |
+| Stable passes | {count} |
+| Stable pass threshold | {count} |
+| Halt reason | none / ISSUE-{NNN} |
+
 <!-- Case verification mode: add Scenario Results and Scenario Details sections here -->
 <!-- Free exploration mode: skip directly to Exploration Log -->
 

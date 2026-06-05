@@ -164,3 +164,25 @@ test('QA applies coverage by mode with scoped boundaries', () => {
   assert.match(initQa, /generated qa\.md/);
   assert.match(initQa, /coverage for uncovered elements/);
 });
+
+test('QA report templates include coverage status', () => {
+  const markdownTemplate = read('templates/qa-report-template.md');
+  const htmlTemplate = read('templates/qa-report-template.html');
+  const evidence = read('references/evidence-and-reporting.md');
+
+  assert.match(markdownTemplate, /## Coverage Status/);
+  assert.match(markdownTemplate, /Status \| completed \/ halted/);
+  assert.match(markdownTemplate, /Pending \| \{count\}/);
+  assert.match(markdownTemplate, /Stable pass threshold \| \{count\}/);
+  assert.match(markdownTemplate, /Halt reason \| none \/ ISSUE-\{NNN\}/);
+
+  assert.match(htmlTemplate, /<h2>Coverage Status<\/h2>/);
+  assert.match(htmlTemplate, /coverage-grid/);
+  assert.match(htmlTemplate, /\{coverageStatus\}/);
+  assert.match(htmlTemplate, /\{pendingCount\}/);
+  assert.match(htmlTemplate, /\{stablePassThreshold\}/);
+  assert.match(htmlTemplate, /\{haltReason\}/);
+
+  assert.match(evidence, /Coverage Status/);
+  assert.match(evidence, /completed \/ halted/);
+});
