@@ -4,7 +4,7 @@ description: >-
   Use when asked to QA, test, quality check, bug hunt, find bugs, or verify a
   web page or site with agent-browser, including free exploration, qa.md
   scenario verification, or bootstrapping qa.md from E2E tests.
-argument-hint: "[--init] <url> [output-dir]"
+argument-hint: "[--init] [--converge-stable-passes N] <url> [output-dir]"
 arguments:
   - url
   - output-dir
@@ -44,6 +44,7 @@ Read these shared references before judging or reporting:
 - `references/evidence-and-reporting.md`
 - `references/issue-taxonomy.md`
 - `references/stopping-criteria.md`
+- `references/scope-resolution.md` when the user asks to focus on part of the page
 
 Then read the mode-specific reference:
 
@@ -53,6 +54,12 @@ Then read the mode-specific reference:
 | qa.md exists or was provided | `references/case-verification.md` |
 | No qa.md | `references/free-exploration.md` |
 | Scenarios leave uncovered interactive elements | `references/free-exploration.md` |
+
+## Scope Detection
+
+Detect scope before executing any mode. Read `references/scope-resolution.md` when the request describes a component, section, panel, modal, dialog, card, form, chart, table, or uses language such as `only`, `focus`, `scope`, `component`, `section`, `panel`, `modal`, `dialog`, `card`, or `form`.
+
+If a scope is resolved, execute the selected mode inside that resolved scope. Scope changes where QA explores; it does not change whether the mode is free exploration, case verification, or init QA.
 
 Use these templates for final artifacts:
 

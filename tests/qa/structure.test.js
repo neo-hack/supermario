@@ -76,3 +76,22 @@ test('QA reports show before, target, and after screenshots', () => {
   assert.match(htmlTemplate, /screenshots\/step-\{NNN\}-target\.png[^]*<figcaption>Target<\/figcaption>/);
   assert.match(htmlTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
 });
+
+test('QA skill routes natural-language component focus through scope resolution', () => {
+  const skill = read('SKILL.md');
+  const scope = read('references/scope-resolution.md');
+
+  assert.match(skill, /references\/scope-resolution\.md/);
+  assert.match(skill, /only|focus|scope|component|section|panel|modal|dialog|card|form/);
+  assert.match(skill, /detect scope/i);
+  assert.match(skill, /resolved scope/i);
+
+  assert.match(scope, /Scope Resolution/);
+  assert.match(scope, /Natural-language triggers/);
+  assert.match(scope, /agent-browser snapshot -i --json/);
+  assert.match(scope, /agent-browser screenshot --annotate/);
+  assert.match(scope, /agent-browser highlight/);
+  assert.match(scope, /ask the user to confirm/);
+  assert.match(scope, /scopeKey/);
+  assert.match(scope, /out-of-scope/);
+});
