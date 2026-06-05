@@ -40,6 +40,17 @@ body {
 img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
 a { color: var(--primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
+.step-photos img, .issue-card img {
+  cursor: zoom-in;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.step-photos img:hover, .issue-card img:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.medium-zoom-image--opened { border-radius: 8px; }
+.medium-zoom-overlay { z-index: 50; }
+.medium-zoom-image { z-index: 51; }
 
 .hero {
   background: var(--surface-black); color: var(--on-dark);
@@ -269,14 +280,25 @@ a:hover { text-decoration: underline; }
   <div class="coverage-grid">
     <div class="coverage-pill"><div class="label">Status</div><div class="value">{coverageStatus}</div></div>
     <div class="coverage-pill"><div class="label">Scope</div><div class="value">{scope}</div></div>
-    <div class="coverage-pill"><div class="label">Discovered</div><div class="value">{discoveredCount}</div></div>
-    <div class="coverage-pill"><div class="label">Visited</div><div class="value">{visitedCount}</div></div>
+    <div class="coverage-pill"><div class="label">Raw interactive elements</div><div class="value">{rawInteractiveElements}</div></div>
+    <div class="coverage-pill"><div class="label">Coverage actions discovered</div><div class="value">{discoveredCount}</div></div>
+    <div class="coverage-pill"><div class="label">Coverage actions visited</div><div class="value">{visitedCount}</div></div>
     <div class="coverage-pill"><div class="label">Skipped</div><div class="value">{skippedCount}</div></div>
     <div class="coverage-pill"><div class="label">Out of scope</div><div class="value">{outOfScopeCount}</div></div>
     <div class="coverage-pill"><div class="label">Pending</div><div class="value">{pendingCount}</div></div>
     <div class="coverage-pill"><div class="label">Stable pass threshold</div><div class="value">{stablePassThreshold}</div></div>
     <div class="coverage-pill"><div class="label">Halt reason</div><div class="value">{haltReason}</div></div>
   </div>
+</div>
+
+<div class="section">
+  <h2>Behavior Testing</h2>
+  <table class="scenario-table">
+    <thead><tr><th>Feature Model</th><th>Planned Cases</th><th>Tested Cases</th><th>Skipped Cases</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>{model}</td><td>{plannedCases}</td><td>{testedCases}</td><td>{skippedCases}</td><td>{notes}</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- Case verification mode: Scenario Results section -->
@@ -329,6 +351,77 @@ a:hover { text-decoration: underline; }
     <p>{description}</p>
   </div>
 </div>
+
+<script type="module">
+  import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';
+
+  const zoomSelector = '.step-photos img, .issue-card img';
+  const zoomOptions = {
+    background: 'rgba(0, 0, 0, 0.82)',
+    margin: 24,
+    scrollOffset: 40
+  };
+  let zoom = mediumZoom(zoomSelector, zoomOptions);
+  window.qaImageZoom = zoom;
+
+  function getZoomImages() {
+    return document.querySelectorAll(zoomSelector);
+  }
+
+  function wireImages() {
+    getZoomImages().forEach((image) => {
+      if (image._qaZoomClickHandler) {
+        image.removeEventListener('click', image._qaZoomClickHandler, true);
+      }
+      image._qaZoomClickHandler = (event) => {
+        if (image.classList.contains('medium-zoom-image--opened')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        zoom.open({ target: image });
+      };
+      image.addEventListener('click', image._qaZoomClickHandler, true);
+    });
+  }
+  wireImages();
+
+  function cleanupZoomArtifacts() {
+    document.querySelectorAll('.medium-zoom-overlay').forEach((overlay) => overlay.remove());
+    document.querySelectorAll('body > img.medium-zoom-image').forEach((image) => image.remove());
+    getZoomImages().forEach((image) => {
+      image.classList.remove('medium-zoom-image--opened', 'medium-zoom-image--hidden');
+      image.removeAttribute('style');
+    });
+  }
+
+  function resetZoom() {
+    zoom.detach();
+    cleanupZoomArtifacts();
+    zoom = mediumZoom(zoomSelector, zoomOptions);
+    window.qaImageZoom = zoom;
+    wireImages();
+  }
+
+  function forceCloseZoom() {
+    zoom.close();
+    window.setTimeout(() => {
+      resetZoom();
+    }, 140);
+  }
+
+  function closeOnEscape(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    forceCloseZoom();
+  }
+
+  document.addEventListener('keydown', closeOnEscape, true);
+  document.addEventListener('keyup', closeOnEscape, true);
+  document.addEventListener('click', (event) => {
+    if (event.target.matches('.medium-zoom-overlay, .medium-zoom-image--opened')) {
+      forceCloseZoom();
+    }
+  }, true);
+</script>
 
 </body>
 </html>

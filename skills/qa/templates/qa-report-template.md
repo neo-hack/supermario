@@ -7,8 +7,9 @@
 | URL | {url} |
 | Date | {date} |
 | Mode | Free Exploration / Case Verification |
-| Interactive elements found | {count} |
-| Elements explored | {count} |
+| Raw interactive elements | {count by role} |
+| Coverage actions discovered | {count} |
+| Coverage actions visited | {count} |
 | Issues found | {count} |
 
 ## Health Score
@@ -31,14 +32,21 @@
 |-------|-------|
 | Status | completed / halted |
 | Scope | full page / {scopeKey} |
-| Discovered | {count} |
-| Visited | {count} |
+| Raw interactive elements | {count by role} |
+| Coverage actions discovered | {count} |
+| Coverage actions visited | {count} |
 | Skipped | {count} |
 | Out of scope | {count} |
 | Pending | {count} |
 | Stable passes | {count} |
 | Stable pass threshold | {count} |
 | Halt reason | none / ISSUE-{NNN} |
+
+## Behavior Testing
+
+| Feature model | Planned cases | Tested cases | Skipped cases | Notes |
+|---------------|---------------|--------------|---------------|-------|
+| {model} | {cases} | {cases} | {cases} | {notes} |
 
 <!-- Case verification mode: add Scenario Results and Scenario Details sections here -->
 <!-- Free exploration mode: skip directly to Exploration Log -->

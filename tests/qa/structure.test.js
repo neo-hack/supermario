@@ -18,6 +18,7 @@ test('QA skill delegates mode details to references', () => {
     'references/case-verification.md',
     'references/init-qa.md',
     'references/evidence-and-reporting.md',
+    'references/behavior-testing.md',
     'references/issue-taxonomy.md',
     'references/stopping-criteria.md',
   ]) {
@@ -77,6 +78,19 @@ test('QA reports show before, target, and after screenshots', () => {
   assert.match(htmlTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
 });
 
+test('QA HTML report template supports click-to-zoom screenshots', () => {
+  const htmlTemplate = read('templates/qa-report-template.html');
+
+  assert.match(htmlTemplate, /https:\/\/esm\.sh\/medium-zoom@1\.1\.0/);
+  assert.match(htmlTemplate, /const zoomSelector = '\.step-photos img, \.issue-card img'/);
+  assert.match(htmlTemplate, /cursor: zoom-in/);
+  assert.match(htmlTemplate, /window\.qaImageZoom = zoom/);
+  assert.match(htmlTemplate, /cleanupZoomArtifacts/);
+  assert.match(htmlTemplate, /medium-zoom-image--hidden/);
+  assert.doesNotMatch(htmlTemplate, /image-lightbox/);
+  assert.doesNotMatch(htmlTemplate, /image-trigger/);
+});
+
 test('QA skill routes natural-language component focus through scope resolution', () => {
   const skill = read('SKILL.md');
   const scope = read('references/scope-resolution.md');
@@ -127,6 +141,93 @@ test('QA free exploration uses a coverage ledger and convergence loop', () => {
   assert.match(evidence, /coverage\.json/);
   assert.match(evidence, /Coverage Status/);
   assert.match(evidence, /Stable pass threshold/);
+});
+
+test('QA reports new console output as issue candidates', () => {
+  const freeExploration = read('references/free-exploration.md');
+  const evidence = read('references/evidence-and-reporting.md');
+
+  assert.match(freeExploration, /console-step-\{NNN\}\.txt/);
+  assert.match(freeExploration, /console delta/i);
+  assert.match(freeExploration, /React duplicate key warning/i);
+  assert.match(freeExploration, /issue candidate/i);
+
+  assert.match(evidence, /Console Delta/);
+  assert.match(evidence, /new console output/i);
+  assert.match(evidence, /pre-existing console output/i);
+  assert.match(evidence, /Warning: Encountered two children with the same key/);
+});
+
+test('QA coverage reporting distinguishes raw elements from coverage actions', () => {
+  const freeExploration = read('references/free-exploration.md');
+  const evidence = read('references/evidence-and-reporting.md');
+  const markdownTemplate = read('templates/qa-report-template.md');
+  const htmlTemplate = read('templates/qa-report-template.html');
+
+  assert.match(freeExploration, /rawInteractiveElements/);
+  assert.match(freeExploration, /coverageActions/);
+  assert.match(freeExploration, /Do not label coverage action counts as element counts/);
+
+  assert.match(evidence, /Raw interactive elements/);
+  assert.match(evidence, /Coverage actions discovered/);
+  assert.match(evidence, /Coverage actions visited/);
+
+  assert.match(markdownTemplate, /Raw interactive elements/);
+  assert.match(markdownTemplate, /Coverage actions discovered/);
+  assert.match(markdownTemplate, /Coverage actions visited/);
+
+  assert.match(htmlTemplate, /Raw interactive elements/);
+  assert.match(htmlTemplate, /Coverage actions discovered/);
+  assert.match(htmlTemplate, /Coverage actions visited/);
+});
+
+test('QA skill reads behavior testing separately from coverage mechanics', () => {
+  const skill = read('SKILL.md');
+  const behavior = read('references/behavior-testing.md');
+  const freeExploration = read('references/free-exploration.md');
+  const caseVerification = read('references/case-verification.md');
+  const evidence = read('references/evidence-and-reporting.md');
+  const markdownTemplate = read('templates/qa-report-template.md');
+  const htmlTemplate = read('templates/qa-report-template.html');
+
+  assert.match(skill, /references\/behavior-testing\.md/);
+  assert.match(skill, /behavior testing/i);
+  assert.doesNotMatch(skill, /references\/behavior-coverage\.md/);
+
+  assert.match(behavior, /Feature Model Inference/);
+  assert.match(behavior, /behaviorCases/);
+  assert.match(behavior, /Use this reference in every QA mode/);
+  assert.match(behavior, /Element coverage answers/);
+  assert.match(behavior, /behavior testing answers/);
+  assert.match(behavior, /baseline seed set/);
+  assert.match(behavior, /not an exhaustive list/);
+  assert.match(behavior, /Snapshot-Derived Behavior/);
+  assert.match(behavior, /ARIA state transitions/);
+  assert.match(behavior, /newly revealed controls/i);
+  assert.match(behavior, /Do not limit testing to the common models list/);
+  assert.match(behavior, /text-input|editor|composer/);
+  assert.match(behavior, /form/);
+  assert.match(behavior, /combobox|select|picker/);
+  assert.match(behavior, /menu|popover|dialog/);
+  assert.match(behavior, /table|list/);
+  assert.match(behavior, /file|upload/);
+  assert.match(behavior, /trigger sequence/i);
+  assert.match(behavior, /continue typing/i);
+  assert.match(behavior, /Do not mark a feature complete after only opening/);
+
+  assert.match(freeExploration, /behaviorCases/);
+  assert.match(freeExploration, /pending behavior cases/i);
+  assert.match(freeExploration, /references\/behavior-testing\.md/);
+
+  assert.match(caseVerification, /behavior testing/i);
+  assert.match(caseVerification, /behaviorCases/);
+
+  assert.match(evidence, /Behavior Testing/);
+  assert.match(markdownTemplate, /## Behavior Testing/);
+  assert.match(markdownTemplate, /Planned cases/);
+  assert.match(markdownTemplate, /Tested cases/);
+  assert.match(htmlTemplate, /<h2>Behavior Testing<\/h2>/);
+  assert.doesNotMatch(htmlTemplate, /Behavior cases discovered/);
 });
 
 test('QA coverage halts after confirmed P0 bugs with evidence', () => {
@@ -185,4 +286,13 @@ test('QA report templates include coverage status', () => {
 
   assert.match(evidence, /Coverage Status/);
   assert.match(evidence, /completed \/ halted/);
+});
+
+test('QA skill stores reports under the supermario qa config directory', () => {
+  const skill = read('SKILL.md');
+
+  assert.match(skill, /~\/\.config\/supermario\/qa\/YYYY-MM-DD-<qa-name>\//);
+  assert.match(skill, /qa-name/);
+  assert.match(skill, /Resolve \{OUTPUT_DIR\}/);
+  assert.doesNotMatch(skill, /Output directory \| No \| `\.\/qa-output\/`/);
 });

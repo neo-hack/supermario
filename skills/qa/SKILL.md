@@ -21,10 +21,12 @@ Systematically test a web page as a user, record evidence for every action, and 
 | URL | Yes | - | Target page URL |
 | qa.md | No | - | Scenario file with `<scenario>` blocks |
 | `--init` | No | false | Generate qa.md from existing E2E tests before verification |
-| Output directory | No | `./qa-output/` | Where to save artifacts |
+| Output directory | No | `~/.config/supermario/qa/YYYY-MM-DD-<qa-name>/` | Where to save artifacts |
 | Convergence threshold | No | `2` stable passes | Set with `--converge-stable-passes N` or natural language such as "stop after 3 stable passes" |
 
 If the user gives a URL, start immediately. Ask only when the URL is missing or the target cannot be opened.
+
+When no output directory is provided, derive `qa-name` from the target host, route, or requested scope. Use a short lowercase slug such as `vercel-home`, `chatcomposer-focused-qa`, or `pricing-form`. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/qa/YYYY-MM-DD-<qa-name>/` before creating artifacts.
 
 The convergence threshold controls how many consecutive discovery passes may find no new in-scope elements before coverage stops. Default: `stablePassesRequired = 2`. Use a higher value for dynamic pages that reveal controls late; use a lower value only when the user explicitly prefers speed over exhaustiveness.
 
@@ -45,6 +47,7 @@ The convergence threshold controls how many consecutive discovery passes may fin
 Read these shared references before judging or reporting:
 
 - `references/evidence-and-reporting.md`
+- `references/behavior-testing.md`
 - `references/issue-taxonomy.md`
 - `references/stopping-criteria.md`
 - `references/scope-resolution.md` when the user asks to focus on part of the page
@@ -71,26 +74,28 @@ Use these templates for final artifacts:
 
 ## Setup
 
-1. Create output directories:
+1. Resolve {OUTPUT_DIR}. If the user did not provide one, use `~/.config/supermario/qa/YYYY-MM-DD-<qa-name>/`.
+
+2. Create output directories:
 
 ```bash
 mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/diffs {OUTPUT_DIR}/snapshots
 ```
 
-2. Detect the mode:
+3. Detect the mode:
 
 - If `--init` is present, generate qa.md from E2E tests, then run case verification.
 - Else if qa.md was provided or exists in the current directory, run case verification.
 - Else run free exploration.
 
-3. Open the target page:
+4. Open the target page:
 
 ```bash
 agent-browser --profile Default open {URL}
 agent-browser wait --load networkidle
 ```
 
-4. Capture the initial state:
+5. Capture the initial state:
 
 ```bash
 agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/initial.png
@@ -99,7 +104,8 @@ agent-browser console
 agent-browser errors
 ```
 
-5. Count interactive elements by role. Include the distribution in the report metadata, such as `5 buttons, 3 textboxes, 2 selects, 1 checkbox`.
+6. Count interactive elements by role. Include the distribution in the report metadata, such as `5 buttons, 3 textboxes, 2 selects, 1 checkbox`.
+7. Infer behavior testing models using `references/behavior-testing.md`.
 
 ## Execution
 
@@ -109,17 +115,17 @@ Follow the selected reference exactly:
 - For qa.md verification, parse and execute scenarios with `references/case-verification.md`.
 - For `--init`, generate qa.md with `references/init-qa.md`, then immediately verify the generated scenarios.
 
-When case verification completes, free-explore any interactive elements that were not covered by scenario actions.
+When case verification completes, free-explore any interactive elements and behavior testing cases that were not covered by scenario actions.
 
 ## Coverage Applicability
 
 Coverage applies by mode:
 
-- Free exploration: required. Maintain `coverage.json` and run the convergence loop.
+- Free exploration: required. Maintain `coverage.json` and run the convergence loop for element coverage and behavior testing.
 - Scoped free exploration: required, but only inside the resolved scope and overlays triggered by that scope.
-- Case verification: partial. Execute scenarios first, then run coverage for uncovered elements.
-- Scoped case verification: partial, only for uncovered in-scope elements.
-- Init QA: generate qa.md, verify generated scenarios, then run coverage for uncovered elements.
+- Case verification: partial. Execute scenarios first, then run coverage for uncovered elements and behavior cases.
+- Scoped case verification: partial, only for uncovered in-scope elements and behavior cases.
+- Init QA: generate qa.md, verify generated scenarios, then run coverage for uncovered elements and behavior cases.
 - Multi-page: disabled unless the user explicitly requests multi-page or same-origin following.
 
 ## Cleanup

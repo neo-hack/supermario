@@ -28,7 +28,7 @@ Every action gets:
 - A pre-action snapshot baseline.
 - An after screenshot.
 - An `agent-browser diff snapshot --baseline` artifact.
-- Console and error checks.
+- Console and error checks saved to `console-step-{NNN}.txt` and `errors-step-{NNN}.txt`.
 
 FAIL results also get an annotated issue screenshot:
 
@@ -41,6 +41,19 @@ agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/issue-{NNN}-result.
 - Interactive bugs: before screenshot, highlighted target screenshot, baseline snapshot, action, after screenshot, snapshot diff, console/errors.
 - Static bugs: annotated screenshot, current snapshot if helpful, console/errors if relevant.
 - Intermittent bugs: two attempts when practical, with both observations documented.
+
+## Console Delta
+
+The report must distinguish pre-existing console output from new console output caused by interactions. Save the initial console as `console-initial.txt`, then compare each `console-step-{NNN}.txt` with both the initial log and previous step.
+
+Report new issue candidates for:
+
+- New `[error]` entries.
+- Unhandled promise rejections or uncaught exceptions.
+- Failed critical network/resource requests.
+- React warnings that imply behavioral risk, including `Warning: Encountered two children with the same key`.
+
+If a new console delta is ignored, the step must state why it is benign. Do not summarize the run as "no interaction introduced errors" unless the console delta check is clean.
 
 ## 8-Dimension Health Score
 
@@ -129,8 +142,9 @@ Every final report must include coverage status:
 |-------|-------|
 | Status | completed / halted |
 | Scope | full page / {scopeKey} |
-| Discovered | {count} |
-| Visited | {count} |
+| Raw interactive elements | {count by role} |
+| Coverage actions discovered | {count} |
+| Coverage actions visited | {count} |
 | Skipped | {count} |
 | Out of scope | {count} |
 | Pending | {count} |
@@ -151,9 +165,10 @@ Required top-level sections:
 
 - Title: `# QA Report: {URL}`
 - Summary: TL;DR with final score, issue counts, and top risks.
-- Session Info: URL, date, mode, qa.md source if any, counts, artifact directory.
+- Session Info: URL, date, mode, qa.md source if any, raw interactive element counts, artifact directory.
 - Health Score: category table and final score.
 - Coverage Status: status, scope, ledger counts, stable passes, threshold, and halt reason.
+- Behavior Testing: inferred feature models, behavior cases planned, tested, skipped, and untested limitations.
 - Scenario Results: only in case verification or init mode.
 - Exploration Log or Uncovered Elements: step-by-step action evidence.
 - Issues: one block per issue.
@@ -188,6 +203,8 @@ Before finishing:
 
 - Count issues by severity again and update Summary.
 - Ensure every issue has evidence.
+- Ensure new console delta has either an issue or an explicit benign explanation.
+- Ensure behavior testing lists every planned, tested, or skipped behavior case.
 - Ensure every step has before, target, and after screenshots plus a snapshot diff.
 - Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
 - Ensure `baseline.json` matches the final score and issue list.

@@ -16,6 +16,24 @@ Use this shape:
     "stablePassesRequired": 2
   },
   "stablePasses": 0,
+  "rawInteractiveElements": {
+    "initial": 0,
+    "latest": 0,
+    "distribution": {}
+  },
+  "coverageActions": {
+    "discovered": 0,
+    "visited": 0,
+    "skipped": 0,
+    "outOfScope": 0,
+    "pending": 0
+  },
+  "behaviorCases": {
+    "planned": [],
+    "pending": [],
+    "tested": [],
+    "skipped": []
+  },
   "discovered": [],
   "pending": [],
   "visited": [],
@@ -27,7 +45,11 @@ Use this shape:
 
 `coverageThresholds.stablePassesRequired` defaults to 2. If the user sets `--converge-stable-passes N` or gives an equivalent natural-language instruction, use that value and record it in `coverage.json`.
 
-Each element uses a stable key:
+`rawInteractiveElements` counts current browser snapshot elements by role. `coverageActions` counts planned interaction traits/actions derived from those elements. Do not label coverage action counts as element counts in the report.
+
+Generate behavior cases with `references/behavior-testing.md` before executing raw element actions. Behavior cases are not optional polish; they are part of QA testing.
+
+Each coverage action uses a stable key:
 
 ```text
 scopeKey + "|" + path + "|" + role + "|" + accessibleName + "|" + nearbyText + "|" + actionKind
@@ -39,11 +61,12 @@ Do not use `@eN` as the stable key. Refs are only valid for the current snapshot
 
 1. Run `agent-browser snapshot -i --json`.
 2. Normalize each visible enabled interactive element into a stable key.
-3. Add unseen in-scope elements to `discovered` and `pending`.
-4. Sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
-5. Before each action, rematch the stable key to the current `@eN`.
-6. Move completed elements from `pending` to `visited`, `skipped`, or `outOfScope`.
-7. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope elements to `pending`.
+3. Infer feature models and add behavior cases from `references/behavior-testing.md` to `behaviorCases.planned` and `behaviorCases.pending`.
+4. Add unseen in-scope elements to `discovered` and `pending`.
+5. Sort `behaviorCases.pending` by user workflow order, then sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
+6. Before each action, rematch the stable key to the current `@eN`.
+7. Move completed work from `behaviorCases.pending` to `behaviorCases.tested` or `behaviorCases.skipped`, and from `pending` to `visited`, `skipped`, or `outOfScope`.
+8. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope behavior cases or elements to the queues.
 
 ## Per-Element Workflow
 
@@ -88,23 +111,31 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 ```
 
 8. Run `agent-browser snapshot` only if the diff needs more context.
-9. Run `agent-browser console` and `agent-browser errors`.
-10. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
-11. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
-12. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
+9. Save console and error output:
+
+```bash
+agent-browser console > {OUTPUT_DIR}/console-step-{NNN}.txt
+agent-browser errors > {OUTPUT_DIR}/errors-step-{NNN}.txt
+```
+
+10. Compare `console-step-{NNN}.txt` against `console-initial.txt` and the previous step's console output. Treat any new console delta as an issue candidate unless it is clearly benign test noise and documented as ignored. New `[error]`, unhandled promise rejection, failed critical request, and React duplicate key warning output such as `Warning: Encountered two children with the same key` must be reported or explicitly justified.
+11. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
+12. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
+13. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
 
 ## Convergence Loop
 
 Continue until the queue converges:
 
-1. If `pending` has an item, process exactly one item through the per-element workflow.
-2. After the action, discover again with `agent-browser snapshot -i --json`.
-3. If new in-scope stable keys appear, add them to `pending` and set `stablePasses` to 0.
-4. If `pending` is empty, scroll the scope container. If no scope exists, scroll the page.
-5. Discover again with `agent-browser snapshot -i --json`.
-6. If no new stable keys appear, increment `stablePasses`.
-7. If new stable keys appear, add them to `pending` and set `stablePasses` to 0.
-8. Stop only when `pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
+1. If `behaviorCases.pending` has an item, process exactly one behavior case using the same evidence workflow.
+2. If `pending` has an item, process exactly one item through the per-element workflow.
+3. After the action, discover again with `agent-browser snapshot -i --json`.
+4. If new in-scope stable keys or behavior cases appear, add them to the appropriate pending queue and set `stablePasses` to 0.
+5. If both pending behavior cases and pending element actions are empty, scroll the scope container. If no scope exists, scroll the page.
+6. Discover again with `agent-browser snapshot -i --json`.
+7. If no new stable keys or behavior cases appear, increment `stablePasses`.
+8. If new stable keys or behavior cases appear, add them to pending and set `stablePasses` to 0.
+9. Stop only when `pending` is empty, `behaviorCases.pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
 
 For scoped exploration, apply every convergence check only to the resolved scope and to overlays triggered by that scope.
 
@@ -155,7 +186,7 @@ If the issue does not reproduce, mark it intermittent and continue only if the p
 
 ## 7-Item Checklist
 
-- Console: no new JavaScript errors, unhandled promise rejections, or failed critical requests.
+- Console: no new JavaScript errors, React warnings, unhandled promise rejections, failed critical requests, or unexplained console delta.
 - Functional: the action produces the expected state change or clear feedback.
 - Visual: no overlap, clipping, layout jump, unreadable state, or broken media appears.
 - UX: the interaction is discoverable, reversible when appropriate, and gives timely feedback.

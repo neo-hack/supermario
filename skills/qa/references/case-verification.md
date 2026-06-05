@@ -1,6 +1,6 @@
 # Case Verification
 
-Use this mode when qa.md exists or was generated from E2E tests. Execute the user-defined scenarios first, then free-explore uncovered interactive elements.
+Use this mode when qa.md exists or was generated from E2E tests. Execute the user-defined scenarios first, then free-explore uncovered interactive elements and behavior testing cases.
 
 ## qa.md Schema
 
@@ -94,7 +94,7 @@ Track scenario coverage by stable traits, not by `@eN`. A covered element record
 }
 ```
 
-After all scenarios finish, compare covered traits against the current interactive element inventory. Use `references/free-exploration.md` for all uncovered elements.
+After all scenarios finish, compare covered traits against the current interactive element inventory and inferred behaviorCases from `references/behavior-testing.md`. Use `references/free-exploration.md` for all uncovered elements and behavior cases.
 
 ## Result Semantics
 
