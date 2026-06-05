@@ -29,6 +29,23 @@ test('ux-explore preserves snapshot diff artifacts per step', () => {
   assert.match(skill, /- Snapshot diffs: diffs\//);
 });
 
+test('ux-explore supports journey mode for complete feature flows', () => {
+  const skill = readSkill();
+
+  assert.match(skill, /\[--journey "<goal>"\]/);
+  assert.match(skill, /Mode Selection/);
+  assert.match(skill, /Free mode/);
+  assert.match(skill, /Journey mode/);
+  assert.match(skill, /Journey Brief/);
+  assert.match(skill, /success criteria/);
+  assert.match(skill, /complete feature flow/);
+  assert.match(skill, /Do not traverse unrelated elements before the journey/i);
+  assert.match(skill, /agent-browser snapshot -i/);
+  assert.match(skill, /Journey Results/);
+  assert.match(skill, /Outcome \| completed \/ partial \/ blocked/);
+  assert.match(skill, /RSS subscription journey/);
+});
+
 test('ux-explore skill body stays English-only', () => {
   const skill = readSkill();
 
