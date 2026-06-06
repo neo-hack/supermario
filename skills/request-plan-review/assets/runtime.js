@@ -64,12 +64,45 @@ function initMermaid() {
   });
 }
 
+var roughAnnotate = null;
+var roughNotationLoad = null;
+
+function loadRoughNotation() {
+  if (roughNotationLoad) return roughNotationLoad;
+  roughNotationLoad = import('https://unpkg.com/rough-notation?module')
+    .then(function(mod) {
+      roughAnnotate = mod.annotate;
+      return roughAnnotate;
+    })
+    .catch(function() {
+      roughAnnotate = null;
+      return null;
+    });
+  return roughNotationLoad;
+}
+
+function applyRoughAnnotation(el, options) {
+  if (!el) return;
+  loadRoughNotation().then(function(annotate) {
+    if (!annotate || !document.body.contains(el)) return;
+    try {
+      var annotation = annotate(el, {
+        type: 'underline',
+        color: options && options.color ? options.color : 'var(--accent)',
+        animate: options && Object.prototype.hasOwnProperty.call(options, 'animate') ? options.animate : true,
+        multiline: true
+      });
+      annotation.show();
+    } catch (err) {}
+  });
+}
+
 function initCommentSystem() {
   var meta = document.querySelector('meta[name="source-file"]');
   var sourceFile = meta ? meta.content : '';
   if (!sourceFile) return;
 
-  var comments = [];
+  var comments = seedAutomatedComments();
   var nextId = 1;
   var tooltip = null;
   var popover = null;
@@ -78,6 +111,47 @@ function initCommentSystem() {
 
   var panel = document.createElement('aside');
   panel.className = 'comments-panel';
+
+  function seedAutomatedComments() {
+    var raw = Array.isArray(window.__AUTOMATED_REVIEW_COMMENTS__)
+      ? window.__AUTOMATED_REVIEW_COMMENTS__
+      : [];
+    return raw.map(function(c, index) {
+      return {
+        id: c.id || ('A' + (index + 1)),
+        source: 'automated',
+        reviewer: c.reviewer || 'reviewer',
+        severity: c.severity || 'note',
+        title: c.title || 'Automated review comment',
+        startLine: parseInt(c.startLine, 10) || 0,
+        endLine: parseInt(c.endLine, 10) || parseInt(c.startLine, 10) || 0,
+        selectedText: c.selectedText || '',
+        comment: c.comment || '',
+        unanchored: Boolean(c.unanchored)
+      };
+    });
+  }
+
+  function displayId(c) {
+    return String(c.id);
+  }
+
+  function commentLocation(c) {
+    var start = c.startLine || 0;
+    var end = c.endLine || start;
+    return sourceFile + ':' + start + (start !== end ? '-' + end : '');
+  }
+
+  function severityClass(c) {
+    return 'severity-' + String(c.severity || 'note').toLowerCase();
+  }
+
+  function automatedMeta(c) {
+    if (c.source !== 'automated') return '';
+    return '<span class="comment-card-reviewer">' + escapeHtml(c.reviewer || 'reviewer') + '</span>' +
+      '<span class="comment-card-severity ' + severityClass(c) + '">' + escapeHtml(c.severity || 'note') + '</span>';
+  }
+
   renderPanel();
   layout.appendChild(panel);
 
@@ -97,14 +171,13 @@ function initCommentSystem() {
 
     panel.querySelectorAll('.comment-card-delete').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        deleteComment(parseInt(btn.dataset.id, 10));
+        deleteComment(btn.dataset.id);
       });
     });
     panel.querySelectorAll('.comment-card').forEach(function(card) {
       card.addEventListener('click', function(e) {
         if (e.target.closest('.comment-card-delete')) return;
-        var id = parseInt(card.dataset.id, 10);
-        scrollToBadge(id);
+        scrollToBadge(card.dataset.id);
       });
     });
     var copyBtn = panel.querySelector('[data-action="copy"]');
@@ -114,15 +187,21 @@ function initCommentSystem() {
   }
 
   function renderCard(c) {
-    var loc = sourceFile + ':' + c.startLine + (c.startLine !== c.endLine ? '-' + c.endLine : '');
-    var preview = c.selectedText.split('\n')[0].slice(0, 60);
-    return '<div class="comment-card" data-id="' + c.id + '">' +
+    var loc = commentLocation(c);
+    var preview = c.selectedText ? c.selectedText.split('\n')[0].slice(0, 60) : '';
+    var title = c.source === 'automated' && c.title
+      ? '<div class="comment-card-title">' + escapeHtml(c.title) + '</div>'
+      : '';
+    var unanchored = c.unanchored ? '<span class="comment-card-unanchored">unanchored</span>' : '';
+    return '<div class="comment-card ' + (c.source === 'automated' ? 'comment-card-automated' : '') + '" data-id="' + displayId(c) + '">' +
       '<div class="comment-card-header">' +
-        '<span>#' + c.id + ' ' + loc + '</span>' +
-        '<button class="comment-card-delete" data-id="' + c.id + '">&times;</button>' +
+        '<span>#' + displayId(c) + ' ' + loc + '</span>' +
+        '<span class="comment-card-meta">' + automatedMeta(c) + unanchored + '</span>' +
+        '<button class="comment-card-delete" data-id="' + displayId(c) + '">&times;</button>' +
       '</div>' +
+      title +
       '<div class="comment-card-body">' + escapeHtml(c.comment) + '</div>' +
-      '<div class="comment-card-preview">' + escapeHtml(preview) + '</div>' +
+      (preview ? '<div class="comment-card-preview">' + escapeHtml(preview) + '</div>' : '') +
     '</div>';
   }
 
@@ -130,7 +209,7 @@ function initCommentSystem() {
     var badge = document.querySelector('span.comment-badge[data-comment-id="' + id + '"]');
     if (badge) badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
     panel.querySelectorAll('.comment-card').forEach(function(card) {
-      card.classList.toggle('active', parseInt(card.dataset.id, 10) === id);
+      card.classList.toggle('active', card.dataset.id === String(id));
     });
   }
 
@@ -222,6 +301,7 @@ function initCommentSystem() {
         badge.textContent = id;
         badge.dataset.commentId = id;
         mark.after(badge);
+        applyRoughAnnotation(mark, { animate: true });
         badge.addEventListener('click', function(e) {
           e.stopPropagation();
           scrollToBadge(id);
@@ -245,7 +325,8 @@ function initCommentSystem() {
   }
 
   function deleteComment(id) {
-    var idx = comments.findIndex(function(x) { return x.id === id; });
+    id = String(id);
+    var idx = comments.findIndex(function(x) { return String(x.id) === id; });
     if (idx === -1) return;
     comments.splice(idx, 1);
     var mark = document.querySelector('mark[data-comment-id="' + id + '"]');
