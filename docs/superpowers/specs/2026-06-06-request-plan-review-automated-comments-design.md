@@ -188,6 +188,45 @@ Manual comments keep existing behavior. Deleting an automated comment only
 removes it from the current browser session; it does not rewrite
 `<basename>.reviews.md`.
 
+### Hand-Drawn Annotation Rendering
+
+Comment highlights should use Rough Notation as a progressive enhancement.
+Rough Notation is a small JavaScript library for animated hand-drawn
+annotations on web pages. It supports annotation styles such as `underline`,
+`highlight`, `box`, `circle`, `strike-through`, and `bracket`.
+
+The first implementation should load Rough Notation with a dynamic CDN import,
+matching the existing Shiki and Mermaid runtime pattern:
+
+```js
+const { annotate } = await import('https://unpkg.com/rough-notation?module');
+```
+
+The comments system remains functional if this import fails. In that case,
+highlights use the existing CSS-only `mark.comment-highlight` styling.
+
+Rendering rules:
+
+- Manual text-selection comments annotate the created
+  `mark.comment-highlight` wrapper.
+- Automated comments first try to match the review `Quote:` inside the mapped
+  source-line block. If a match is found, wrap that text in a mark and annotate
+  it. If no match is found, attach the badge to the mapped block and skip the
+  Rough Notation line.
+- Use `type: 'underline'` for review comments by default. `type: 'highlight'`
+  can be tested as an alternate style, but underline is the initial design
+  because it reads like a review mark without covering text.
+- Set `animate: false` for initial page load so many automated comments do not
+  animate at once. Manual comments can use the default animation because they
+  are created one at a time.
+- Do not use Rough Notation inside `table`, `pre`, or `code` content in the
+  first version. These contexts keep the CSS highlight and badge fallback
+  because Rough Notation inserts SVG siblings and can disturb constrained
+  markup.
+
+This keeps the generated HTML resilient on `file://`: the page still renders
+and comments still work when the CDN is unavailable.
+
 ## Line Mapping
 
 The renderer already annotates block-level HTML with `data-source-line`.
@@ -247,6 +286,7 @@ flowchart TD
 - Parser ignores incomplete finding blocks without throwing.
 - Location parser handles single lines and ranges.
 - HTML injection escapes JSON safely.
+- Rough Notation loading failure falls back to CSS highlighting.
 
 ### Integration Checks
 
@@ -256,6 +296,8 @@ flowchart TD
   created and the HTML contains `window.__AUTOMATED_REVIEW_COMMENTS__`.
 - With a finding on a known source line, the runtime places an automated badge
   near the corresponding rendered block.
+- With a finding quote that matches rendered text, the runtime wraps the quote
+  and applies a Rough Notation underline when the CDN is available.
 - With an unmappable finding, the comment appears in the comments panel without
   breaking page initialization.
 
@@ -263,6 +305,7 @@ flowchart TD
 
 - Light and dark mode render automated comment cards legibly.
 - Manual comments can still be added after automated comments.
+- Rough Notation underlines do not obscure text in light or dark mode.
 - Copy All includes both automated and manual comments in a stable order.
 - Deleting a comment in the browser does not affect the sidecar reviews file.
 
