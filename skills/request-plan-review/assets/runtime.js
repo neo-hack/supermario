@@ -152,6 +152,7 @@ function initCommentSystem() {
       '<span class="comment-card-severity ' + severityClass(c) + '">' + escapeHtml(c.severity || 'note') + '</span>';
   }
 
+  applyAutomatedCommentAnchors();
   renderPanel();
   layout.appendChild(panel);
 
@@ -210,6 +211,101 @@ function initCommentSystem() {
     if (badge) badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
     panel.querySelectorAll('.comment-card').forEach(function(card) {
       card.classList.toggle('active', card.dataset.id === String(id));
+    });
+  }
+
+  function canUseRoughNotation(el) {
+    return !el.closest('table, pre, code');
+  }
+
+  function sourceLineOf(el) {
+    return el && el.dataset && el.dataset.sourceLine
+      ? parseInt(el.dataset.sourceLine, 10)
+      : null;
+  }
+
+  function findAnchorForComment(c) {
+    var blocks = Array.from(article.querySelectorAll('[data-source-line]'));
+    var exact = blocks.find(function(el) {
+      return sourceLineOf(el) === c.startLine;
+    });
+    if (exact) return exact;
+
+    var inRange = blocks.find(function(el) {
+      var line = sourceLineOf(el);
+      return line && line >= c.startLine && line <= c.endLine;
+    });
+    if (inRange) return inRange;
+
+    c.unanchored = true;
+    return blocks.find(function(el) {
+      var line = sourceLineOf(el);
+      return line && line > c.endLine;
+    }) || null;
+  }
+
+  function findTextNode(root, text) {
+    if (!text) return null;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      var index = node.nodeValue.indexOf(text);
+      if (index !== -1) return { node: node, index: index };
+    }
+    return null;
+  }
+
+  function wrapMatchedQuote(anchor, c) {
+    if (!c.selectedText || !canUseRoughNotation(anchor)) return null;
+    var firstLine = c.selectedText.split('\n').map(function(line) {
+      return line.trim();
+    }).find(Boolean);
+    if (!firstLine) return null;
+
+    var match = findTextNode(anchor, firstLine);
+    if (!match) return null;
+
+    var range = document.createRange();
+    range.setStart(match.node, match.index);
+    range.setEnd(match.node, match.index + firstLine.length);
+    var mark = document.createElement('mark');
+    mark.className = 'comment-highlight comment-highlight-automated';
+    mark.dataset.commentId = displayId(c);
+    try {
+      range.surroundContents(mark);
+      applyRoughAnnotation(mark, { animate: false });
+      return mark;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function createBadge(c) {
+    var badge = document.createElement('span');
+    badge.className = 'comment-badge comment-badge-automated';
+    badge.textContent = displayId(c);
+    badge.dataset.commentId = displayId(c);
+    badge.addEventListener('click', function(e) {
+      e.stopPropagation();
+      scrollToBadge(displayId(c));
+    });
+    return badge;
+  }
+
+  function applyAutomatedCommentAnchors() {
+    comments.filter(function(c) {
+      return c.source === 'automated';
+    }).forEach(function(c) {
+      var anchor = findAnchorForComment(c);
+      if (!anchor) {
+        c.unanchored = true;
+        return;
+      }
+
+      var mark = wrapMatchedQuote(anchor, c);
+      var badge = createBadge(c);
+      if (mark) mark.after(badge);
+      else anchor.appendChild(badge);
     });
   }
 
