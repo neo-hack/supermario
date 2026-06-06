@@ -51,13 +51,13 @@ function initMermaid() {
       theme: 'dark',
       themeVariables: {
         darkMode: true,
-        background: '#101111',
-        primaryColor: '#1b1c1e',
-        primaryTextColor: '#f9f9f9',
-        primaryBorderColor: '#252829',
-        lineColor: '#9c9c9d',
-        secondaryColor: '#161718',
-        tertiaryColor: '#07080a'
+        background: '#1d1d1f',
+        primaryColor: '#272729',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#333333',
+        lineColor: '#cccccc',
+        secondaryColor: '#2a2a2c',
+        tertiaryColor: '#000000'
       }
     });
     mermaid.default.run({ nodes: mermaidBlocks });
@@ -297,17 +297,18 @@ function initThemeToggle() {
   const saved = localStorage.getItem('md-preview-theme');
   if (saved) {
     html.setAttribute('data-theme', saved);
-    toggle.textContent = saved === 'dark' ? '\u2600' : '\uD83C\uDF19';
-  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-    html.setAttribute('data-theme', 'light');
-    toggle.textContent = '\uD83C\uDF19';
+    toggle.textContent = saved === 'dark' ? 'Light' : 'Dark';
+  } else {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    html.setAttribute('data-theme', systemTheme);
+    toggle.textContent = systemTheme === 'dark' ? 'Light' : 'Dark';
   }
 
   toggle.addEventListener('click', () => {
     const current = html.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
-    toggle.textContent = next === 'dark' ? '\u2600' : '\uD83C\uDF19';
+    toggle.textContent = next === 'dark' ? 'Light' : 'Dark';
     localStorage.setItem('md-preview-theme', next);
   });
 }
