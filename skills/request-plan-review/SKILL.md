@@ -12,17 +12,29 @@ Generate a styled HTML review page from a markdown file. The output is a self-co
 1. Read the target `.md` file.
 2. Read `skills/request-plan-review/assets/template.html` as the HTML shell.
 3. Read `skills/request-plan-review/assets/style.css` and `skills/request-plan-review/assets/runtime.js` — these will be inlined into the HTML.
-4. Convert the markdown content to HTML manually (see MD→HTML rules below).
-5. Generate a TOC sidebar from all h2/h3 headings.
-6. Fill the template slots:
+4. Run automated markdown review:
+   - Import helper functions from `skills/request-plan-review/scripts/review-utils.mjs`.
+   - Read `skills/request-plan-review/references/review-template.md`.
+   - Discover available reviewer CLIs with `discoverReviewers()`.
+   - Build one prompt with `buildReviewPrompt({ sourcePath, markdown, reviewTemplate })`, where `sourcePath` is the target `.md` plan/spec address and `markdown` is the full target file contents.
+   - Run every supported detected reviewer with a 120 second timeout.
+   - Write `docs/request-plan-review/<filename>.reviews.md` with `renderReviewsMarkdown(...)`.
+   - Parse that reviews markdown with `parseReviewsMarkdown(...)`.
+   - Build review data with `buildAutomatedReviewDataScript(...)`.
+   - If no reviewer CLI is detected, still write a `.reviews.md` file that records automated reviews were not run.
+   - If a reviewer fails, times out, or returns invalid output, record the failure in `.reviews.md` and continue rendering.
+5. Convert the markdown content to HTML manually (see MD→HTML rules below).
+6. Generate a TOC sidebar from all h2/h3 headings.
+7. Fill the template slots:
    - `<!-- SLOT:TITLE -->` — page title and topbar (use first h1 text or filename)
    - `<!-- SLOT:SOURCE -->` — relative path of the source `.md` file (e.g. `docs/plans/my-plan.md`)
    - `<!-- SLOT:STYLE -->` — paste the full contents of `style.css` (replaces the entire line including the `/* SLOT:STYLE */` comment)
    - `<!-- SLOT:CONTENT -->` — the converted HTML content
    - `<!-- SLOT:TOC_SIDEBAR -->` — the generated TOC sidebar HTML
+   - `/* SLOT:REVIEW_DATA */` — paste the full output from `buildAutomatedReviewDataScript(...)`
    - `/* SLOT:SCRIPT */` — paste the full contents of `runtime.js` (replaces the entire line including the `/* SLOT:SCRIPT */` comment)
-7. Write the result to `docs/request-plan-review/<filename>.html` (same basename as source).
-8. Run `open docs/request-plan-review/<filename>.html`.
+8. Write the result to `docs/request-plan-review/<filename>.html` (same basename as source).
+9. Run `open docs/request-plan-review/<filename>.html`.
 
 **Output is a single self-contained HTML file** — CSS and JS are inlined, no external assets needed. This ensures the file works with `open` on `file://` protocol without CORS issues.
 
@@ -213,6 +225,54 @@ Generated HTML:
 <h2 data-source-line="12" id="section-name">Section Name</h2>
 ```
 
+## Automated Review Comments
+
+During generation, create a sidecar reviews file:
+
+```text
+docs/request-plan-review/<filename>.reviews.md
+```
+
+Reviewer findings use this parseable markdown format:
+
+```markdown
+## Reviewer: claude
+
+### Finding: Missing failure path
+Severity: high
+Location: docs/superpowers/plans/example.md:42-48
+Quote:
+> original markdown snippet
+
+Comment:
+This step assumes the command succeeds but does not define what to do if the
+generated HTML has no source-line annotations.
+```
+
+Allowed severity values are `critical`, `high`, `medium`, `low`, and `note`.
+
+Injected automated comments use this shape:
+
+```js
+window.__AUTOMATED_REVIEW_COMMENTS__ = [
+  {
+    id: 'A1',
+    source: 'automated',
+    reviewer: 'claude',
+    severity: 'high',
+    title: 'Missing failure path',
+    startLine: 42,
+    endLine: 48,
+    selectedText: 'original markdown snippet',
+    comment: 'This step assumes the command succeeds...',
+    unanchored: false
+  }
+];
+```
+
+Automated comments reuse the existing comments panel. They get `A1`, `A2`, and
+`A3` IDs so manual comments can continue using numeric IDs.
+
 ## Verification
 
 After generating the HTML file:
@@ -228,6 +288,10 @@ Check in browser:
 - Code blocks show shiki syntax highlighting
 - TOC sidebar highlights active section on scroll
 - Tables, admonitions, task lists render properly
+- `docs/request-plan-review/<filename>.reviews.md` exists.
+- If no reviewer CLI is available, the reviews file says automated reviews were not run.
+- If reviewer findings exist, automated comments appear in the comments panel.
+- Rough Notation underlines appear when the CDN is available and CSS highlights remain when it is not.
 
 ## Debugging
 
