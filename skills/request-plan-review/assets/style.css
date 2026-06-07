@@ -20,6 +20,10 @@
   --highlight: rgba(0, 102, 204, 0.08);
   --shadow-float: 0 18px 50px rgba(0,0,0,0.12);
   --shadow-image: 0 18px 38px rgba(0,0,0,0.18);
+  --scrollbar-thumb: rgba(60, 60, 67, 0.28);
+  --scrollbar-thumb-hover: rgba(60, 60, 67, 0.46);
+  --scrollbar-thumb-active: rgba(60, 60, 67, 0.58);
+  --scrollbar-track: transparent;
   --font-primary: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
@@ -29,6 +33,8 @@
   --blue-soft: rgba(0, 102, 204, 0.08);
   --yellow: #9a6700;
   --yellow-soft: rgba(154, 103, 0, 0.1);
+  --comment-highlight-bg: #ffd60a;
+  --comment-highlight-text: #111111;
   --orange: #bc4c00;
   --orange-soft: rgba(188, 76, 0, 0.1);
 }
@@ -55,22 +61,73 @@
   --highlight: rgba(41, 151, 255, 0.12);
   --shadow-float: 0 18px 50px rgba(0,0,0,0.35);
   --shadow-image: 0 18px 44px rgba(0,0,0,0.45);
+  --scrollbar-thumb: rgba(235, 235, 245, 0.26);
+  --scrollbar-thumb-hover: rgba(235, 235, 245, 0.42);
+  --scrollbar-thumb-active: rgba(235, 235, 245, 0.56);
+  --scrollbar-track: transparent;
   --green: #34c759;
   --green-soft: rgba(52, 199, 89, 0.14);
   --blue: #2997ff;
   --blue-soft: rgba(41, 151, 255, 0.14);
   --yellow: #ffd60a;
   --yellow-soft: rgba(255, 214, 10, 0.14);
+  --comment-highlight-bg: #ffd60a;
+  --comment-highlight-text: #111111;
   --orange: #ff9f0a;
   --orange-soft: rgba(255, 159, 10, 0.14);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-* { scrollbar-color: rgba(122,122,122,0.5) transparent; scrollbar-width: thin; }
-*::-webkit-scrollbar { width: 10px; height: 10px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: rgba(122,122,122,0.42); border: 3px solid var(--bg); border-radius: 999px; }
-*::-webkit-scrollbar-thumb:hover { background: rgba(122,122,122,0.65); }
+* {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+*:hover,
+*:focus-within {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: transparent;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece {
+  border: 0;
+  background: transparent;
+}
+*::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  min-height: 44px;
+  border: 4px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  background-clip: content-box;
+  transition: background-color 0.15s;
+}
+*:hover::-webkit-scrollbar-thumb,
+*:focus-within::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  background-clip: content-box;
+}
+*:hover::-webkit-scrollbar-thumb:hover,
+*:focus-within::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
+}
+*:hover::-webkit-scrollbar-thumb:active,
+*:focus-within::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
 html {
   scroll-padding-top: 78px;
@@ -100,23 +157,12 @@ code, pre { font-family: var(--font-mono); }
   z-index: 100;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   height: 44px;
   padding: 0 max(18px, calc((100vw - 1440px) / 2 + 28px));
   background: rgba(0,0,0,0.92);
   color: var(--text-on-dark);
   backdrop-filter: saturate(180%) blur(18px);
-}
-
-.topbar-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1;
-  color: rgba(255,255,255,0.9);
 }
 
 .theme-toggle {
@@ -633,10 +679,19 @@ hr {
 .comment-popover-add:hover { background: var(--accent-hover); }
 
 .comment-highlight {
-  padding: 1px 0;
+  padding: 1px 2px;
   border-radius: 2px;
-  border-bottom: 2px solid rgba(255, 214, 10, 0.75);
-  background: rgba(255, 214, 10, 0.28);
+  border-bottom: 2px solid rgba(17, 17, 17, 0.32);
+  background: var(--comment-highlight-bg);
+  color: var(--comment-highlight-text);
+  cursor: pointer;
+  transition: box-shadow 0.15s, outline-color 0.15s;
+}
+
+.comment-highlight.active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .comment-badge {
@@ -654,9 +709,16 @@ hr {
   line-height: 1;
   cursor: pointer;
   vertical-align: middle;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.comment-badge.active {
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 .comment-card {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
@@ -670,23 +732,40 @@ hr {
 }
 
 .comment-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
+  display: block;
+  padding: 10px 34px 10px 12px;
   border-bottom: 1px solid var(--border-soft);
   color: var(--text-faint);
   font-family: var(--font-mono);
   font-size: 11px;
+  line-height: 1.4;
+}
+
+.comment-card-location {
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .comment-card-delete {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
   border: 0;
   background: none;
   color: var(--text-faint);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.comment-card:hover .comment-card-delete,
+.comment-card:focus-within .comment-card-delete {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .comment-card-delete:hover {
@@ -706,9 +785,12 @@ hr {
 .comment-card-preview {
   max-height: 48px;
   overflow: hidden;
-  padding: 0 12px 10px;
+  margin: 10px 12px 12px;
+  padding: 2px 0 2px 10px;
+  border-left: 3px solid var(--accent);
   color: var(--text-faint);
   font-family: var(--font-mono);
+  font-style: italic;
   font-size: 11px;
   line-height: 1.4;
 }
@@ -764,18 +846,41 @@ hr {
 
 .comment-card-automated {
   border-color: var(--border);
+  background: var(--surface);
 }
 
-.comment-card-meta {
+.comment-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.comment-card-reviewer {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  padding-left: 8px;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--text-faint);
 }
 
-.comment-card-reviewer,
-.comment-card-severity,
+.comment-card-reviewer-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.comment-card-reviewer-fallback {
+  font-family: var(--font-primary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.comment-card-priority,
 .comment-card-unanchored {
   display: inline-flex;
   align-items: center;
@@ -787,30 +892,26 @@ hr {
   white-space: nowrap;
 }
 
-.comment-card-reviewer {
-  background: var(--surface-2);
-  color: var(--text-faint);
-  border: 1px solid var(--border-soft);
-}
-
-.comment-card-severity {
+.comment-card-priority {
   color: #ffffff;
   background: var(--accent);
 }
 
-.comment-card-severity.severity-critical,
-.comment-card-severity.severity-high {
-  background: var(--orange);
+.comment-card-priority.severity-critical,
+.comment-card-priority.severity-high {
+  color: #ffffff;
+  background: var(--accent);
 }
 
-.comment-card-severity.severity-medium {
-  background: var(--yellow);
-  color: var(--text);
+.comment-card-priority.severity-medium {
+  background: var(--accent);
+  color: #ffffff;
 }
 
-.comment-card-severity.severity-low,
-.comment-card-severity.severity-note {
-  background: var(--blue);
+.comment-card-priority.severity-low,
+.comment-card-priority.severity-note {
+  background: var(--accent);
+  color: #ffffff;
 }
 
 .comment-card-unanchored {
@@ -830,11 +931,6 @@ hr {
   width: auto;
   min-width: 22px;
   padding: 0 6px;
-}
-
-.comment-highlight-automated {
-  background: transparent;
-  border-bottom-color: var(--accent);
 }
 
 img {

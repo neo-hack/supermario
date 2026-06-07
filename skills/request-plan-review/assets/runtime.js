@@ -87,8 +87,8 @@ function applyRoughAnnotation(el, options) {
     if (!annotate || !document.body.contains(el)) return;
     try {
       var annotation = annotate(el, {
-        type: 'underline',
-        color: options && options.color ? options.color : 'var(--accent)',
+        type: options && options.type ? options.type : 'highlight',
+        color: options && options.color ? options.color : 'var(--comment-highlight-bg)',
         animate: options && Object.prototype.hasOwnProperty.call(options, 'animate') ? options.animate : true,
         multiline: true
       });
@@ -146,10 +146,57 @@ function initCommentSystem() {
     return 'severity-' + String(c.severity || 'note').toLowerCase();
   }
 
-  function automatedMeta(c) {
+  var reviewerIcons = {
+    claudecode: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z" fill="#D97757" fill-rule="evenodd"></path></svg>',
+    geminicli: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.391A4.391 4.391 0 014.391 0h15.217A4.391 4.391 0 0124 4.391v15.217A4.391 4.391 0 0119.608 24H4.391A4.391 4.391 0 010 19.608V4.391z" fill="url(#lobe-icons-gemini-cli-_R_0_)"></path><path clip-rule="evenodd" d="M19.74 1.444a2.816 2.816 0 012.816 2.816v15.48a2.816 2.816 0 01-2.816 2.816H4.26a2.816 2.816 0 01-2.816-2.816V4.26A2.816 2.816 0 014.26 1.444h15.48zM7.236 8.564l7.752 3.728-7.752 3.727v2.802l9.557-4.596v-3.866L7.236 5.763v2.801z" fill="#1E1E2E" fill-rule="evenodd"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-cli-_R_0_" x1="24" x2="0" y1="6.587" y2="16.494"><stop stop-color="#EE4D5D"></stop><stop offset=".328" stop-color="#B381DD"></stop><stop offset=".476" stop-color="#207CFE"></stop></linearGradient></defs></svg>',
+    codex: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.503 0H4.496A4.496 4.496 0 000 4.496v15.007A4.496 4.496 0 004.496 24h15.007A4.496 4.496 0 0024 19.503V4.496A4.496 4.496 0 0019.503 0z" fill="#fff"></path><path d="M9.064 3.344a4.578 4.578 0 012.285-.312c1 .115 1.891.54 2.673 1.275.01.01.024.017.037.021a.09.09 0 00.043 0 4.55 4.55 0 013.046.275l.047.022.116.057a4.581 4.581 0 012.188 2.399c.209.51.313 1.041.315 1.595a4.24 4.24 0 01-.134 1.223.123.123 0 00.03.115c.594.607.988 1.33 1.183 2.17.289 1.425-.007 2.71-.887 3.854l-.136.166a4.548 4.548 0 01-2.201 1.388.123.123 0 00-.081.076c-.191.551-.383 1.023-.74 1.494-.9 1.187-2.222 1.846-3.711 1.838-1.187-.006-2.239-.44-3.157-1.302a.107.107 0 00-.105-.024c-.388.125-.78.143-1.204.138a4.441 4.441 0 01-1.945-.466 4.544 4.544 0 01-1.61-1.335c-.152-.202-.303-.392-.414-.617a5.81 5.81 0 01-.37-.961 4.582 4.582 0 01-.014-2.298.124.124 0 00.006-.056.085.085 0 00-.027-.048 4.467 4.467 0 01-1.034-1.651 3.896 3.896 0 01-.251-1.192 5.189 5.189 0 01.141-1.6c.337-1.112.982-1.985 1.933-2.618.212-.141.413-.251.601-.33.215-.089.43-.164.646-.227a.098.098 0 00.065-.066 4.51 4.51 0 01.829-1.615 4.535 4.535 0 011.837-1.388zm3.482 10.565a.637.637 0 000 1.272h3.636a.637.637 0 100-1.272h-3.636zM8.462 9.23a.637.637 0 00-1.106.631l1.272 2.224-1.266 2.136a.636.636 0 101.095.649l1.454-2.455a.636.636 0 00.005-.64L8.462 9.23z" fill="url(#lobe-icons-codex-_R_0_)"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-codex-_R_0_" x1="12" x2="12" y1="3" y2="21"><stop stop-color="#B1A7FF"></stop><stop offset=".5" stop-color="#7A9DFF"></stop><stop offset="1" stop-color="#3941FF"></stop></linearGradient></defs></svg>',
+    opencode: '<svg fill="#8f8f94" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 6H8v12h8V6zm4 16H4V2h16v20z"></path></svg>',
+    qwen: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.604 1.34c.393.69.784 1.382 1.174 2.075a.18.18 0 00.157.091h5.552c.174 0 .322.11.446.327l1.454 2.57c.19.337.24.478.024.837-.26.43-.513.864-.76 1.3l-.367.658c-.106.196-.223.28-.04.512l2.652 4.637c.172.301.111.494-.043.77-.437.785-.882 1.564-1.335 2.34-.159.272-.352.375-.68.37-.777-.016-1.552-.01-2.327.016a.099.099 0 00-.081.05 575.097 575.097 0 01-2.705 4.74c-.169.293-.38.363-.725.364-.997.003-2.002.004-3.017.002a.537.537 0 01-.465-.271l-1.335-2.323a.09.09 0 00-.083-.049H4.982c-.285.03-.553-.001-.805-.092l-1.603-2.77a.543.543 0 01-.002-.54l1.207-2.12a.198.198 0 000-.197 550.951 550.951 0 01-1.875-3.272l-.79-1.395c-.16-.31-.173-.496.095-.965.465-.813.927-1.625 1.387-2.436.132-.234.304-.334.584-.335a338.3 338.3 0 012.589-.001.124.124 0 00.107-.063l2.806-4.895a.488.488 0 01.422-.246c.524-.001 1.053 0 1.583-.006L11.704 1c.341-.003.724.032.9.34zm-3.432.403a.06.06 0 00-.052.03L6.254 6.788a.157.157 0 01-.135.078H3.253c-.056 0-.07.025-.041.074l5.81 10.156c.025.042.013.062-.034.063l-2.795.015a.218.218 0 00-.2.116l-1.32 2.31c-.044.078-.021.118.068.118l5.716.008c.046 0 .08.02.104.061l1.403 2.454c.046.081.092.082.139 0l5.006-8.76.783-1.382a.055.055 0 01.096 0l1.424 2.53a.122.122 0 00.107.062l2.763-.02a.04.04 0 00.035-.02.041.041 0 000-.04l-2.9-5.086a.108.108 0 010-.113l.293-.507 1.12-1.977c.024-.041.012-.062-.035-.062H9.2c-.059 0-.073-.026-.043-.077l1.434-2.505a.107.107 0 000-.114L9.225 1.774a.06.06 0 00-.053-.031zm6.29 8.02c.046 0 .058.02.034.06l-.832 1.465-2.613 4.585a.056.056 0 01-.05.029.058.058 0 01-.05-.029L8.498 9.841c-.02-.034-.01-.052.028-.054l.216-.012 6.722-.012z" fill="url(#lobe-icons-qwen-_R_0_)" fill-rule="nonzero"></path><defs><linearGradient id="lobe-icons-qwen-_R_0_" x1="0%" x2="100%" y1="0%" y2="0%"><stop offset="0%" stop-color="#6336E7" stop-opacity=".84"></stop><stop offset="100%" stop-color="#6F69F7" stop-opacity=".84"></stop></linearGradient></defs></svg>'
+  };
+
+  function reviewerKey(reviewer) {
+    var key = String(reviewer || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (key === 'claude' || key === 'claudecode') return 'claudecode';
+    if (key === 'gemini' || key === 'geminicli') return 'geminicli';
+    if (key === 'qwen' || key === 'qwencode') return 'qwen';
+    if (key === 'openai' || key === 'codex') return 'codex';
+    if (key === 'opencode') return 'opencode';
+    return key;
+  }
+
+  function reviewerLabel(reviewer) {
+    var key = reviewerKey(reviewer);
+    var labels = {
+      claudecode: 'Claude Code',
+      geminicli: 'Gemini CLI',
+      codex: 'Codex',
+      opencode: 'OpenCode',
+      qwen: 'Qwen Code'
+    };
+    return labels[key] || String(reviewer || 'Reviewer');
+  }
+
+  function reviewerFallback(reviewer) {
+    return escapeHtml(String(reviewer || 'R').trim().charAt(0).toUpperCase() || 'R');
+  }
+
+  function automatedUser(c) {
     if (c.source !== 'automated') return '';
-    return '<span class="comment-card-reviewer">' + escapeHtml(c.reviewer || 'reviewer') + '</span>' +
-      '<span class="comment-card-severity ' + severityClass(c) + '">' + escapeHtml(c.severity || 'note') + '</span>';
+    var label = reviewerLabel(c.reviewer);
+    var svg = reviewerIcons[reviewerKey(c.reviewer)];
+    var icon = svg
+      ? '<img class="comment-card-reviewer-icon" src="data:image/svg+xml,' + encodeURIComponent(svg) + '" alt="">'
+      : '<span class="comment-card-reviewer-fallback">' + reviewerFallback(c.reviewer) + '</span>';
+    return '<span class="comment-card-reviewer" title="' + escapeHtml(label) + '" aria-label="' + escapeHtml(label) + '">' + icon + '</span>';
+  }
+
+  function automatedMeta(c, unanchored) {
+    if (c.source !== 'automated') return '';
+    return '<div class="comment-card-meta-row">' +
+      automatedUser(c) +
+      '<span class="comment-card-priority ' + severityClass(c) + '">priority: ' + escapeHtml(c.severity || 'note') + '</span>' +
+      unanchored +
+    '</div>';
   }
 
   applyAutomatedCommentAnchors();
@@ -194,23 +241,53 @@ function initCommentSystem() {
       ? '<div class="comment-card-title">' + escapeHtml(c.title) + '</div>'
       : '';
     var unanchored = c.unanchored ? '<span class="comment-card-unanchored">unanchored</span>' : '';
+    var meta = automatedMeta(c, unanchored);
     return '<div class="comment-card ' + (c.source === 'automated' ? 'comment-card-automated' : '') + '" data-id="' + displayId(c) + '">' +
       '<div class="comment-card-header">' +
-        '<span>#' + displayId(c) + ' ' + loc + '</span>' +
-        '<span class="comment-card-meta">' + automatedMeta(c) + unanchored + '</span>' +
+        '<span class="comment-card-location">#' + displayId(c) + ' ' + loc + '</span>' +
         '<button class="comment-card-delete" data-id="' + displayId(c) + '">&times;</button>' +
       '</div>' +
       title +
       '<div class="comment-card-body">' + escapeHtml(c.comment) + '</div>' +
       (preview ? '<div class="comment-card-preview">' + escapeHtml(preview) + '</div>' : '') +
+      meta +
     '</div>';
   }
 
   function scrollToBadge(id) {
     var badge = document.querySelector('span.comment-badge[data-comment-id="' + id + '"]');
     if (badge) badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setActiveComment(id);
+  }
+
+  function setActiveComment(id) {
+    id = String(id);
+    document.querySelectorAll('mark.comment-highlight, span.comment-badge').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.commentId === id);
+    });
     panel.querySelectorAll('.comment-card').forEach(function(card) {
-      card.classList.toggle('active', card.dataset.id === String(id));
+      card.classList.toggle('active', card.dataset.id === id);
+    });
+  }
+
+  function scrollToCard(id) {
+    var card = panel.querySelector('.comment-card[data-id="' + id + '"]');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setActiveComment(id);
+  }
+
+  function bindSourceActivator(el, id) {
+    if (!el) return;
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      scrollToCard(id);
+    });
+    el.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      scrollToCard(id);
     });
   }
 
@@ -273,6 +350,7 @@ function initCommentSystem() {
     mark.dataset.commentId = displayId(c);
     try {
       range.surroundContents(mark);
+      bindSourceActivator(mark, displayId(c));
       applyRoughAnnotation(mark, { animate: false });
       return mark;
     } catch (err) {
@@ -285,10 +363,7 @@ function initCommentSystem() {
     badge.className = 'comment-badge comment-badge-automated';
     badge.textContent = displayId(c);
     badge.dataset.commentId = displayId(c);
-    badge.addEventListener('click', function(e) {
-      e.stopPropagation();
-      scrollToBadge(displayId(c));
-    });
+    bindSourceActivator(badge, displayId(c));
     return badge;
   }
 
@@ -398,10 +473,8 @@ function initCommentSystem() {
         badge.dataset.commentId = id;
         mark.after(badge);
         applyRoughAnnotation(mark, { animate: true });
-        badge.addEventListener('click', function(e) {
-          e.stopPropagation();
-          scrollToBadge(id);
-        });
+        bindSourceActivator(mark, id);
+        bindSourceActivator(badge, id);
       } catch (err) {}
       sel.removeAllRanges();
       renderPanel();
