@@ -408,6 +408,8 @@ Limitations:
 
 Every usage entry must include: title, Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations.
 
+Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html` from `ux-report.md`. Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`. The UX report HTML must render every step with Before, Target, and After screenshots. The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
+
 ## Report Format
 
 Write the UX report incrementally as you explore. Append each step and each UX issue to `{OUTPUT_DIR}/ux-report.md` as you find them so nothing is lost if the session is interrupted. Do not batch all writing for the end.

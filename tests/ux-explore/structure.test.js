@@ -10,6 +10,10 @@ function readSkill() {
   return fs.readFileSync(skillPath, 'utf8');
 }
 
+function readTemplate(relativePath) {
+  return fs.readFileSync(path.join(root, 'skills/ux-explore', relativePath), 'utf8');
+}
+
 test('ux-explore frontmatter uses trigger-only description', () => {
   const skill = readSkill();
   const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
@@ -96,6 +100,40 @@ test('ux-explore free mode maintains a usage draft from observed capabilities', 
   assert.match(skill, /If a path is incomplete, include it with `Limitations`/);
   assert.match(skill, /not exercised/);
   assert.match(skill, /If no coherent capability is discovered/);
+});
+
+test('ux-explore provides HTML templates for UX report and usage guide', () => {
+  const skill = readSkill();
+  const uxTemplate = readTemplate('templates/ux-report-template.html');
+  const usageTemplate = readTemplate('templates/usage-template.html');
+
+  assert.match(skill, /templates\/ux-report-template\.html/);
+  assert.match(skill, /templates\/usage-template\.html/);
+  assert.match(skill, /ux-report\.html/);
+  assert.match(skill, /usage\.html/);
+
+  assert.match(uxTemplate, /<title>UX Explore Report - \{DOMAIN\}<\/title>/);
+  assert.match(uxTemplate, /<h2>Exploration Log<\/h2>/);
+  assert.match(uxTemplate, /class="step-photos"/);
+  assert.match(uxTemplate, /grid-template-columns: repeat\(3, 1fr\)/);
+  assert.match(uxTemplate, /screenshots\/step-\{NNN\}\.png[^]*<figcaption>Before<\/figcaption>/);
+  assert.match(uxTemplate, /screenshots\/step-\{NNN\}-target\.png[^]*<figcaption>Target<\/figcaption>/);
+  assert.match(uxTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
+  assert.match(uxTemplate, /href="usage\.html"/);
+
+  assert.match(usageTemplate, /<title>Usage Guide - \{DOMAIN\}<\/title>/);
+  assert.match(usageTemplate, /<h1>Usage Guide<\/h1>/);
+  assert.match(usageTemplate, /class="capability"/);
+  assert.match(usageTemplate, /Purpose/);
+  assert.match(usageTemplate, /Entry point/);
+  assert.match(usageTemplate, /Related controls/);
+  assert.match(usageTemplate, /Evidence/);
+  assert.match(usageTemplate, /Limitations/);
+  assert.match(usageTemplate, /class="usage-photos"/);
+  assert.match(usageTemplate, /grid-template-columns: repeat\(3, 1fr\)/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}\.png[^]*<figcaption>Before<\/figcaption>/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}-target\.png[^]*<figcaption>Target<\/figcaption>/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
 });
 
 test('ux-explore skill body stays English-only', () => {

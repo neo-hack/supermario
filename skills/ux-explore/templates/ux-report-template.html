@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Explore Report - {DOMAIN}</title>
+<style>
+:root {
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --canvas: #ffffff;
+  --surface: #f5f5f7;
+  --line: #d2d2d7;
+  --accent: #0071e3;
+  --high: #ff3b30;
+  --medium: #ff9500;
+  --low: #34c759;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: var(--ink); background: var(--canvas); line-height: 1.5;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.hero { padding: 64px 72px; background: #000; color: #fff; }
+.hero h1 { margin: 0 0 12px; font-size: 48px; line-height: 1.05; }
+.hero p { margin: 0; color: #d2d2d7; font-size: 20px; }
+.section { padding: 48px 72px; }
+.section-alt { padding: 48px 72px; background: var(--surface); }
+.meta-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: #fff; font-size: 13px; }
+.goodwill { font-size: 32px; font-weight: 700; }
+.step-entry { margin-bottom: 40px; }
+.step-entry h3 { margin: 0 0 12px; }
+.step-photos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.step-photos figure { margin: 0; }
+.step-photos img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.step-photos figcaption { margin-top: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+.issue { border: 1px solid var(--line); border-left: 4px solid var(--medium); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.issue.high { border-left-color: var(--high); }
+.issue.low { border-left-color: var(--low); }
+@media (max-width: 760px) {
+  .hero, .section, .section-alt { padding: 32px 20px; }
+  .hero h1 { font-size: 36px; }
+  .step-photos { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>UX Explore Report</h1>
+  <p>{URL} - {DATE}</p>
+</header>
+
+<section class="section">
+  <h2>Summary</h2>
+  <p class="goodwill">{goodwillScore}/100 {verdict}</p>
+  <div class="meta-tags">
+    <span class="tag">{mode}</span>
+    <span class="tag">{issueCount} issues</span>
+    <span class="tag">{elementCount} elements explored</span>
+    <a class="tag" href="usage.html">Usage guide</a>
+  </div>
+</section>
+
+<section class="section-alt">
+  <h2>Exploration Log</h2>
+  <article class="step-entry">
+    <h3>Step {N}: {action description}</h3>
+    <div class="step-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
+    <p><a href="diffs/step-{NNN}.txt">Snapshot diff</a></p>
+    <p>{observation}</p>
+  </article>
+</section>
+
+<section class="section">
+  <h2>Issues</h2>
+  <article class="issue high">
+    <h3>UX-{NNN}: {title}</h3>
+    <p><strong>Severity:</strong> {severity}</p>
+    <p>{description}</p>
+  </article>
+</section>
+</body>
+</html>
