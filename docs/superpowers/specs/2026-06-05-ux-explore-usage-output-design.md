@@ -24,6 +24,8 @@ Those paths are not necessarily UX issues. They are usage knowledge. Keeping the
 
 ## Proposed Output Model
 
+When no output directory is provided, derive `ux-name` from the target host, route, journey goal, or requested scope. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`, using a short lowercase slug such as `vercel-home`, `rss-subscription-journey`, or `settings-panel`.
+
 Free mode writes these files into `{OUTPUT_DIR}`:
 
 ```text
@@ -48,7 +50,7 @@ skills/ux-explore/templates/ux-report-template.html
 skills/ux-explore/templates/usage-template.html
 ```
 
-The two HTML outputs use separate templates because the UX report and usage guide have different information architecture. The UX report needs issue severity, goodwill, interaction evidence, and three screenshots per step. The usage guide needs capability sections, ordered steps, results, related controls, and evidence links.
+The two HTML outputs use separate templates because the UX report and usage guide have different information architecture. The UX report needs issue severity, goodwill, interaction evidence, and three screenshots per step. The usage guide needs capability sections, ordered steps, results, related controls, evidence links, and before/target/after screenshots for the steps that prove the capability.
 
 ## Evidence Model
 
@@ -123,6 +125,9 @@ Related controls:
 
 Evidence:
 - steps 003-006
+
+Evidence screenshots:
+![Before](screenshots/step-003.png) ![Target](screenshots/step-003-target.png) ![After](screenshots/step-003-after.png)
 ```
 
 Each usage entry should include:
@@ -134,9 +139,10 @@ Each usage entry should include:
 - Result: observable end state.
 - Related controls: optional adjacent actions discovered during exploration.
 - Evidence: step numbers and artifacts that support the path.
+- Evidence screenshots: before, target, and after screenshots for the key step or steps that prove the capability.
 - Limitations: optional notes when the path is partial or blocked.
 
-The HTML version should render each usage entry as a readable capability section with the same fields and links back to relevant evidence. It does not need to duplicate every screenshot from the UX report; evidence links are enough unless a screenshot is central to understanding the capability.
+The HTML version should render each usage entry as a readable capability section with the same fields, links back to relevant evidence, and a three-column image grid for Before, Target, and After screenshots. Usage screenshots can show the key proof step for the capability, or multiple proof steps when one screenshot triplet is not enough to understand the flow.
 
 ## Free Mode Behavior
 
@@ -169,6 +175,7 @@ Use `usage.md` for discovered product usage. Do not call it `journey-report.md`,
 ## Reporting Rules
 
 - Every `usage.md` entry must have evidence references.
+- Every `usage.md` entry must include before, target, and after screenshot links for its evidence.
 - `usage.md` should avoid UX severity labels.
 - UX problems discovered while using a capability still belong in `ux-report.md`.
 - `ux-report.md` should include `Artifacts` links to `usage.md`, `usage.html`, `ux-report.html`, screenshots, snapshots, and diffs.
@@ -181,16 +188,18 @@ Use `usage.md` for discovered product usage. Do not call it `journey-report.md`,
 
 Add structure tests for `skills/ux-explore/SKILL.md` that verify:
 
+- The default output directory resolves to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`.
 - The skill references `ux-report.md`.
 - The skill references `ux-report.html`.
 - The skill references `usage.md`.
 - The skill references `usage.html`.
 - Free mode is required to maintain a usage draft.
 - `usage.md` includes Purpose, Entry point, Steps, Result, Related controls, Evidence, and Limitations.
+- `usage.md` includes before, target, and after screenshot links.
 - UX steps require before, target, and after screenshots.
 - `ux-report.md` links to `usage.md` and `usage.html`.
 - The skill references `templates/ux-report-template.html` and `templates/usage-template.html`.
-- The template files contain required structural markers, including a three-column step evidence grid for the UX report and capability sections for usage.
+- The template files contain required structural markers, including a three-column step evidence grid for the UX report and a three-column screenshot grid inside usage capability sections.
 - The skill body remains English-only.
 
 No runtime runner is added. The behavior is encoded in skill instructions and enforced by structure tests, matching the existing skill-test pattern.

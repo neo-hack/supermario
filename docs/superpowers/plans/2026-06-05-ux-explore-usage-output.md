@@ -179,6 +179,9 @@ Append this test to `tests/ux-explore/structure.test.js` before the English-only
 test('ux-explore writes separate UX report and usage guide markdown', () => {
   const skill = readSkill();
 
+  assert.match(skill, /~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\//);
+  assert.match(skill, /derive `ux-name` from the target host, route, journey goal, or requested scope/);
+  assert.match(skill, /Resolve `\{OUTPUT_DIR\}` to `~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\/`/);
   assert.match(skill, /ux-report\.md/);
   assert.match(skill, /usage\.md/);
   assert.match(skill, /The final UX report goes to `\{OUTPUT_DIR\}\/ux-report\.md`/);
@@ -190,6 +193,10 @@ test('ux-explore writes separate UX report and usage guide markdown', () => {
   assert.match(skill, /Result:/);
   assert.match(skill, /Related controls:/);
   assert.match(skill, /Evidence:/);
+  assert.match(skill, /Evidence screenshots:/);
+  assert.match(skill, /\!\[Before\]\(screenshots\/step-003\.png\)/);
+  assert.match(skill, /\!\[Target\]\(screenshots\/step-003-target\.png\)/);
+  assert.match(skill, /\!\[After\]\(screenshots\/step-003-after\.png\)/);
   assert.match(skill, /Limitations:/);
   assert.match(skill, /UX report: ux-report\.md/);
   assert.match(skill, /Usage guide: usage\.md/);
@@ -224,6 +231,8 @@ with:
 Then add this text after the setup command block:
 
 ```markdown
+When no output directory is provided, derive `ux-name` from the target host, route, journey goal, or requested scope. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`, using a short lowercase slug such as `vercel-home`, `rss-subscription-journey`, or `settings-panel`.
+
 Write UX findings to `{OUTPUT_DIR}/ux-report.md`. This file is the UX critique artifact: interaction evidence, goodwill score, UX issues, summary, and links to artifacts.
 
 Write discovered product usage to `{OUTPUT_DIR}/usage.md`. This file is descriptive, not evaluative: what users can do, where the entry point is, the steps, the visible result, related controls, and evidence.
@@ -264,11 +273,14 @@ Related controls:
 Evidence:
 - steps 003-006
 
+Evidence screenshots:
+![Before](screenshots/step-003.png) ![Target](screenshots/step-003-target.png) ![After](screenshots/step-003-after.png)
+
 Limitations:
 - None observed.
 ```
 
-Every usage entry must include: title, Purpose, Entry point, Steps, Result, Related controls, Evidence, and Limitations.
+Every usage entry must include: title, Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations.
 ````
 
 - [ ] **Step 5: Rename the report format wording**
@@ -454,6 +466,11 @@ test('ux-explore provides HTML templates for UX report and usage guide', () => {
   assert.match(usageTemplate, /Related controls/);
   assert.match(usageTemplate, /Evidence/);
   assert.match(usageTemplate, /Limitations/);
+  assert.match(usageTemplate, /class="usage-photos"/);
+  assert.match(usageTemplate, /grid-template-columns: repeat\(3, 1fr\)/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}\.png[^]*<figcaption>Before<\/figcaption>/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}-target\.png[^]*<figcaption>Target<\/figcaption>/);
+  assert.match(usageTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
 });
 ```
 
@@ -472,7 +489,7 @@ Expected: FAIL because the template files do not exist and the skill does not me
 Add this paragraph after the `Usage Guide Format` section in `skills/ux-explore/SKILL.md`:
 
 ```markdown
-Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html` from `ux-report.md`. Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`. The UX report HTML must render every step with Before, Target, and After screenshots. The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, and limitations.
+Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html` from `ux-report.md`. Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`. The UX report HTML must render every step with Before, Target, and After screenshots. The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
 ```
 
 - [ ] **Step 4: Create `ux-report-template.html`**
@@ -611,10 +628,17 @@ a:hover { text-decoration: underline; }
 .capability h2 { margin-top: 0; }
 .field { margin: 16px 0; }
 .field .label { font-weight: 700; margin-bottom: 4px; }
+.usage-photos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px;
+}
+.usage-photos figure { margin: 0; }
+.usage-photos img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.usage-photos figcaption { margin-top: 8px; text-align: center; color: var(--muted); font-size: 13px; }
 ol, ul { padding-left: 22px; }
 @media (max-width: 760px) {
   .hero, .section { padding: 32px 20px; }
   .hero h1 { font-size: 36px; }
+  .usage-photos { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -641,6 +665,11 @@ ol, ul { padding-left: 22px; }
     <div class="field"><div class="label">Result</div><div>The app subscribes to the feed and starts fetching items.</div></div>
     <div class="field"><div class="label">Related controls</div><div>Refresh feed, Open item, Remove feed.</div></div>
     <div class="field"><div class="label">Evidence</div><div><a href="ux-report.html#step-003">steps 003-006</a></div></div>
+    <div class="usage-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
     <div class="field"><div class="label">Limitations</div><div>None observed.</div></div>
   </article>
 </main>
@@ -685,6 +714,7 @@ test('ux-explore cleanup generates and verifies markdown and html artifacts', ()
   assert.match(skill, /Generate `\{OUTPUT_DIR\}\/usage\.html` from `\{OUTPUT_DIR\}\/usage\.md`/);
   assert.match(skill, /Re-read `ux-report\.md` and update the summary counts/);
   assert.match(skill, /Re-read `usage\.md` and make sure every usage entry has evidence/);
+  assert.match(skill, /usage entry has before, target, and after screenshot references/);
   assert.match(skill, /Open both HTML files and verify relative links and image references/);
   assert.match(skill, /Tell the user both Markdown and HTML artifacts are ready/);
   assert.match(skill, /Journey mode can use `usage\.md` as source material/);
@@ -725,13 +755,13 @@ with:
 ```markdown
 3. Re-read `ux-report.md` and update the summary counts to match actual issues found.
 
-4. Re-read `usage.md` and make sure every usage entry has evidence. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
+4. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
 
 5. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
 
 6. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
 
-7. Open both HTML files and verify relative links and image references. The UX report HTML must show before, target, and after screenshots for each step.
+7. Open both HTML files and verify relative links and image references. The UX report HTML must show before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
 
 8. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
 ```
@@ -812,8 +842,9 @@ Spec coverage:
 - `ux-report.md` replaces `report.md`: Task 2.
 - `usage.md` is produced as a discovered usage guide: Tasks 2 and 3.
 - `ux-report.html` and `usage.html` are generated from skill-owned templates: Tasks 4 and 5.
+- The default UX output directory aligns with QA under `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`: Task 2.
 - UX steps use before, target, and after screenshots: Task 1.
-- `usage.md` schema includes Purpose, Entry point, Steps, Result, Related controls, Evidence, and Limitations: Task 2.
+- `usage.md` schema includes Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations: Task 2.
 - Free mode maintains a usage draft and rewrites it at cleanup: Task 3.
 - Free mode records only observed capabilities and avoids speculation: Task 3.
 - `ux-report.md` links to usage artifacts: Tasks 2 and 5.
@@ -832,4 +863,4 @@ Type and naming consistency:
 - `ux-report.md` and `ux-report.html` are used consistently for the UX critique artifacts.
 - `usage.md` and `usage.html` are used consistently for usage guide artifacts.
 - `templates/ux-report-template.html` and `templates/usage-template.html` are named consistently in tests and skill text.
-- `Before`, `Target`, and `After` screenshot labels are named consistently across tests, skill text, and the UX report template.
+- `Before`, `Target`, and `After` screenshot labels are named consistently across tests, skill text, and both HTML templates.
