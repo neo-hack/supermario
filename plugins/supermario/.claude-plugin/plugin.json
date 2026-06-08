@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "supermario",
+  "displayName": "Supermario",
+  "version": "0.1.0",
+  "description": "Agent skills for documentation, code annotation, visual mockups, and development workflows.",
+  "author": {
+    "name": "neo-hack",
+    "url": "https://github.com/neo-hack"
+  },
+  "homepage": "https://github.com/neo-hack/supermario",
+  "repository": "https://github.com/neo-hack/supermario",
+  "keywords": [
+    "agent-skills",
+    "documentation",
+    "mockups",
+    "developer-workflows",
+    "claude-code"
+  ],
+  "skills": "./skills/"
+}

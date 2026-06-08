@@ -1,5 +1,14 @@
 {
   "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true
+    "superpowers@superpowers-marketplace": true,
+    "supermario@supermario-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "supermario-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "./"
+      }
+    }
   }
 }

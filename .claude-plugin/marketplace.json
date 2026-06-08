@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "supermario-marketplace",
+  "description": "Marketplace for the Supermario Claude Code skills plugin.",
+  "version": "0.1.0",
+  "owner": {
+    "name": "neo-hack"
+  },
+  "plugins": [
+    {
+      "name": "supermario",
+      "source": "./plugins/supermario",
+      "description": "Agent skills for documentation, code annotation, visual mockups, and development workflows.",
+      "version": "0.1.0",
+      "author": {
+        "name": "neo-hack",
+        "url": "https://github.com/neo-hack"
+      },
+      "tags": [
+        "agent-skills",
+        "documentation",
+        "mockups",
+        "developer-workflows"
+      ]
+    }
+  ]
+}
