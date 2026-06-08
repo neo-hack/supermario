@@ -48,75 +48,109 @@ test('ux-explore captures before, target, and after screenshots per step', () =>
   assert.match(freeMode, /A step without before, target, and after screenshots is incomplete/);
 });
 
-test('ux-explore supports journey mode for complete feature flows', () => {
+test('ux-explore routes execution modes and reporting to references', () => {
   const skill = readSkill();
 
   assert.match(skill, /\[--journey "<goal>"\]/);
   assert.match(skill, /Mode Selection/);
   assert.match(skill, /Free mode/);
   assert.match(skill, /Journey mode/);
-  assert.match(skill, /Journey Brief/);
-  assert.match(skill, /success criteria/);
-  assert.match(skill, /complete feature flow/);
-  assert.match(skill, /Do not traverse unrelated elements before the journey/i);
-  assert.match(skill, /agent-browser snapshot -i/);
-  assert.match(skill, /Journey Results/);
-  assert.match(skill, /Outcome \| completed \/ partial \/ blocked/);
-  assert.match(skill, /RSS subscription journey/);
+  assert.match(skill, /For free mode, follow `references\/free-mode\.md`/);
+  assert.match(skill, /For journey mode, follow `references\/journey-mode\.md`/);
+  assert.match(skill, /For all Markdown and HTML artifacts, follow `references\/reporting\.md`/);
+  assert.doesNotMatch(skill, /references\/usage-output\.md/);
+  assert.doesNotMatch(skill, /## Usage Guide Format/);
+  assert.doesNotMatch(skill, /### Per-Element Workflow/);
+});
+
+test('ux-explore journey mode reference owns goal-driven flow', () => {
+  const journeyMode = readReference('journey-mode.md');
+
+  assert.match(journeyMode, /^# Journey Mode/m);
+  assert.match(journeyMode, /Journey Brief/);
+  assert.match(journeyMode, /Journey Planning/);
+  assert.match(journeyMode, /Journey Execution/);
+  assert.match(journeyMode, /Journey Stopping/);
+  assert.match(journeyMode, /Journey Results/);
+  assert.match(journeyMode, /complete feature flow/);
+  assert.match(journeyMode, /Do not convert journey mode into full-page traversal unless the user explicitly asks/i);
+  assert.match(journeyMode, /references\/free-mode\.md/);
+  assert.match(journeyMode, /references\/reporting\.md/);
 });
 
 test('ux-explore writes separate UX report and usage guide markdown', () => {
   const skill = readSkill();
-  const usageOutput = readReference('usage-output.md');
+  const reporting = readReference('reporting.md');
 
   assert.match(skill, /~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\//);
   assert.match(skill, /derive `ux-name` from the target host, route, journey goal, or requested scope/);
   assert.match(skill, /Resolve `\{OUTPUT_DIR\}` to `~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\/`/);
-  assert.match(usageOutput, /ux-report\.md/);
-  assert.match(usageOutput, /usage\.md/);
-  assert.match(usageOutput, /The final UX report goes to `\{OUTPUT_DIR\}\/ux-report\.md`/);
-  assert.match(usageOutput, /Free mode also writes `\{OUTPUT_DIR\}\/usage\.md`/);
-  assert.match(usageOutput, /Usage Guide/);
-  assert.match(usageOutput, /Purpose: Subscribe to a new RSS source\./);
-  assert.match(usageOutput, /Entry point: "Add feed" button in the sidebar\./);
-  assert.match(usageOutput, /Steps:/);
-  assert.match(usageOutput, /Result:/);
-  assert.match(usageOutput, /Related controls:/);
-  assert.match(usageOutput, /Evidence:/);
-  assert.match(usageOutput, /Evidence screenshots:/);
-  assert.match(usageOutput, /\!\[Before\]\(screenshots\/step-003\.png\)/);
-  assert.match(usageOutput, /\!\[Target\]\(screenshots\/step-003-target\.png\)/);
-  assert.match(usageOutput, /\!\[After\]\(screenshots\/step-003-after\.png\)/);
-  assert.match(usageOutput, /Limitations:/);
-  assert.match(usageOutput, /UX report: ux-report\.md/);
-  assert.match(usageOutput, /Usage guide: usage\.md/);
+  assert.match(reporting, /ux-report\.md/);
+  assert.match(reporting, /usage\.md/);
+  assert.match(reporting, /The final UX report goes to `\{OUTPUT_DIR\}\/ux-report\.md`/);
+  assert.match(reporting, /Both free mode and journey mode write `\{OUTPUT_DIR\}\/usage\.md`/);
+  assert.match(reporting, /Usage Guide Format/);
+  assert.match(reporting, /Purpose: Subscribe to a new RSS source\./);
+  assert.match(reporting, /Entry point: "Add feed" button in the sidebar\./);
+  assert.match(reporting, /Steps:/);
+  assert.match(reporting, /Result:/);
+  assert.match(reporting, /Related controls:/);
+  assert.match(reporting, /Evidence:/);
+  assert.match(reporting, /Evidence screenshots:/);
+  assert.match(reporting, /\!\[Before\]\(screenshots\/step-003\.png\)/);
+  assert.match(reporting, /\!\[Target\]\(screenshots\/step-003-target\.png\)/);
+  assert.match(reporting, /\!\[After\]\(screenshots\/step-003-after\.png\)/);
+  assert.match(reporting, /Limitations:/);
+  assert.match(reporting, /UX report: ux-report\.md/);
+  assert.match(reporting, /Usage guide: usage\.md/);
   assert.doesNotMatch(skill, /The final report goes to `\{OUTPUT_DIR\}\/report\.md`/);
 });
 
 test('ux-explore free mode maintains a usage draft from observed capabilities', () => {
-  const usageOutput = readReference('usage-output.md');
+  const reporting = readReference('reporting.md');
 
-  assert.match(usageOutput, /maintain a usage draft/i);
-  assert.match(usageOutput, /coherent capability/i);
-  assert.match(usageOutput, /Group adjacent steps that belong to the same user goal/);
-  assert.match(usageOutput, /Record only observable behavior/);
-  assert.match(usageOutput, /Do not speculate about backend behavior or hidden implementation/);
-  assert.match(usageOutput, /If a path is incomplete, include it with `Limitations`/);
-  assert.match(usageOutput, /not exercised/);
-  assert.match(usageOutput, /If no coherent capability is discovered/);
+  assert.match(reporting, /maintain a usage draft/i);
+  assert.match(reporting, /coherent capability/i);
+  assert.match(reporting, /Group adjacent steps that belong to the same user goal/);
+  assert.match(reporting, /Record only observable behavior/);
+  assert.match(reporting, /Do not speculate about backend behavior or hidden implementation/);
+  assert.match(reporting, /If a path is incomplete, include it with `Limitations`/);
+  assert.match(reporting, /not exercised/);
+  assert.match(reporting, /If no coherent capability is discovered/);
+});
+
+test('ux-explore reporting reference owns all output artifact contracts', () => {
+  const reporting = readReference('reporting.md');
+
+  assert.match(reporting, /^# Reporting/m);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/ux-report\.md/);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/ux-report\.html/);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/usage\.md/);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/usage\.html/);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/explore-video\.webm/);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/screenshots\//);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/snapshots\//);
+  assert.match(reporting, /\{OUTPUT_DIR\}\/diffs\//);
+  assert.match(reporting, /## UX Report Format/);
+  assert.match(reporting, /## Usage Guide Format/);
+  assert.match(reporting, /## Mode-Specific Usage Rules/);
+  assert.match(reporting, /## Boundary Rules/);
+  assert.match(reporting, /## HTML Generation/);
+  assert.match(reporting, /## Cleanup Checklist/);
+  assert.match(reporting, /Before writing or generating any output artifact, read this reference end-to-end/);
 });
 
 test('ux-explore provides HTML templates for UX report and usage guide', () => {
   const skill = readSkill();
-  const usageOutput = readReference('usage-output.md');
+  const reporting = readReference('reporting.md');
   const uxTemplate = readTemplate('templates/ux-report-template.html');
   const usageTemplate = readTemplate('templates/usage-template.html');
 
-  assert.match(usageOutput, /templates\/ux-report-template\.html/);
-  assert.match(usageOutput, /templates\/usage-template\.html/);
-  assert.match(usageOutput, /ux-report\.html/);
-  assert.match(usageOutput, /usage\.html/);
-  assert.match(skill, /references\/usage-output\.md/);
+  assert.match(reporting, /templates\/ux-report-template\.html/);
+  assert.match(reporting, /templates\/usage-template\.html/);
+  assert.match(reporting, /ux-report\.html/);
+  assert.match(reporting, /usage\.html/);
+  assert.match(skill, /references\/reporting\.md/);
 
   assert.match(uxTemplate, /<title>UX Explore Report - \{DOMAIN\}<\/title>/);
   assert.match(uxTemplate, /<h2>Exploration Log<\/h2>/);
@@ -143,28 +177,26 @@ test('ux-explore provides HTML templates for UX report and usage guide', () => {
 });
 
 test('ux-explore cleanup generates and verifies markdown and html artifacts', () => {
-  const usageOutput = readReference('usage-output.md');
+  const reporting = readReference('reporting.md');
 
-  assert.match(usageOutput, /Generate `\{OUTPUT_DIR\}\/ux-report\.html` from `\{OUTPUT_DIR\}\/ux-report\.md`/);
-  assert.match(usageOutput, /Generate `\{OUTPUT_DIR\}\/usage\.html` from `\{OUTPUT_DIR\}\/usage\.md`/);
-  assert.match(usageOutput, /Re-read `ux-report\.md` and update the summary counts/);
-  assert.match(usageOutput, /Re-read `usage\.md` and make sure every usage entry has evidence/);
-  assert.match(usageOutput, /usage entry has before, target, and after screenshot references/);
-  assert.match(usageOutput, /Open both HTML files and verify relative links and image references/);
-  assert.match(usageOutput, /Tell the user both Markdown and HTML artifacts are ready/);
-  assert.match(usageOutput, /Journey mode can use `usage\.md` as source material/);
-  assert.match(usageOutput, /does not parse or replay `usage\.md` automatically/);
+  assert.match(reporting, /Generate `\{OUTPUT_DIR\}\/ux-report\.html` from `\{OUTPUT_DIR\}\/ux-report\.md`/);
+  assert.match(reporting, /Generate `\{OUTPUT_DIR\}\/usage\.html` from `\{OUTPUT_DIR\}\/usage\.md`/);
+  assert.match(reporting, /Re-read `ux-report\.md` and update the summary counts/);
+  assert.match(reporting, /Re-read `usage\.md` and make sure every usage entry has evidence/);
+  assert.match(reporting, /usage entry has before, target, and after screenshot references/);
+  assert.match(reporting, /Open both HTML files and verify relative links and image references/);
+  assert.match(reporting, /Tell the user both Markdown and HTML artifacts are ready/);
+  assert.match(reporting, /Journey mode can use `usage\.md` as source material/);
+  assert.match(reporting, /does not parse or replay `usage\.md` automatically/);
 });
 
-test('ux-explore routes free mode and usage output to references', () => {
+test('ux-explore observation style is shared by execution modes', () => {
   const skill = readSkill();
 
-  assert.match(skill, /references\/free-mode\.md/);
-  assert.match(skill, /references\/usage-output\.md/);
-  assert.match(skill, /For free mode, follow `references\/free-mode\.md`/);
-  assert.match(skill, /For Markdown and HTML outputs, follow `references\/usage-output\.md`/);
-  assert.doesNotMatch(skill, /## Usage Guide Format/);
-  assert.doesNotMatch(skill, /### Per-Element Workflow/);
+  assert.match(skill, /## Observation Style/);
+  assert.match(skill, /Explore in first person/);
+  assert.match(skill, /applies to both free mode and journey mode/i);
+  assert.doesNotMatch(skill, /## Narration Mode/);
 });
 
 test('ux-explore skill body stays English-only', () => {
