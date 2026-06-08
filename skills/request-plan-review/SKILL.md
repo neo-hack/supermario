@@ -13,16 +13,17 @@ Generate a styled HTML review page from a markdown file. The output is a self-co
 2. Read `skills/request-plan-review/assets/template.html` as the HTML shell.
 3. Read `skills/request-plan-review/assets/style.css` and `skills/request-plan-review/assets/runtime.js` — these will be inlined into the HTML.
 4. Run automated markdown review:
-   - Import helper functions from `skills/request-plan-review/scripts/review-utils.mjs`.
+   - Import `buildReviewPrompt` from `skills/request-plan-review/scripts/review-utils.mjs`.
    - Read `skills/request-plan-review/references/review-template.md`.
-   - Discover available reviewer CLIs with `discoverReviewers()`.
+   - Discover available reviewer CLIs directly in the main agent with `command -v` for `claude`, `gemini`, `codex`, `opencode`, and `qwen`.
    - Build one prompt with `buildReviewPrompt({ sourcePath, markdown, reviewTemplate })`, where `sourcePath` is the target `.md` plan/spec address and `markdown` is the full target file contents.
-   - Run every supported detected reviewer with a 120 second timeout.
-   - Write `docs/request-plan-review/<filename>.reviews.md` with `renderReviewsMarkdown(...)`.
-   - Parse that reviews markdown with `parseReviewsMarkdown(...)`.
-   - Build review data with `buildAutomatedReviewDataScript(...)`.
+   - Dispatch one subagent per detected reviewer, in parallel. Give each subagent the reviewer id, CLI path, source path, and full review prompt.
+   - Each subagent runs only its assigned reviewer CLI, asks it to review the source markdown, and returns only the finding markdown in the exact template format.
+   - Do not use a short fixed timeout such as 120 seconds. Let reviewers complete a full review. If the host environment requires a timeout, use a long soft limit and record timeout as a reviewer failure.
+   - After all subagents finish, the main agent writes `docs/request-plan-review/<filename>.reviews.md`.
    - If no reviewer CLI is detected, still write a `.reviews.md` file that records automated reviews were not run.
    - If a reviewer fails, times out, or returns invalid output, record the failure in `.reviews.md` and continue rendering.
+   - The main agent parses valid findings from the completed `.reviews.md` file and builds automated comment data for the HTML page.
 5. Convert the markdown content to HTML manually (see MD→HTML rules below).
 6. Generate a TOC sidebar from all h2/h3 headings.
 7. Fill the template slots:
@@ -31,7 +32,7 @@ Generate a styled HTML review page from a markdown file. The output is a self-co
    - `<!-- SLOT:STYLE -->` — paste the full contents of `style.css` (replaces the entire line including the `/* SLOT:STYLE */` comment)
    - `<!-- SLOT:CONTENT -->` — the converted HTML content
    - `<!-- SLOT:TOC_SIDEBAR -->` — the generated TOC sidebar HTML
-   - `/* SLOT:REVIEW_DATA */` — paste the full output from `buildAutomatedReviewDataScript(...)`
+   - `/* SLOT:REVIEW_DATA */` — paste a `window.__AUTOMATED_REVIEW_COMMENTS__ = [...]` assignment built from the aggregated reviewer findings
    - `/* SLOT:SCRIPT */` — paste the full contents of `runtime.js` (replaces the entire line including the `/* SLOT:SCRIPT */` comment)
 8. Write the result to `docs/request-plan-review/<filename>.html` (same basename as source).
 9. Run `open docs/request-plan-review/<filename>.html`.
