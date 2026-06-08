@@ -120,7 +120,7 @@ Define success criteria as observable product states, not internal implementatio
 
 For each journey step:
 
-1. Capture the same before screenshot, baseline snapshot, after screenshot, snapshot diff, console, and errors required by the per-element workflow.
+1. Capture the same before screenshot, target screenshot, baseline snapshot, after screenshot, snapshot diff, console, and errors required by the per-element workflow.
 2. Narrate in first person: what I thought I should do, what I clicked or typed, what changed, and whether I felt confident.
 3. Judge the step against the Intuition Criteria and Goodwill Reservoir.
 4. Continue toward the success criteria, not toward unrelated controls.
@@ -143,26 +143,33 @@ Work through interactive elements top-to-bottom, left-to-right. For each element
 
 ### Per-Element Workflow
 
-1. **Screenshot before** the interaction.
+1. **Screenshot before** the interaction: `agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}.png`.
 2. **Capture the baseline snapshot**: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`.
-3. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
-4. **Wait** for the page to settle: `agent-browser wait 1000`.
-5. **Screenshot after** the interaction.
-6. **Diff the snapshot**: `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt`. Use `agent-browser snapshot` only when the diff needs more page context.
-7. **Check console** for errors triggered by the interaction: `agent-browser console`.
-8. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
+3. **Highlight the target element and screenshot it**:
+
+```bash
+agent-browser highlight @eN
+agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png
+```
+
+4. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
+5. **Wait** for the page to settle: `agent-browser wait 1000`.
+6. **Screenshot after** the interaction: `agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-after.png`.
+7. **Diff the snapshot**: `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt`. Use `agent-browser snapshot` only when the diff needs more page context.
+8. **Check console** for errors triggered by the interaction: `agent-browser console`.
+9. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
    - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
    - **Transition quality**: Are transitions intentional or generic/absent?
    - **Feedback clarity**: Did the action clearly succeed or fail? Is the feedback immediate?
    - **Form polish**: Focus states visible? Validation timing correct? Errors near the source?
-9. **Content & microcopy check** on labels, errors, and feedback:
+10. **Content & microcopy check** on labels, errors, and feedback:
    - Button labels specific ("Save API Key" not "Submit")?
    - Error messages say what happened + why + what to do?
    - No happy talk (welcome paragraphs, self-congratulatory text)?
    - Loading states end with `…` ("Saving…" not "Saving...")?
    - Destructive actions have confirmation?
-10. **Update the goodwill meter** based on drains and fills from this step.
-11. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
+11. **Update the goodwill meter** based on drains and fills from this step.
+12. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ### Action Strategy
 
@@ -190,10 +197,11 @@ Do NOT interact with:
 
 ```
 {OUTPUT_DIR}/screenshots/step-{NNN}.png          # before action
+{OUTPUT_DIR}/screenshots/step-{NNN}-target.png   # highlighted target
 {OUTPUT_DIR}/screenshots/step-{NNN}-after.png    # after action
 ```
 
-Increment `{NNN}` for each element explored (001, 002, 003...).
+Increment `{NNN}` for each element explored (001, 002, 003...). A step without before, target, and after screenshots is incomplete.
 
 ### Stopping Condition
 
@@ -363,6 +371,7 @@ The final report goes to `{OUTPUT_DIR}/report.md`:
 
 ### Step 1: Click @e3 "Submit" button
 - **Before**: ![step-001](screenshots/step-001.png)
+- **Target**: ![step-001-target](screenshots/step-001-target.png)
 - **Action**: click @e3
 - **After**: ![step-001-after](screenshots/step-001-after.png)
 - **Diff**: [step-001 diff](diffs/step-001.txt)
@@ -467,8 +476,8 @@ The diff shows exactly which elements appeared, disappeared, or changed text con
 - **Narrate in first person.** "I click the button... nothing happens... did it work?" — not "the interaction lacked feedback." Specific, concrete, naming elements. If you can't name the element, you're generating platitudes.
 - **Write findings incrementally.** Append each issue to the report as you discover it. If the session is interrupted, findings are preserved. Never batch all issues for the end.
 - **Use the right snapshot command.** `snapshot -i` finds clickable/fillable elements. `agent-browser diff snapshot --baseline` records what changed after an action. `snapshot` (no flag) reads page content when the diff needs more context.
-- **Screenshot each step.** Capture the before, the action, and the after so someone reading the report can follow along visually.
-- **Match evidence to issue type.** Every issue needs a screenshot reference. If the issue involves user interaction or state change, reference both the before and after screenshots.
+- **Screenshot each step.** Capture the before state, highlighted target, and after state so someone reading the report can follow along visually.
+- **Match evidence to issue type.** Every issue needs a screenshot reference. If the issue involves user interaction or state change, reference the before, target, and after screenshots.
 - **Check console periodically.** Run `agent-browser console` and `agent-browser errors` every few interactions. Some issues are invisible in the UI but show up as JS errors or failed network requests.
 - **Never read the target app's source code.** You are testing as a user. All findings must come from what you observe in the browser.
 - **Never delete output files.** Do not `rm` screenshots, videos, or the report mid-session. Work forward, not backward.

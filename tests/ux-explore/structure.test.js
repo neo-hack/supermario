@@ -29,6 +29,18 @@ test('ux-explore preserves snapshot diff artifacts per step', () => {
   assert.match(skill, /- Snapshot diffs: diffs\//);
 });
 
+test('ux-explore captures before, target, and after screenshots per step', () => {
+  const skill = readSkill();
+
+  assert.match(skill, /agent-browser screenshot \{OUTPUT_DIR\}\/screenshots\/step-\{NNN\}\.png/);
+  assert.match(skill, /agent-browser highlight @eN/);
+  assert.match(skill, /agent-browser screenshot \{OUTPUT_DIR\}\/screenshots\/step-\{NNN\}-target\.png/);
+  assert.match(skill, /agent-browser screenshot \{OUTPUT_DIR\}\/screenshots\/step-\{NNN\}-after\.png/);
+  assert.match(skill, /\{OUTPUT_DIR\}\/screenshots\/step-\{NNN\}-target\.png\s+# highlighted target/);
+  assert.match(skill, /\*\*Target\*\*: !\[step-001-target\]\(screenshots\/step-001-target\.png\)/);
+  assert.match(skill, /A step without before, target, and after screenshots is incomplete/);
+});
+
 test('ux-explore supports journey mode for complete feature flows', () => {
   const skill = readSkill();
 
