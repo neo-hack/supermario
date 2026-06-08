@@ -31,19 +31,24 @@ Use exactly one mode:
 
 In journey mode, the user goal controls the path. Do not traverse unrelated elements before the journey is complete or blocked.
 
+## Required References
+
+Read the references for the selected work:
+
+- For free mode, follow `references/free-mode.md`.
+- For Markdown and HTML outputs, follow `references/usage-output.md`.
+
+Journey mode still uses the same evidence, reporting, and output contracts from those references for each journey step.
+
 ## Setup
 
-1. Create output directories and start the Markdown artifacts:
+1. Create output directories:
 
 ```bash
 mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots {OUTPUT_DIR}/diffs
 ```
 
 When no output directory is provided, derive `ux-name` from the target host, route, journey goal, or requested scope. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`, using a short lowercase slug such as `vercel-home`, `rss-subscription-journey`, or `settings-panel`.
-
-Write UX findings to `{OUTPUT_DIR}/ux-report.md`. This file is the UX critique artifact: interaction evidence, goodwill score, UX issues, summary, and links to artifacts.
-
-Write discovered product usage to `{OUTPUT_DIR}/usage.md`. This file is descriptive, not evaluative: what users can do, where the entry point is, the steps, the visible result, related controls, and evidence.
 
 2. Launch the browser and wait for the page to fully load:
 
@@ -143,97 +148,25 @@ Stop journey mode when one of these is true:
 
 After the journey stops, optionally free-explore only directly related controls that were revealed by the journey. Do not convert journey mode into full-page traversal unless the user asks for free exploration too.
 
-## Free Mode Exploration Loop
+### Journey Results
 
-Work through interactive elements top-to-bottom, left-to-right. For each element:
-
-### Per-Element Workflow
-
-1. **Screenshot before** the interaction: `agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}.png`.
-2. **Capture the baseline snapshot**: `agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt`.
-3. **Highlight the target element and screenshot it**:
-
-```bash
-agent-browser highlight @eN
-agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png
-```
-
-4. **Execute the operation** based on the element's ARIA role (see Action Strategy below).
-5. **Wait** for the page to settle: `agent-browser wait 1000`.
-6. **Screenshot after** the interaction: `agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-after.png`.
-7. **Diff the snapshot**: `agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt`. Use `agent-browser snapshot` only when the diff needs more page context.
-8. **Check console** for errors triggered by the interaction: `agent-browser console`.
-9. **Judge** the interaction against the Intuition Criteria, the Interaction States Checklist, and evaluate interaction feel:
-   - **Response feel**: Does clicking feel responsive? Any delays or missing loading states?
-   - **Transition quality**: Are transitions intentional or generic/absent?
-   - **Feedback clarity**: Did the action clearly succeed or fail? Is the feedback immediate?
-   - **Form polish**: Focus states visible? Validation timing correct? Errors near the source?
-10. **Content & microcopy check** on labels, errors, and feedback:
-   - Button labels specific ("Save API Key" not "Submit")?
-   - Error messages say what happened + why + what to do?
-   - No happy talk (welcome paragraphs, self-congratulatory text)?
-   - Loading states end with `…` ("Saving…" not "Saving...")?
-   - Destructive actions have confirmation?
-11. **Update the goodwill meter** based on drains and fills from this step.
-12. **Log** the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
-
-### Action Strategy
-
-| Role | Action | Details |
-|------|--------|---------|
-| button | `agent-browser click @eN` | Wait up to 2s, observe response |
-| textbox / searchbox | `agent-browser fill @eN "content"` | Use meaningful test content: emails get `test@example.com`, search gets `test query`, names get `Test User` |
-| combobox | `agent-browser click @eN` then select option | Open dropdown, screenshot options, pick first reasonable option |
-| checkbox / switch | `agent-browser click @eN` | Toggle state, observe change |
-| radio | `agent-browser click @eN` | Select first option in group |
-| menuitem | `agent-browser click @eN` | Open menu, click item |
-| slider | `agent-browser eval` or drag | Adjust to midpoint |
-| tab | `agent-browser click @eN` | Switch tab panel, observe content change |
-| dialog | Handle via `agent-browser dialog accept` or `dismiss` | Record dialog content |
-
-### Skip Rules
-
-Do NOT interact with:
-- Links that navigate to external domains (would leave the page)
-- Download links
-- Elements already interacted with in a previous step
-- Elements that are disabled or hidden
-
-### Screenshot Naming
-
-```
-{OUTPUT_DIR}/screenshots/step-{NNN}.png          # before action
-{OUTPUT_DIR}/screenshots/step-{NNN}-target.png   # highlighted target
-{OUTPUT_DIR}/screenshots/step-{NNN}-after.png    # after action
-```
-
-Increment `{NNN}` for each element explored (001, 002, 003...). A step without before, target, and after screenshots is incomplete.
-
-### Stopping Condition
-
-The exploration ends naturally when all interactive elements on the page have been explored. After every element has been visited (or skipped with a documented reason), proceed to the Cleanup section.
-
-If a scroll reveals new interactive elements that were not in the initial snapshot, discover them with `agent-browser snapshot -i` after scrolling, add them to the queue, and continue the loop.
-
-### Usage Drafting
-
-During free mode, maintain a usage draft alongside the UX report.
-
-1. When an interaction reveals a coherent capability, name the capability.
-2. Group adjacent steps that belong to the same user goal.
-3. Record only observable behavior.
-4. Do not speculate about backend behavior or hidden implementation.
-5. If a path is incomplete, include it with `Limitations` rather than presenting it as complete.
-6. If a related control was skipped, mention it only with a clear note that it was not exercised.
-7. At cleanup, rewrite `usage.md` into a clean guide ordered by likely user tasks, not raw exploration order.
-
-If no coherent capability is discovered, still create `usage.md` with this content:
+Record the journey outcome in `ux-report.md`:
 
 ```markdown
-# Usage Guide
+## Journey Results
 
-No complete usage path was observed during this exploration.
+| Field | Value |
+|-------|-------|
+| Goal | {journey goal} |
+| Outcome | completed / partial / blocked |
+| Success criteria | {met / unmet list} |
+| Critical path steps | {count} |
+| Biggest friction | {short description} |
 ```
+
+## Free Mode
+
+For free mode, follow `references/free-mode.md`.
 
 ## Narration Mode
 
@@ -369,149 +302,7 @@ Are dangerous or confusing operations protected?
 | Medium | Noticeably unintuitive but discoverable (missing placeholder, non-obvious default, extra steps) |
 | Low | Minor friction (slow tooltip, subtle hover effect, slightly confusing icon) |
 
-## Usage Guide Format
-
-Free mode also writes `{OUTPUT_DIR}/usage.md`:
-
-```markdown
-# Usage Guide
-
-## Add an RSS feed
-
-Purpose: Subscribe to a new RSS source.
-
-Entry point: "Add feed" button in the sidebar.
-
-Steps:
-1. Click "Add feed".
-2. Paste an RSS URL into the feed URL field.
-3. Click "Add".
-4. Confirm the feed appears in the feed list.
-
-Result:
-The app subscribes to the feed and starts fetching items.
-
-Related controls:
-- Refresh feed
-- Open item
-- Remove feed
-
-Evidence:
-- steps 003-006
-
-Evidence screenshots:
-![Before](screenshots/step-003.png) ![Target](screenshots/step-003-target.png) ![After](screenshots/step-003-after.png)
-
-Limitations:
-- None observed.
-```
-
-Every usage entry must include: title, Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations.
-
-Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html` from `ux-report.md`. Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`. The UX report HTML must render every step with Before, Target, and After screenshots. The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
-
-UX problems discovered while using a capability still belong in `ux-report.md`. `usage.md` should avoid severity labels and recommendations unless they are necessary to explain a limitation. Journey mode can use `usage.md` as source material for future goals, but this skill does not parse or replay `usage.md` automatically.
-
-## Report Format
-
-Write the UX report incrementally as you explore. Append each step and each UX issue to `{OUTPUT_DIR}/ux-report.md` as you find them so nothing is lost if the session is interrupted. Do not batch all writing for the end.
-
-The final UX report goes to `{OUTPUT_DIR}/ux-report.md`:
-
-```markdown
-# UX Explore Report: {URL}
-
-## Session Info
-| Field | Value |
-|-------|-------|
-| URL | {url} |
-| Date | {date} |
-| Interactive elements found | {count} |
-| Elements explored | {count} |
-| Issues found | {count} |
-| Video | explore-video.webm |
-
-## Page Overview
-[1-2 sentence description of the page purpose and layout]
-[Element distribution: N buttons, M textboxes, L selects, ...]
-![Initial state](screenshots/initial.png)
-
-## Exploration Log
-
-### Step 1: Click @e3 "Submit" button
-- **Before**: ![step-001](screenshots/step-001.png)
-- **Target**: ![step-001-target](screenshots/step-001-target.png)
-- **Action**: click @e3
-- **After**: ![step-001-after](screenshots/step-001-after.png)
-- **Diff**: [step-001 diff](diffs/step-001.txt)
-- **Observation**: [what happened, what changed]
-- **Issue**: None / UX-NNN
-
-[... one entry per element explored ...]
-
-## Journey Results
-
-| Field | Value |
-|-------|-------|
-| Goal | {journey goal} |
-| Outcome | completed / partial / blocked |
-| Success criteria | {met / unmet list} |
-| Critical path steps | {count} |
-| Biggest friction | {short description} |
-
-## Goodwill Dashboard
-
-```
-Goodwill: 70 ██████████████████░░░░░░░░░░░░
-  Step 1: [description]    70 → 75  (+5 reason)
-  Step 2: [description]    75 → 60  (-15 reason)
-  ...
-  FINAL: XX/100 [VERDICT]
-```
-
-## Issues
-
-### UX-001: [Short title]
-| Field | Value |
-|-------|-------|
-| Severity | high / medium / low |
-| Category | Action Feedback / Expectation Match / State Visibility / Error Recovery / Operation Path / Accident Prevention |
-| Element | @eN role "label" |
-| Evidence | step-NNN screenshots, video timestamp |
-| Description | [what is wrong, what was expected, what actually happened] |
-| Recommendation | [how to fix it] |
-
-[... one block per issue ...]
-
-## Summary
-
-### Goodwill
-| Field | Value |
-|-------|-------|
-| Final score | XX/100 |
-| Verdict | Critical UX Debt / Needs Work / Healthy |
-| Biggest drain | [what hurt most] |
-| Biggest fill | [what helped most] |
-
-### Issues
-| Severity | Count |
-|----------|-------|
-| High | N |
-| Medium | M |
-| Low | L |
-| **Total** | **T** |
-
-## Artifacts
-- UX report: ux-report.md
-- Usage guide: usage.md
-- Full video: explore-video.webm
-- Screenshots: screenshots/
-- Snapshot diffs: diffs/
-```
-
-**Important:** Re-read the report after finishing exploration and update the summary severity counts so they match the actual issues found. Every `### UX-` block must be reflected in the totals.
-
-## Cleanup
+## Reporting And Cleanup
 
 After exploring all interactive elements:
 
@@ -527,17 +318,7 @@ agent-browser record stop
 agent-browser close
 ```
 
-3. Re-read `ux-report.md` and update the summary counts to match actual issues found.
-
-4. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
-
-5. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
-
-6. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
-
-7. Open both HTML files and verify relative links and image references. The UX report HTML must show before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
-
-8. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
+3. For Markdown and HTML outputs, follow `references/usage-output.md`.
 
 ## Snapshot Diff Technique
 

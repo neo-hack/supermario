@@ -4,7 +4,7 @@
 
 **Goal:** Split `ux-explore` free mode output into `ux-report.md/html` and `usage.md/html`, while giving UX steps the same before/target/after screenshot evidence model as QA.
 
-**Architecture:** Keep this documentation-only, following the existing Agent Skill pattern. Update `skills/ux-explore/SKILL.md`, add two HTML templates under `skills/ux-explore/templates/`, and enforce the contracts with structure tests in `tests/ux-explore/structure.test.js`.
+**Architecture:** Keep this documentation-only, following the existing Agent Skill pattern. Keep `skills/ux-explore/SKILL.md` as the route and mode-selection entrypoint, move free-mode execution details and usage/output rules into references, add two HTML templates under `skills/ux-explore/templates/`, and enforce the contracts with structure tests in `tests/ux-explore/structure.test.js`.
 
 **Tech Stack:** Markdown Agent Skill documentation, HTML templates, Node.js `node:test`, `assert`, `agent-browser` CLI guidance.
 
@@ -14,7 +14,9 @@
 
 | Path | Responsibility |
 |------|----------------|
-| `skills/ux-explore/SKILL.md` | Main skill instructions. Adds before/target/after evidence, split Markdown/HTML outputs, usage guide drafting, and cleanup rules. |
+| `skills/ux-explore/SKILL.md` | Route and mode-selection entrypoint. It points workers to the free-mode and usage-output references. |
+| `skills/ux-explore/references/free-mode.md` | Free-mode traversal, per-step evidence, action strategy, skip rules, and screenshot naming. |
+| `skills/ux-explore/references/usage-output.md` | UX report, usage guide, Markdown/HTML output rules, usage drafting, and cleanup behavior. |
 | `skills/ux-explore/templates/ux-report-template.html` | HTML template for the UX critique report, including a three-column step evidence grid. |
 | `skills/ux-explore/templates/usage-template.html` | HTML template for discovered product usage documentation. |
 | `tests/ux-explore/structure.test.js` | Structure tests that enforce evidence, artifact, template, usage guide, and English-only contracts. |
@@ -833,7 +835,7 @@ git log --oneline -10
 git status --short --branch
 ```
 
-Expected: recent commits include the five implementation commits, worktree is clean, and the diff is limited to `skills/ux-explore/SKILL.md`, `skills/ux-explore/templates/`, and `tests/ux-explore/structure.test.js` plus this plan/spec if they were committed separately.
+Expected: recent commits include the implementation commits, worktree is clean, and the diff is limited to `skills/ux-explore/SKILL.md`, `skills/ux-explore/references/`, `skills/ux-explore/templates/`, and `tests/ux-explore/structure.test.js` plus this plan/spec if they were committed separately.
 
 ## Self-Review
 
@@ -842,6 +844,7 @@ Spec coverage:
 - `ux-report.md` replaces `report.md`: Task 2.
 - `usage.md` is produced as a discovered usage guide: Tasks 2 and 3.
 - `ux-report.html` and `usage.html` are generated from skill-owned templates: Tasks 4 and 5.
+- `SKILL.md` routes to `references/free-mode.md` and `references/usage-output.md` instead of carrying those detailed workflows inline.
 - The default UX output directory aligns with QA under `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`: Task 2.
 - UX steps use before, target, and after screenshots: Task 1.
 - `usage.md` schema includes Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations: Task 2.
@@ -862,5 +865,6 @@ Type and naming consistency:
 
 - `ux-report.md` and `ux-report.html` are used consistently for the UX critique artifacts.
 - `usage.md` and `usage.html` are used consistently for usage guide artifacts.
+- `references/free-mode.md` and `references/usage-output.md` are named consistently in tests and skill text.
 - `templates/ux-report-template.html` and `templates/usage-template.html` are named consistently in tests and skill text.
 - `Before`, `Target`, and `After` screenshot labels are named consistently across tests, skill text, and both HTML templates.
