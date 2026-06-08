@@ -50,7 +50,7 @@ skills/ux-explore/templates/ux-report-template.html
 skills/ux-explore/templates/usage-template.html
 ```
 
-`SKILL.md` should stay the route and mode-selection entrypoint. Free-mode traversal belongs in `skills/ux-explore/references/free-mode.md`; usage guide, report, HTML output, and cleanup rules belong in `skills/ux-explore/references/usage-output.md`.
+`SKILL.md` should stay the route and mode-selection entrypoint. Free-mode traversal belongs in `skills/ux-explore/references/free-mode.md`; usage guide, report, HTML output, and cleanup rules now live in `skills/ux-explore/references/reporting.md`.
 
 The two HTML outputs use separate templates because the UX report and usage guide have different information architecture. The UX report needs issue severity, goodwill, interaction evidence, and three screenshots per step. The usage guide needs capability sections, ordered steps, results, related controls, evidence links, and before/target/after screenshots for the steps that prove the capability.
 
@@ -192,7 +192,7 @@ Add structure tests for `skills/ux-explore/SKILL.md` that verify:
 
 - The default output directory resolves to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`.
 - The skill routes free mode to `references/free-mode.md`.
-- The skill routes Markdown and HTML output behavior to `references/usage-output.md`.
+- The skill routes Markdown and HTML output behavior to `references/reporting.md`.
 - The skill references `ux-report.md`.
 - The skill references `ux-report.html`.
 - The skill references `usage.md`.

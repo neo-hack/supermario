@@ -14,9 +14,9 @@
 
 | Path | Responsibility |
 |------|----------------|
-| `skills/ux-explore/SKILL.md` | Route and mode-selection entrypoint. It points workers to the free-mode and usage-output references. |
+| `skills/ux-explore/SKILL.md` | Route and mode-selection entrypoint. It points workers to the free-mode and reporting references. |
 | `skills/ux-explore/references/free-mode.md` | Free-mode traversal, per-step evidence, action strategy, skip rules, and screenshot naming. |
-| `skills/ux-explore/references/usage-output.md` | UX report, usage guide, Markdown/HTML output rules, usage drafting, and cleanup behavior. |
+| `skills/ux-explore/references/reporting.md` | UX report, usage guide, Markdown/HTML output rules, usage drafting, and cleanup behavior. |
 | `skills/ux-explore/templates/ux-report-template.html` | HTML template for the UX critique report, including a three-column step evidence grid. |
 | `skills/ux-explore/templates/usage-template.html` | HTML template for discovered product usage documentation. |
 | `tests/ux-explore/structure.test.js` | Structure tests that enforce evidence, artifact, template, usage guide, and English-only contracts. |
@@ -381,7 +381,7 @@ Expected: FAIL because free mode does not yet describe usage draft maintenance.
 
 - [ ] **Step 3: Add free-mode usage drafting rules**
 
-Add this section after `### Stopping Condition` and before `## Narration Mode` in `skills/ux-explore/SKILL.md`:
+Add this section after `### Stopping Condition` and before `## Observation Style` in `skills/ux-explore/SKILL.md`:
 
 ````markdown
 ### Usage Drafting
@@ -820,7 +820,7 @@ Expected: no output and exit code 0.
 Run:
 
 ```bash
-rg -n "[\p{Han}]" skills/ux-explore tests/ux-explore docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md
+rg -n "[\p{Han}]" skills/ux-explore tests/ux-explore docs/superpowers/plans docs/superpowers/specs
 ```
 
 Expected: no output and exit code 1.
@@ -844,7 +844,7 @@ Spec coverage:
 - `ux-report.md` replaces `report.md`: Task 2.
 - `usage.md` is produced as a discovered usage guide: Tasks 2 and 3.
 - `ux-report.html` and `usage.html` are generated from skill-owned templates: Tasks 4 and 5.
-- `SKILL.md` routes to `references/free-mode.md` and `references/usage-output.md` instead of carrying those detailed workflows inline.
+- `SKILL.md` routes to `references/free-mode.md` and `references/reporting.md` instead of carrying those detailed workflows inline.
 - The default UX output directory aligns with QA under `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`: Task 2.
 - UX steps use before, target, and after screenshots: Task 1.
 - `usage.md` schema includes Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations: Task 2.
@@ -865,6 +865,6 @@ Type and naming consistency:
 
 - `ux-report.md` and `ux-report.html` are used consistently for the UX critique artifacts.
 - `usage.md` and `usage.html` are used consistently for usage guide artifacts.
-- `references/free-mode.md` and `references/usage-output.md` are named consistently in tests and skill text.
+- `references/free-mode.md` and `references/reporting.md` are named consistently in tests and skill text.
 - `templates/ux-report-template.html` and `templates/usage-template.html` are named consistently in tests and skill text.
 - `Before`, `Target`, and `After` screenshot labels are named consistently across tests, skill text, and both HTML templates.

@@ -8,13 +8,13 @@
 - Observation style: first-person, concrete user narration.
 - Output artifacts: UX critique reports and usage guides in Markdown and HTML.
 
-The current reference split improved free mode, but `Journey Mode` still carries detailed behavior in `SKILL.md`, and `Narration Mode` reads like a third execution mode even though it is only a writing style. `references/usage-output.md` is also misnamed because it owns both `usage` and `ux-report` artifacts.
+The current reference split improved free mode, but `Journey Mode` still carries detailed behavior in `SKILL.md`, and the old narration heading reads like a third execution mode even though it is only a writing style. The old usage output reference is also misnamed because it owns both `usage` and `ux-report` artifacts.
 
 ## Goals
 
 - Keep `SKILL.md` as the route and mode-selection entrypoint.
 - Move journey execution details into `references/journey-mode.md`.
-- Rename `references/usage-output.md` to `references/reporting.md`.
+- Rename the old usage output reference to `references/reporting.md`.
 - Make `Observation Style` the name for first-person narration guidance.
 - Keep free mode and journey mode mutually exclusive as primary execution modes.
 - Make both modes produce both artifact families:
@@ -73,7 +73,7 @@ Read the references for the selected work:
 - For all Markdown and HTML artifacts, follow `references/reporting.md`.
 ```
 
-`Narration Mode` should be renamed to `Observation Style`. This keeps it visibly separate from execution modes. Observation style applies to both free mode and journey mode.
+The old narration heading should be renamed to `Observation Style`. This keeps it visibly separate from execution modes. Observation style applies to both free mode and journey mode.
 
 ## `references/free-mode.md`
 
@@ -198,7 +198,7 @@ Update `tests/ux-explore/structure.test.js` to verify:
 - `SKILL.md` routes free mode to `references/free-mode.md`.
 - `SKILL.md` routes journey mode to `references/journey-mode.md`.
 - `SKILL.md` routes all Markdown and HTML artifacts to `references/reporting.md`.
-- `SKILL.md` contains `Observation Style` and does not contain `Narration Mode`.
+- `SKILL.md` contains `Observation Style` and does not contain the old narration heading.
 - `references/journey-mode.md` contains Journey Brief, Journey Planning, Journey Execution, Journey Stopping, Journey Results, and the full-page traversal boundary.
 - `references/reporting.md` contains both UX report and usage guide format contracts.
 - No test expects artifact format details to live in `SKILL.md`.
@@ -206,9 +206,9 @@ Update `tests/ux-explore/structure.test.js` to verify:
 ## Migration
 
 1. Move journey-specific sections from `SKILL.md` into `references/journey-mode.md`.
-2. Rename `references/usage-output.md` to `references/reporting.md`.
+2. Rename the old usage output reference to `references/reporting.md`.
 3. Update `SKILL.md` reference routing.
-4. Rename `Narration Mode` to `Observation Style`.
+4. Rename the old narration heading to `Observation Style`.
 5. Update tests and plan/spec references.
 6. Run full validation:
    - `pnpm test`

@@ -196,7 +196,7 @@ test('ux-explore observation style is shared by execution modes', () => {
   assert.match(skill, /## Observation Style/);
   assert.match(skill, /Explore in first person/);
   assert.match(skill, /applies to both free mode and journey mode/i);
-  assert.doesNotMatch(skill, /## Narration Mode/);
+  assert.doesNotMatch(skill, /## Narration\s+Mode/);
 });
 
 test('ux-explore skill body stays English-only', () => {

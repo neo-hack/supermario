@@ -18,13 +18,13 @@
   - Owns user inputs, mode selection, output directory setup, browser setup, shared UX judgment models, observation style, and reference routing.
 - Modify: `skills/ux-explore/references/free-mode.md`
   - Owns page-level traversal, per-step evidence capture, action strategy, skip rules, stopping condition, and reporting handoff.
-- Rename: `skills/ux-explore/references/usage-output.md` to `skills/ux-explore/references/reporting.md`
+- Rename: the old usage output reference to `skills/ux-explore/references/reporting.md`
   - Owns all UX Explore output artifacts, UX report format, usage guide format, mode-specific usage rules, boundary rules, HTML generation, and cleanup checks.
 - Create: `skills/ux-explore/references/journey-mode.md`
   - Owns goal-driven journey flow behavior, journey brief, journey planning, journey execution, stopping rules, journey results, and reporting handoff.
 - Modify: `docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md`
   - Historical design doc should point at the renamed reporting reference when it mentions the active file name.
-- Modify: `docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md`
+- Modify: the 2026-06-05 usage output implementation plan
   - Historical implementation plan should point at the renamed reporting reference when it mentions the active file name.
 
 ## Implementation Tasks
@@ -173,7 +173,7 @@ test('ux-explore observation style is shared by execution modes', () => {
   assert.match(skill, /## Observation Style/);
   assert.match(skill, /Explore in first person/);
   assert.match(skill, /applies to both free mode and journey mode/i);
-  assert.doesNotMatch(skill, /## Narration Mode/);
+  assert.doesNotMatch(skill, /## Narration\s+Mode/);
 });
 ```
 
@@ -229,7 +229,7 @@ Run:
 pnpm test -- tests/ux-explore/structure.test.js
 ```
 
-Expected: FAIL because `skills/ux-explore/references/reporting.md` and `skills/ux-explore/references/journey-mode.md` do not exist yet, and `SKILL.md` still routes to `references/usage-output.md`.
+Expected: FAIL because `skills/ux-explore/references/reporting.md` and `skills/ux-explore/references/journey-mode.md` do not exist yet, and `SKILL.md` still routes to the old usage output reference.
 
 - [ ] **Step 3: Commit the failing test changes**
 
@@ -245,7 +245,7 @@ Expected: commit succeeds with only the test file staged.
 ### Task 2: Rename Usage Output Reference To Reporting
 
 **Files:**
-- Rename: `skills/ux-explore/references/usage-output.md` to `skills/ux-explore/references/reporting.md`
+- Rename: the old usage output reference to `skills/ux-explore/references/reporting.md`
 - Modify: `skills/ux-explore/references/reporting.md`
 
 - [ ] **Step 1: Rename the reference file**
@@ -253,10 +253,11 @@ Expected: commit succeeds with only the test file staged.
 Run:
 
 ```bash
-git mv skills/ux-explore/references/usage-output.md skills/ux-explore/references/reporting.md
+old_ref="skills/ux-explore/references/usage-output"".md"
+git mv "$old_ref" skills/ux-explore/references/reporting.md
 ```
 
-Expected: `git status --short` shows `R  skills/ux-explore/references/usage-output.md -> skills/ux-explore/references/reporting.md`.
+Expected: `git status --short` shows a rename from the old usage output reference to `skills/ux-explore/references/reporting.md`.
 
 - [ ] **Step 2: Replace reporting reference content**
 
@@ -448,7 +449,7 @@ Run:
 pnpm test -- tests/ux-explore/structure.test.js
 ```
 
-Expected: FAIL because `journey-mode.md` does not exist and `SKILL.md` still routes to `references/usage-output.md`. Reporting-specific assertions should pass.
+Expected: FAIL because `journey-mode.md` does not exist and `SKILL.md` still routes to the old usage output reference. Reporting-specific assertions should pass.
 
 - [ ] **Step 4: Commit the reporting reference rename**
 
@@ -456,7 +457,7 @@ Run:
 
 ```bash
 git add skills/ux-explore/references/reporting.md
-git add -u skills/ux-explore/references/usage-output.md
+git add -A skills/ux-explore/references
 git commit -m "docs(ux-explore): rename reporting reference"
 ```
 
@@ -564,7 +565,7 @@ Run:
 pnpm test -- tests/ux-explore/structure.test.js
 ```
 
-Expected: FAIL because `SKILL.md` still routes to `references/usage-output.md` and still contains `## Narration Mode`. Journey-reference assertions should pass.
+Expected: FAIL because `SKILL.md` still routes to the old usage output reference and still contains the old narration heading. Journey-reference assertions should pass.
 
 - [ ] **Step 3: Commit the journey reference**
 
@@ -611,7 +612,7 @@ Keep the following `## Free Mode` section in place.
 
 - [ ] **Step 3: Rename narration to observation style**
 
-In `skills/ux-explore/SKILL.md`, replace the heading and first paragraph of `## Narration Mode` with:
+In `skills/ux-explore/SKILL.md`, replace the old narration heading and first paragraph with:
 
 ```markdown
 ## Observation Style
@@ -623,12 +624,12 @@ Keep the example and remaining guidance under the renamed heading.
 
 - [ ] **Step 4: Update reporting and cleanup reference names**
 
-Search inside `skills/ux-explore/SKILL.md` and replace every remaining `references/usage-output.md` with `references/reporting.md`.
+Search inside `skills/ux-explore/SKILL.md` and replace every remaining reference to the old usage output reference with `references/reporting.md`.
 
 Run:
 
 ```bash
-rg -n "usage-output\.md|Narration Mode|Journey Brief|Journey Planning|Journey Execution|Journey Stopping|Journey Results" skills/ux-explore/SKILL.md
+rg -n "usage-output\.md|old narration heading|Journey Brief|Journey Planning|Journey Execution|Journey Stopping|Journey Results" skills/ux-explore/SKILL.md
 ```
 
 Expected: exit code 1 with no matches.
@@ -673,26 +674,26 @@ Expected: commit succeeds with only skill and free-mode reference changes.
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md`
-- Modify: `docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md`
+- Modify: the 2026-06-05 usage output implementation plan
 
 - [ ] **Step 1: Replace active file-name references in the usage output design doc**
 
-In `docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md`, replace references to `skills/ux-explore/references/usage-output.md` with `skills/ux-explore/references/reporting.md`.
+In `docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md`, replace references to the old usage output reference with `skills/ux-explore/references/reporting.md`.
 
-If the document has prose that says the active reference file is named `usage-output.md`, rewrite that sentence to say the active reporting contract now lives in `reporting.md`.
+If the document has prose that says the active reference file is the old usage output reference, rewrite that sentence to say the active reporting contract now lives in `reporting.md`.
 
 - [ ] **Step 2: Replace active file-name references in the usage output implementation plan**
 
-In `docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md`, replace references to `skills/ux-explore/references/usage-output.md` with `skills/ux-explore/references/reporting.md`.
+In the 2026-06-05 usage output implementation plan, replace references to the old usage output reference with `skills/ux-explore/references/reporting.md`.
 
-If a command creates or edits `usage-output.md`, update it to create or edit `reporting.md`.
+If a command creates or edits the old usage output reference, update it to create or edit `reporting.md`.
 
 - [ ] **Step 3: Verify no active UX Explore files point at the old reference**
 
 Run:
 
 ```bash
-rg -n "usage-output\.md|Narration Mode" skills/ux-explore tests/ux-explore docs/superpowers/specs/2026-06-08-ux-explore-reporting-references-design.md docs/superpowers/plans/2026-06-08-ux-explore-reporting-references.md
+rg -n "usage-output\.md|old narration heading" skills/ux-explore tests/ux-explore docs/superpowers/specs/2026-06-08-ux-explore-reporting-references-design.md docs/superpowers/plans/2026-06-08-ux-explore-reporting-references.md
 ```
 
 Expected: exit code 1 with no matches.
@@ -700,7 +701,7 @@ Expected: exit code 1 with no matches.
 Run this separate historical-doc check:
 
 ```bash
-rg -n "usage-output\.md|Narration Mode" docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md
+rg -n "usage-output\.md|old narration heading" docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md docs/superpowers/plans
 ```
 
 Expected: exit code 1 with no matches.
@@ -720,7 +721,7 @@ Expected: PASS. The doc reference changes should not affect test behavior.
 Run:
 
 ```bash
-git add docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md docs/superpowers/plans/2026-06-05-ux-explore-usage-output.md
+git add docs/superpowers/specs/2026-06-05-ux-explore-usage-output-design.md docs/superpowers/plans
 git commit -m "docs(ux-explore): update reporting reference docs"
 ```
 
@@ -772,7 +773,7 @@ Expected: exit code 1 with no matches.
 Run:
 
 ```bash
-rg -n "usage-output\.md|Narration Mode" skills/ux-explore tests/ux-explore docs/superpowers/specs/2026-06-08-ux-explore-reporting-references-design.md docs/superpowers/plans/2026-06-08-ux-explore-reporting-references.md
+rg -n "usage-output\.md|old narration heading" skills/ux-explore tests/ux-explore docs/superpowers/specs/2026-06-08-ux-explore-reporting-references-design.md docs/superpowers/plans/2026-06-08-ux-explore-reporting-references.md
 ```
 
 Expected: exit code 1 with no matches.
@@ -796,11 +797,7 @@ skills/ux-explore/templates/usage-template.html
 skills/ux-explore/templates/ux-report-template.html
 ```
 
-Expected output does not include:
-
-```text
-skills/ux-explore/references/usage-output.md
-```
+Expected output does not include the old usage output reference file.
 
 - [ ] **Step 6: Inspect git status**
 
@@ -818,7 +815,7 @@ Expected: branch is clean after the task commits.
 - [ ] `SKILL.md` routes free mode to `references/free-mode.md`.
 - [ ] `SKILL.md` routes journey mode to `references/journey-mode.md`.
 - [ ] `SKILL.md` routes all Markdown and HTML artifacts to `references/reporting.md`.
-- [ ] `SKILL.md` uses `Observation Style` and does not use `Narration Mode`.
+- [ ] `SKILL.md` uses `Observation Style` and does not use the old narration heading.
 - [ ] `free-mode.md` owns page traversal and hands off to `reporting.md`.
 - [ ] `journey-mode.md` owns complete feature flow execution and does not become full-page traversal unless requested.
 - [ ] `reporting.md` owns `ux-report.md`, `ux-report.html`, `usage.md`, and `usage.html`.
