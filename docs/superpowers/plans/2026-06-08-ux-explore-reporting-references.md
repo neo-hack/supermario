@@ -217,6 +217,7 @@ test('ux-explore reporting reference owns all output artifact contracts', () => 
   assert.match(reporting, /## Boundary Rules/);
   assert.match(reporting, /## HTML Generation/);
   assert.match(reporting, /## Cleanup Checklist/);
+  assert.match(reporting, /Before writing or generating any output artifact, read this reference end-to-end/);
 });
 ```
 
@@ -265,6 +266,8 @@ Replace the complete contents of `skills/ux-explore/references/reporting.md` wit
 # Reporting
 
 This reference owns every UX Explore output artifact for both free mode and journey mode.
+
+Before writing or generating any output artifact, read this reference end-to-end. Before writing `ux-report.md`, read the UX Report Format section. Before writing `usage.md`, read the Usage Guide Format, Mode-Specific Usage Rules, and Boundary Rules sections. Before generating HTML, read the HTML Generation section and the matching template.
 
 ## Artifact List
 
