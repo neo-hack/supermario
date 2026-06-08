@@ -215,6 +215,26 @@ The exploration ends naturally when all interactive elements on the page have be
 
 If a scroll reveals new interactive elements that were not in the initial snapshot, discover them with `agent-browser snapshot -i` after scrolling, add them to the queue, and continue the loop.
 
+### Usage Drafting
+
+During free mode, maintain a usage draft alongside the UX report.
+
+1. When an interaction reveals a coherent capability, name the capability.
+2. Group adjacent steps that belong to the same user goal.
+3. Record only observable behavior.
+4. Do not speculate about backend behavior or hidden implementation.
+5. If a path is incomplete, include it with `Limitations` rather than presenting it as complete.
+6. If a related control was skipped, mention it only with a clear note that it was not exercised.
+7. At cleanup, rewrite `usage.md` into a clean guide ordered by likely user tasks, not raw exploration order.
+
+If no coherent capability is discovered, still create `usage.md` with this content:
+
+```markdown
+# Usage Guide
+
+No complete usage path was observed during this exploration.
+```
+
 ## Narration Mode
 
 Explore in first person, as a real user who has never seen this page before. Name the specific element, its position, its visual weight. If you can't name it specifically, you're generating platitudes — look harder.

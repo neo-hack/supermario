@@ -85,6 +85,19 @@ test('ux-explore writes separate UX report and usage guide markdown', () => {
   assert.doesNotMatch(skill, /The final report goes to `\{OUTPUT_DIR\}\/report\.md`/);
 });
 
+test('ux-explore free mode maintains a usage draft from observed capabilities', () => {
+  const skill = readSkill();
+
+  assert.match(skill, /maintain a usage draft/i);
+  assert.match(skill, /coherent capability/i);
+  assert.match(skill, /Group adjacent steps that belong to the same user goal/);
+  assert.match(skill, /Record only observable behavior/);
+  assert.match(skill, /Do not speculate about backend behavior or hidden implementation/);
+  assert.match(skill, /If a path is incomplete, include it with `Limitations`/);
+  assert.match(skill, /not exercised/);
+  assert.match(skill, /If no coherent capability is discovered/);
+});
+
 test('ux-explore skill body stays English-only', () => {
   const skill = readSkill();
 
