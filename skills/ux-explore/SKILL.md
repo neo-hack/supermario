@@ -410,6 +410,8 @@ Every usage entry must include: title, Purpose, Entry point, Steps, Result, Rela
 
 Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html` from `ux-report.md`. Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`. The UX report HTML must render every step with Before, Target, and After screenshots. The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
 
+UX problems discovered while using a capability still belong in `ux-report.md`. `usage.md` should avoid severity labels and recommendations unless they are necessary to explain a limitation. Journey mode can use `usage.md` as source material for future goals, but this skill does not parse or replay `usage.md` automatically.
+
 ## Report Format
 
 Write the UX report incrementally as you explore. Append each step and each UX issue to `{OUTPUT_DIR}/ux-report.md` as you find them so nothing is lost if the session is interrupted. Do not batch all writing for the end.
@@ -525,9 +527,17 @@ agent-browser record stop
 agent-browser close
 ```
 
-3. Re-read the report and update the summary counts to match actual issues found.
+3. Re-read `ux-report.md` and update the summary counts to match actual issues found.
 
-4. Tell the user the report is ready and summarize: goodwill score with verdict, total issues, breakdown by severity, and the most critical items.
+4. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
+
+5. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
+
+6. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
+
+7. Open both HTML files and verify relative links and image references. The UX report HTML must show before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
+
+8. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
 
 ## Snapshot Diff Technique
 

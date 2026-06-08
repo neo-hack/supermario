@@ -136,6 +136,20 @@ test('ux-explore provides HTML templates for UX report and usage guide', () => {
   assert.match(usageTemplate, /screenshots\/step-\{NNN\}-after\.png[^]*<figcaption>After<\/figcaption>/);
 });
 
+test('ux-explore cleanup generates and verifies markdown and html artifacts', () => {
+  const skill = readSkill();
+
+  assert.match(skill, /Generate `\{OUTPUT_DIR\}\/ux-report\.html` from `\{OUTPUT_DIR\}\/ux-report\.md`/);
+  assert.match(skill, /Generate `\{OUTPUT_DIR\}\/usage\.html` from `\{OUTPUT_DIR\}\/usage\.md`/);
+  assert.match(skill, /Re-read `ux-report\.md` and update the summary counts/);
+  assert.match(skill, /Re-read `usage\.md` and make sure every usage entry has evidence/);
+  assert.match(skill, /usage entry has before, target, and after screenshot references/);
+  assert.match(skill, /Open both HTML files and verify relative links and image references/);
+  assert.match(skill, /Tell the user both Markdown and HTML artifacts are ready/);
+  assert.match(skill, /Journey mode can use `usage\.md` as source material/);
+  assert.match(skill, /does not parse or replay `usage\.md` automatically/);
+});
+
 test('ux-explore skill body stays English-only', () => {
   const skill = readSkill();
 
