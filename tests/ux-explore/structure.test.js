@@ -58,6 +58,33 @@ test('ux-explore supports journey mode for complete feature flows', () => {
   assert.match(skill, /RSS subscription journey/);
 });
 
+test('ux-explore writes separate UX report and usage guide markdown', () => {
+  const skill = readSkill();
+
+  assert.match(skill, /~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\//);
+  assert.match(skill, /derive `ux-name` from the target host, route, journey goal, or requested scope/);
+  assert.match(skill, /Resolve `\{OUTPUT_DIR\}` to `~\/\.config\/supermario\/ux\/YYYY-MM-DD-<ux-name>\/`/);
+  assert.match(skill, /ux-report\.md/);
+  assert.match(skill, /usage\.md/);
+  assert.match(skill, /The final UX report goes to `\{OUTPUT_DIR\}\/ux-report\.md`/);
+  assert.match(skill, /Free mode also writes `\{OUTPUT_DIR\}\/usage\.md`/);
+  assert.match(skill, /Usage Guide/);
+  assert.match(skill, /Purpose: Subscribe to a new RSS source\./);
+  assert.match(skill, /Entry point: "Add feed" button in the sidebar\./);
+  assert.match(skill, /Steps:/);
+  assert.match(skill, /Result:/);
+  assert.match(skill, /Related controls:/);
+  assert.match(skill, /Evidence:/);
+  assert.match(skill, /Evidence screenshots:/);
+  assert.match(skill, /\!\[Before\]\(screenshots\/step-003\.png\)/);
+  assert.match(skill, /\!\[Target\]\(screenshots\/step-003-target\.png\)/);
+  assert.match(skill, /\!\[After\]\(screenshots\/step-003-after\.png\)/);
+  assert.match(skill, /Limitations:/);
+  assert.match(skill, /UX report: ux-report\.md/);
+  assert.match(skill, /Usage guide: usage\.md/);
+  assert.doesNotMatch(skill, /The final report goes to `\{OUTPUT_DIR\}\/report\.md`/);
+});
+
 test('ux-explore skill body stays English-only', () => {
   const skill = readSkill();
 

@@ -18,7 +18,7 @@ Systematically explore a web page by interacting with every interactive element,
 | URL | Yes | - | Target page URL |
 | Mode | No | free | Use free mode for page-level exploration, or journey mode when the user gives `--journey "<goal>"` or describes a complete feature flow |
 | Journey goal | Journey mode only | - | User task to complete, such as "RSS subscription journey" |
-| Output directory | No | `./ux-explore-output/` | Where to save artifacts |
+| Output directory | No | `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/` | Where to save artifacts |
 
 If the user says something like "explore example.com", start in free mode immediately. If the user describes a product task, feature flow, or says `--journey "<goal>"`, start in journey mode. Do not ask clarifying questions unless the URL is missing or the journey goal is too vague to identify a first action.
 
@@ -33,11 +33,17 @@ In journey mode, the user goal controls the path. Do not traverse unrelated elem
 
 ## Setup
 
-1. Create output directories and start the report file:
+1. Create output directories and start the Markdown artifacts:
 
 ```bash
 mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots {OUTPUT_DIR}/diffs
 ```
+
+When no output directory is provided, derive `ux-name` from the target host, route, journey goal, or requested scope. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`, using a short lowercase slug such as `vercel-home`, `rss-subscription-journey`, or `settings-panel`.
+
+Write UX findings to `{OUTPUT_DIR}/ux-report.md`. This file is the UX critique artifact: interaction evidence, goodwill score, UX issues, summary, and links to artifacts.
+
+Write discovered product usage to `{OUTPUT_DIR}/usage.md`. This file is descriptive, not evaluative: what users can do, where the entry point is, the steps, the visible result, related controls, and evidence.
 
 2. Launch the browser and wait for the page to fully load:
 
@@ -343,11 +349,50 @@ Are dangerous or confusing operations protected?
 | Medium | Noticeably unintuitive but discoverable (missing placeholder, non-obvious default, extra steps) |
 | Low | Minor friction (slow tooltip, subtle hover effect, slightly confusing icon) |
 
+## Usage Guide Format
+
+Free mode also writes `{OUTPUT_DIR}/usage.md`:
+
+```markdown
+# Usage Guide
+
+## Add an RSS feed
+
+Purpose: Subscribe to a new RSS source.
+
+Entry point: "Add feed" button in the sidebar.
+
+Steps:
+1. Click "Add feed".
+2. Paste an RSS URL into the feed URL field.
+3. Click "Add".
+4. Confirm the feed appears in the feed list.
+
+Result:
+The app subscribes to the feed and starts fetching items.
+
+Related controls:
+- Refresh feed
+- Open item
+- Remove feed
+
+Evidence:
+- steps 003-006
+
+Evidence screenshots:
+![Before](screenshots/step-003.png) ![Target](screenshots/step-003-target.png) ![After](screenshots/step-003-after.png)
+
+Limitations:
+- None observed.
+```
+
+Every usage entry must include: title, Purpose, Entry point, Steps, Result, Related controls, Evidence, Evidence screenshots, and Limitations.
+
 ## Report Format
 
-Write the report incrementally as you explore. Append each step and each issue as you find them so nothing is lost if the session is interrupted. Do not batch all writing for the end.
+Write the UX report incrementally as you explore. Append each step and each UX issue to `{OUTPUT_DIR}/ux-report.md` as you find them so nothing is lost if the session is interrupted. Do not batch all writing for the end.
 
-The final report goes to `{OUTPUT_DIR}/report.md`:
+The final UX report goes to `{OUTPUT_DIR}/ux-report.md`:
 
 ```markdown
 # UX Explore Report: {URL}
@@ -433,6 +478,8 @@ Goodwill: 70 ██████████████████░░░░�
 | **Total** | **T** |
 
 ## Artifacts
+- UX report: ux-report.md
+- Usage guide: usage.md
 - Full video: explore-video.webm
 - Screenshots: screenshots/
 - Snapshot diffs: diffs/
