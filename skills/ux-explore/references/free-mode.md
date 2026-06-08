@@ -98,3 +98,12 @@ If a scroll reveals new interactive elements that were not in the initial snapsh
 
 - Screenshots: screenshots/
 - Snapshot diffs: diffs/
+
+## Reporting Handoff
+
+After every interactive element has been visited or skipped with a documented reason, follow `references/reporting.md`.
+
+Create both report families:
+
+- UX critique in `{OUTPUT_DIR}/ux-report.md` and `{OUTPUT_DIR}/ux-report.html`.
+- Product usage paths in `{OUTPUT_DIR}/usage.md` and `{OUTPUT_DIR}/usage.html`.

@@ -36,9 +36,8 @@ In journey mode, the user goal controls the path. Do not traverse unrelated elem
 Read the references for the selected work:
 
 - For free mode, follow `references/free-mode.md`.
-- For Markdown and HTML outputs, follow `references/usage-output.md`.
-
-Journey mode still uses the same evidence, reporting, and output contracts from those references for each journey step.
+- For journey mode, follow `references/journey-mode.md`.
+- For all Markdown and HTML artifacts, follow `references/reporting.md`.
 
 ## Setup
 
@@ -99,78 +98,15 @@ Score: PASS (all 6 clear) / PARTIAL (4-5) / FAIL (3 or fewer).
 
 ## Journey Mode
 
-Use journey mode to experience a complete feature flow from the user's point of view. The goal is not to click every element on the page; it is to find whether a real user can finish the task with confidence.
-
-### Journey Brief
-
-Before interacting, write a brief in the report:
-
-```markdown
-## Journey Brief
-
-| Field | Value |
-|-------|-------|
-| Goal | {journey goal} |
-| Starting page | {url} |
-| Assumed user | first-time user |
-| Success criteria | {observable end state} |
-| Known test data | {feed URL, account, search term, or none} |
-```
-
-Define success criteria as observable product states, not internal implementation details. For an RSS subscription journey, good success criteria are: the feed is added, the feed appears in the list, refresh feedback is visible, items appear or a clear empty/error state appears, and an item can be opened.
-
-### Journey Planning
-
-1. Run `agent-browser snapshot -i` and inspect the initial annotated screenshot.
-2. Identify the most direct user path toward the goal.
-3. If there are multiple plausible starts, choose the one a first-time user would pick first.
-4. If no credible first action exists, record the journey as blocked and explain what was missing.
-5. Keep navigation within the product unless the journey explicitly requires leaving the page.
-
-### Journey Execution
-
-For each journey step:
-
-1. Capture the same before screenshot, target screenshot, baseline snapshot, after screenshot, snapshot diff, console, and errors required by the per-element workflow.
-2. Narrate in first person: what I thought I should do, what I clicked or typed, what changed, and whether I felt confident.
-3. Judge the step against the Intuition Criteria and Goodwill Reservoir.
-4. Continue toward the success criteria, not toward unrelated controls.
-5. If the path branches, choose the branch that best matches the user's stated goal.
-6. If the journey needs test data and none was provided, use safe realistic data when obvious, such as `https://example.com/feed.xml` for an RSS URL placeholder. If realistic data is not obvious, ask the user for it.
-
-### Journey Stopping
-
-Stop journey mode when one of these is true:
-
-- The success criteria are met.
-- The flow is blocked and no user-visible recovery path exists.
-- The flow becomes partial because a sub-step works but the final state cannot be verified.
-
-After the journey stops, optionally free-explore only directly related controls that were revealed by the journey. Do not convert journey mode into full-page traversal unless the user asks for free exploration too.
-
-### Journey Results
-
-Record the journey outcome in `ux-report.md`:
-
-```markdown
-## Journey Results
-
-| Field | Value |
-|-------|-------|
-| Goal | {journey goal} |
-| Outcome | completed / partial / blocked |
-| Success criteria | {met / unmet list} |
-| Critical path steps | {count} |
-| Biggest friction | {short description} |
-```
+For journey mode, follow `references/journey-mode.md`.
 
 ## Free Mode
 
 For free mode, follow `references/free-mode.md`.
 
-## Narration Mode
+## Observation Style
 
-Explore in first person, as a real user who has never seen this page before. Name the specific element, its position, its visual weight. If you can't name it specifically, you're generating platitudes — look harder.
+This style applies to both free mode and journey mode. Explore in first person, as a real user who has never seen this page before. Name the specific element, its position, its visual weight. If you can't name it specifically, you're generating platitudes; look harder.
 
 ```
 "I click the 'Attach resources' button... the page jumps to a different URL... a 'Backing up'
@@ -318,7 +254,7 @@ agent-browser record stop
 agent-browser close
 ```
 
-3. For Markdown and HTML outputs, follow `references/usage-output.md`.
+3. For all Markdown and HTML artifacts, follow `references/reporting.md`.
 
 ## Snapshot Diff Technique
 
