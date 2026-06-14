@@ -127,7 +127,12 @@ Where `<pm>` is the detected package manager (`pnpm` or `bun`).
 
 **Template substitution:**
 - The husky scripts (`pre-commit`, `pre-merge`) contain the placeholder `{{PACKAGE_MANAGER}}`, which must be replaced with the detected package manager name before copying.
-- The Tauri release workflow (`release-tauri.yml`) uses `pnpm` by default. If the detected package manager is `bun`, replace `pnpm/action-setup@v2` step with `oven-sh/setup-bun@v1`, `pnpm install --frozen-lockfile=false` with `bun install`. If `pnpm`, keep as-is.
+- The Tauri release workflow (`release-tauri.yml`) uses `pnpm` by default. If the detected package manager is `bun`, replace `pnpm/action-setup@v4` step with `oven-sh/setup-bun@v2`, `pnpm install --frozen-lockfile=false` with `bun install`. If `pnpm`, keep as-is.
+- **pnpm/action-setup ordering**: `pnpm/action-setup@v4` must run BEFORE `actions/setup-node@v5` in all pnpm workflows. This is required because setup-node v5 expects the package manager to already be on PATH.
+- **Cross-platform shell compatibility**: Any step using `$GITHUB_ENV` must include `shell: bash` to work on Windows runners (which default to PowerShell). This applies to pnpm store path detection and similar env-setting steps.
+- **pnpm store caching**: All pnpm workflows include pnpm store caching (`actions/cache@v4`) between install and build steps. The cache key is derived from `pnpm-lock.yaml` hashes.
+- **npm publish provenance**: All release and snapshot-release workflows include `id-token: write` permission, `registry-url` in setup-node, and `NPM_CONFIG_PROVENANCE: true` + `NODE_AUTH_TOKEN` environment variables for OIDC-based supply-chain traceability.
+- **Tauri monorepo builds**: For pnpm monorepo Tauri projects, workspace dependencies (shared types, UI components, etc.) must be built before `tauri-action`. The template includes a `Build workspace dependencies` step using `pnpm build` (runs all packages). For targeted builds, replace with `pnpm --filter '<package-name>...' build` to build only the Tauri app and its transitive dependencies in topological order.
 
 **Make husky scripts executable:** After copying, run `chmod +x` on `.husky/pre-commit` and `.husky/pre-merge`.
 
