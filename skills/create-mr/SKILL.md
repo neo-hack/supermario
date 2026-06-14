@@ -54,7 +54,12 @@ rg -n '"@changesets/cli"|changeset' package.json pnpm-lock.yaml package-lock.jso
 
 If Changesets is not configured, skip this step.
 
-If Changesets is configured, inspect the staged, unstaged, and unpushed branch diff that will be included in the PR. When the diff changes a versioned package or adds a backward-compatible public capability, and no matching `.changeset/*.md` file is already included, use the `changeset` skill before pushing.
+If Changesets is configured, inspect the staged, unstaged, and unpushed
+branch diff that will be included in the PR. When the diff includes any
+meaningful content change to a versioned package or workspace —
+including source code, skills, documentation, or configuration — and no
+matching `.changeset/*.md` file is already included, use the `changeset`
+skill before pushing.
 
 Do not duplicate package eligibility, package-name, or bump-selection logic here. Let the `changeset` skill derive package names, release impact, and validation commands from repository metadata and Changesets config.
 
@@ -132,5 +137,5 @@ Report the PR URL to the user.
 | Ignoring a PR template | Search all supported template locations first. |
 | Writing a title from memory | Base the title on the actual diff and commits. |
 | Claiming tests passed without evidence | Put only verified commands in the test plan. |
-| Omitting a required changeset | Check Changesets support and use the `changeset` skill before pushing release-impacting changes. |
+| Omitting a required changeset | When Changesets is configured, any content change to a versioned package needs a `.changeset/*.md`. Skills and docs count too. |
 | Forgetting to push the branch | Push with `git push -u origin HEAD`, then create the PR. |

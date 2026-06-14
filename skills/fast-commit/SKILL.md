@@ -80,7 +80,14 @@ git commit -m "<title>" -m "<body>"
 
 Append AI co-author trailers when the matching environment is detected.
 
-If the `OPENCODE` environment variable is set, append:
+To detect opencode, check the parent process name (opencode does not export
+an `OPENCODE` env var to subprocesses):
+
+```bash
+ps -p $PPID -o comm= 2>/dev/null | grep -qx opencode
+```
+
+If that succeeds, append:
 
 ```text
 Co-authored-by: opencode <opencode@ai>
@@ -103,4 +110,4 @@ Use `CODEX_SHELL` or `CODEX_CI` for Codex detection. Do not rely on
 | Committing without reading diff | Inspect `git diff --cached` first. |
 | Using actual emoji characters | Use gitmoji text codes like `:memo:`. |
 | Forgetting deleted files | Use `git add -A`. |
-| Missing AI co-author trailers | Check `OPENCODE`, `CODEX_SHELL`, and `CODEX_CI` before committing. |
+| Missing AI co-author trailers | Check parent process for opencode (`ps -p $PPID`), and `CODEX_SHELL`/`CODEX_CI` before committing. |
