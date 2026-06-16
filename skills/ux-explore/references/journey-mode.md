@@ -6,6 +6,8 @@ The goal is not to click every element on the page. The goal is to find whether 
 
 Use the same before screenshot, target screenshot, after screenshot, baseline snapshot, snapshot diff, console, and error evidence model as `references/free-mode.md`.
 
+Journey confidence is judged from screenshots as well as snapshot diffs. Before narrating a journey step, changing goodwill, or marking the journey completed, partial, or blocked, inspect the before, target, and after screenshots for visible feedback, placement, hierarchy, readability, overlay anchoring, clipping, overlap, and whether a first-time user would feel confident continuing.
+
 ## Journey Brief
 
 Before interacting, write this brief in `ux-report.md`:
@@ -38,11 +40,12 @@ Define success criteria as observable product states, not internal implementatio
 For each journey step:
 
 1. Follow the per-step evidence workflow in `references/free-mode.md`.
-2. Narrate in first person: what I thought I should do, what I clicked or typed, what changed, and whether I felt confident.
-3. Judge the step against the Intuition Criteria and Goodwill Reservoir from `SKILL.md`.
-4. Continue toward the success criteria, not toward unrelated controls.
-5. If the path branches, choose the branch that best matches the user's stated goal.
-6. If the journey needs test data and none was provided, use safe realistic data when obvious, such as `https://example.com/feed.xml` for an RSS URL. If realistic data is not obvious, ask the user for it.
+2. Inspect the before, target, and after screenshots.
+3. Narrate in first person: what I thought I should do, what I clicked or typed, what changed, and whether I felt confident.
+4. Judge the step against the Intuition Criteria and Goodwill Reservoir from `SKILL.md`.
+5. Continue toward the success criteria, not toward unrelated controls.
+6. If the path branches, choose the branch that best matches the user's stated goal.
+7. If the journey needs test data and none was provided, use safe realistic data when obvious, such as `https://example.com/feed.xml` for an RSS URL. If realistic data is not obvious, ask the user for it.
 
 ## Journey Stopping
 

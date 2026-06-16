@@ -39,6 +39,7 @@ The convergence threshold controls how many consecutive passes find no new in-sc
 - When a profile is provided, put it before the subcommand on every relevant command.
 - Test from the browser only. Never inspect the target app source code to decide whether behavior is correct. In init QA, tests, stories, and source code may be read only to generate coverage hypotheses for qa.md; live browser evidence still decides PASS or FAIL.
 - Capture evidence for every action before judging it.
+- Judge every action from the before, target, and after screenshots plus snapshot diff, console, and errors. Screenshots are not archival-only; the after screenshot must be visually inspected before assigning PASS, FAIL, Pass with issue, Inconclusive, or Excluded.
 - Start recording by default before the first exploratory interaction and save it as `{OUTPUT_DIR}/session.webm`.
 - Use `agent-browser diff snapshot --baseline` as the primary change detector after each action.
 - Check `agent-browser console` and `agent-browser errors` after each interaction.
@@ -112,7 +113,7 @@ Detect scope before executing any mode. Read `references/scope-resolution.md` wh
 
 If a scope is resolved, execute the selected mode inside that resolved scope. Scope changes where QA explores; it does not change whether the mode is free exploration, case verification, or init QA.
 
-Use `templates/qa-report-template.md` and `templates/qa-report-template.html` for final artifacts.
+Use `templates/qa-report-template.md` and `templates/qa-report-template.html` for final artifacts. The HTML template is the only allowed report shell. Do not hand-write a replacement `report.html`; fill or extend the template instead. If the template cannot represent a required report feature, update the template first, then generate the report from it.
 
 ## Setup
 
@@ -151,9 +152,9 @@ After all required interactions are complete:
 
 1. Compute the final 8-dimension health score using `references/evidence-and-reporting.md`.
 2. Re-read the report and make summary counts match actual issues.
-3. Generate `{OUTPUT_DIR}/report.html` from `{OUTPUT_DIR}/report.md` using `templates/qa-report-template.html`. Every step and issue must link real evidence images. Preserve log filtering/search, click-to-zoom screenshots, and `{OUTPUT_DIR}/session.webm` embedding/linking when recording is enabled.
+3. Generate `{OUTPUT_DIR}/report.html` from `{OUTPUT_DIR}/report.md` by starting from `templates/qa-report-template.html`. Every step and issue must link real evidence images. Preserve the template shell, log filtering/search, click-to-zoom screenshots, and `{OUTPUT_DIR}/session.webm` embedding/linking when recording is enabled.
 4. Save `{OUTPUT_DIR}/baseline.json`.
-5. Verify `report.html` renders and contains `[data-log-filter]`, `[data-log-search]`, `mediumZoom` or `window.qaImageZoom`, and `<video ... session.webm ...>`.
+5. Verify `report.html` renders and preserves template markers including `.hero`, `.tldr`, `.score-grid`, `.log-filter`, `.step-photos`, `[data-log-filter]`, `[data-log-search]`, `mediumZoom` or `window.qaImageZoom`, and `<video ... session.webm ...>`.
 6. Stop recording with `agent-browser record stop` and close with `agent-browser close`; use the profile prefix when a profile was used.
 7. Ask whether to create or update qa.md from discovered actions and observed expected behavior; skip if the user declines.
 

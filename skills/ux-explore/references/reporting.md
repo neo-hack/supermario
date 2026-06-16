@@ -167,6 +167,8 @@ The UX report HTML must render every step with Before, Target, and After screens
 
 The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
 
+Screenshots are UX judgment evidence. The Markdown reports must make it clear that each issue, goodwill delta, or journey confidence judgment came from inspecting the visible before/target/after states, not only from snapshot diff text. If an overlay, dropdown, menu, dialog, tooltip, suggestion panel, or drawer is involved, mention visible anchoring, clipping, overlap, readability, and perceived confidence when relevant.
+
 ## Cleanup Checklist
 
 1. Re-read `ux-report.md` and update the summary counts to match actual issues found.
@@ -174,4 +176,5 @@ The usage HTML must render each discovered capability as a readable section with
 3. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
 4. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
 5. Open both HTML files and verify relative links and image references. Also verify the UX report video player. The UX report HTML must show the session recording plus before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
-6. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
+6. Re-check that UX issues, goodwill changes, and journey outcomes are backed by visible screenshot evidence, especially for overlays, dropdowns, menus, dialogs, tooltips, suggestion panels, and drawers.
+7. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.

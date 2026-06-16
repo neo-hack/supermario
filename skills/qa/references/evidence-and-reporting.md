@@ -30,6 +30,16 @@ Every action gets:
 - An `agent-browser diff snapshot --baseline` artifact.
 - Console and error checks saved to `console-step-{NNN}.txt` and `errors-step-{NNN}.txt`.
 
+These screenshots are judgment evidence, not report-only artifacts. Before assigning any step result, inspect:
+
+- Before screenshot: the starting state and whether stale overlays, stale input, or prior state pollution exists.
+- Target screenshot: whether the intended element is visibly highlighted and is the element that will be operated on.
+- After screenshot: whether the visible result is correct, including placement, anchoring, clipping, overlap, unreadable text, broken media, layout jumps, and z-index problems.
+
+Snapshot diff proves semantic or accessibility-tree changes. It does not prove visual correctness. Do not mark a step PASS only because the expected node, role, state, listbox, menu, popover, dialog, or text appears in the snapshot diff.
+
+When an action opens a popover, menu, tooltip, dropdown, combobox list, suggestion panel, dialog, drawer, or other overlay, the after screenshot must be used to verify the overlay is visually anchored to the triggering control or expected surface, is not clipped, does not cover unrelated critical UI, and remains readable. If the overlay exists in snapshot but is visually misplaced, report the step as FAIL or Pass with issue according to severity.
+
 FAIL results also get an annotated issue screenshot:
 
 ```bash
@@ -193,6 +203,10 @@ Issue blocks must include:
 
 Use `templates/qa-report-template.md` for Markdown shape and `templates/qa-report-template.html` for the final HTML report. The HTML report should put Summary near the top as the TL;DR, use compact tags for session metadata, and link snapshot diff artifacts from each step.
 
+`templates/qa-report-template.html` is the source of truth for report layout and behavior. Generate `report.html` by filling or extending that template. Do not create a new standalone HTML shell, even if it contains screenshots, filters, zoom, or video. If a needed feature is missing from the template, update the template first and then regenerate the report from it.
+
+The generated `report.html` must preserve template markers and behavior hooks: `.hero`, `.tldr`, `.score-grid`, `.log-filter`, `.step-photos`, `[data-log-filter]`, `[data-log-search]`, `mediumZoom` or `window.qaImageZoom`, and the `session.webm` video/link when recording is enabled.
+
 ## Snapshot Diff Links
 
 For each action, link the corresponding diff file:
@@ -213,5 +227,6 @@ Before finishing:
 - Ensure behavior testing lists every planned, tested, or skipped behavior case.
 - Ensure every step has before, target, and after screenshots plus a snapshot diff.
 - Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
+- Ensure `report.html` was generated from `templates/qa-report-template.html` and still contains the required template markers and behavior hooks.
 - Ensure `baseline.json` matches the final score and issue list.
 - Ensure report links are relative to the output directory.

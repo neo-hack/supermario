@@ -26,6 +26,7 @@ Parsing rules:
 - Each scenario contains sequential `<action>` and `<expect>` pairs.
 - Action text is natural language. Match it to the closest current `@eN` element by semantic similarity, using role, accessible name, visible label, placeholder, and nearby text.
 - Expect text is natural language. Judge it from the after screenshot, `agent-browser diff snapshot`, current page state, console output, and errors.
+- Screenshot evidence is part of judgment. The after screenshot must be visually inspected before PASS or FAIL; snapshot diff only proves semantic change and cannot prove correct layout, overlay anchoring, clipping, overlap, or z-index.
 
 ## Scenario Execution
 
@@ -56,6 +57,7 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 
 - Run `agent-browser snapshot` only if the full accessibility tree is needed.
 - Run `agent-browser console` and `agent-browser errors`.
+- Inspect the before, target, and after screenshots.
 - Judge PASS or FAIL against the `<expect>` text.
 - On FAIL, assign `ISSUE-NNN`, capture an annotated issue screenshot, and append the finding immediately.
 

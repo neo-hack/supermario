@@ -39,8 +39,10 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 
 8. Use `agent-browser snapshot` only when the diff needs more page context.
 9. Check `agent-browser console` and `agent-browser errors`.
-10. Judge the interaction against intuition criteria, interaction states, and interaction feel.
-11. Log the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
+10. Inspect the before, target, and after screenshots before writing the observation or issue severity. Treat screenshots as UX judgment evidence, not only report attachments.
+11. Judge the interaction against intuition criteria, interaction states, and interaction feel. Snapshot diff explains what changed semantically; the screenshots decide what the user could see, trust, understand, or miss.
+12. If the action opened a popover, menu, tooltip, dropdown, combobox list, suggestion panel, dialog, drawer, or other overlay, verify from the after screenshot that the overlay is anchored where a user expects, readable, not clipped, not covering unrelated critical UI, and visually connected to the action.
+13. Log the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ## Action Strategy
 

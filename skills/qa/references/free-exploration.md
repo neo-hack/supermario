@@ -191,9 +191,11 @@ agent-browser errors > {OUTPUT_DIR}/errors-step-{NNN}.txt
 ```
 
 10. Compare `console-step-{NNN}.txt` against `console-initial.txt` and the previous step's console output. Treat any new console delta as an issue candidate unless it is clearly benign test noise and documented as ignored. New `[error]`, unhandled promise rejection, failed critical request, and React duplicate key warning output such as `Warning: Encountered two children with the same key` must be reported or explicitly justified.
-11. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
-12. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
-13. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
+11. Inspect the before, target, and after screenshots before assigning the step result. Treat screenshots as required judgment evidence, not only report attachments.
+12. Judge the interaction against the 7-item checklist and `references/issue-taxonomy.md`.
+13. If the action opened a popover, menu, tooltip, dropdown, combobox list, suggestion panel, dialog, drawer, or other overlay, verify from the after screenshot that it is anchored to the expected trigger or surface, readable, not clipped, not overlapping unrelated critical UI, and not misplaced by scroll or z-index. Snapshot presence alone is insufficient.
+14. If an issue is found, assign `ISSUE-NNN`, capture an annotated screenshot, and append it to the report immediately.
+15. Write the step to the report. The report entry must include `<img>` tags (HTML) or `![alt](path)` (Markdown) linking the before screenshot (`step-{NNN}.png`), target screenshot (`step-{NNN}-target.png`), after screenshot (`step-{NNN}-after.png`), and annotated screenshot if any. A step without screenshot links is incomplete.
 
 ## Convergence Loop
 
@@ -260,7 +262,7 @@ If the issue does not reproduce, mark it intermittent and continue only if the p
 
 - Console: no new JavaScript errors, React warnings, unhandled promise rejections, failed critical requests, or unexplained console delta.
 - Functional: the action produces the expected state change or clear feedback.
-- Visual: no overlap, clipping, layout jump, unreadable state, or broken media appears.
+- Visual: after screenshot shows no overlap, clipping, layout jump, unreadable state, broken media, misplaced overlay, wrong anchor, or z-index problem.
 - UX: the interaction is discoverable, reversible when appropriate, and gives timely feedback.
 - Accessibility: the element has a meaningful role/name/state and keyboard-visible behavior remains coherent.
 - Content: copy is accurate, complete, and not placeholder text.
