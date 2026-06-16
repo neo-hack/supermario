@@ -4,11 +4,13 @@
 
 ### Free Exploration Mode
 
-The exploration ends only when coverage converges:
+The exploration ends only when aggressive coverage converges:
 
 - `{OUTPUT_DIR}/coverage.json` exists and is current.
-- pending is empty.
-- stablePasses >= coverageThresholds.stablePassesRequired.
+- `pending` element actions are empty; in legacy shorthand, pending is empty.
+- `behaviorCases.pending` has no untested high-risk or medium-risk behavior variants.
+- Any remaining low-risk behavior variants are in `behaviorCases.skipped` with clear reasons.
+- `stablePasses >= coverageThresholds.stablePassesRequired`.
 - The scope container or page has reached its scroll boundary.
 - No open menu, popover, dialog, tooltip, or dynamically revealed panel remains unexplored.
 - Every discovered in-scope stable key is in `visited`, `skipped`, `outOfScope`, or `halted`.
@@ -19,10 +21,11 @@ No issue count limit exists. Keep going until coverage converges or a confirmed 
 
 ### Case Verification Mode
 
-1. Execute all `<scenario>` blocks from qa.md until all scenarios are complete
-2. Identify elements not exercised by any scenario action
-3. Free-explore those uncovered elements until all are visited
-4. Stop when both scenarios and uncovered elements are exhausted
+1. Execute all `<scenario>` blocks from qa.md exactly as written until all scenarios are complete, failed, or blocked.
+2. If the user requested strict qa.md-only verification, stop after scenario reporting and mark uncovered behavior as intentionally not explored.
+3. Otherwise, identify elements and behavior cases not exercised by any scenario action.
+4. Run aggressive supplemental exploration for uncovered in-scope behavior and elements.
+5. Stop only when scenario execution and supplemental aggressive coverage are both complete, or when a confirmed P0 halt stops exploration.
 
 ## Scoring Logic
 

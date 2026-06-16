@@ -19,6 +19,8 @@ Systematically explore a web page by interacting with every interactive element,
 | Mode | No | free | Use free mode for page-level exploration, or journey mode when the user gives `--journey "<goal>"` or describes a complete feature flow |
 | Journey goal | Journey mode only | - | User task to complete, such as "RSS subscription journey" |
 | Output directory | No | `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/` | Where to save artifacts |
+| Browser profile | No | none | Optional `agent-browser --profile <name-or-path>` value. Use only when the user explicitly provides a profile or confirms a dedicated logged-in profile |
+| Recording | No | enabled | Record the full session to `{OUTPUT_DIR}/explore-video.webm` |
 
 If the user says something like "explore example.com", start in free mode immediately. If the user describes a product task, feature flow, or says `--journey "<goal>"`, start in journey mode. Do not ask clarifying questions unless the URL is missing or the journey goal is too vague to identify a first action.
 
@@ -49,20 +51,23 @@ mkdir -p {OUTPUT_DIR}/screenshots {OUTPUT_DIR}/snapshots {OUTPUT_DIR}/diffs
 
 When no output directory is provided, derive `ux-name` from the target host, route, journey goal, or requested scope. Resolve `{OUTPUT_DIR}` to `~/.config/supermario/ux/YYYY-MM-DD-<ux-name>/`, using a short lowercase slug such as `vercel-home`, `rss-subscription-journey`, or `settings-panel`.
 
-2. Launch the browser and wait for the page to fully load:
+2. Launch the browser with recording enabled and wait for the page to fully load:
 
 ```bash
-agent-browser open {URL}
+agent-browser record start {OUTPUT_DIR}/explore-video.webm {URL}
 agent-browser wait --load networkidle
 ```
 
-3. Start recording the full session video:
+If the user provides a browser profile, put it before every relevant `agent-browser` command:
 
 ```bash
-agent-browser record start {OUTPUT_DIR}/explore-video.webm
+agent-browser --profile {PROFILE} record start {OUTPUT_DIR}/explore-video.webm {URL}
+agent-browser --profile {PROFILE} wait --load networkidle
 ```
 
-4. Capture the initial annotated screenshot and discover interactive elements:
+Do not default to `--profile Default`. If the page requires login and no profile was provided, stop and ask the user to provide or create a dedicated `agent-browser` profile such as `~/.agent-browser/profiles/<name>`, then retry with that profile. If the user explicitly opts out of recording, open the page with `agent-browser open {URL}` and state that recording is disabled.
+
+3. Capture the initial annotated screenshot and discover interactive elements:
 
 ```bash
 agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/initial.png
@@ -71,7 +76,7 @@ agent-browser console
 agent-browser errors
 ```
 
-5. Count the interactive elements and classify them by role. Note the distribution in the report header (e.g., "5 buttons, 3 textboxes, 2 selects, 1 checkbox").
+4. Count the interactive elements and classify them by role. Note the distribution in the report header (e.g., "5 buttons, 3 textboxes, 2 selects, 1 checkbox").
 
 ## How Users Actually Behave
 
@@ -248,10 +253,22 @@ After exploring all interactive elements:
 agent-browser record stop
 ```
 
+If a profile was provided, use:
+
+```bash
+agent-browser --profile {PROFILE} record stop
+```
+
 2. Close the browser:
 
 ```bash
 agent-browser close
+```
+
+If a profile was provided, use:
+
+```bash
+agent-browser --profile {PROFILE} close
 ```
 
 3. For all Markdown and HTML artifacts, follow `references/reporting.md`.

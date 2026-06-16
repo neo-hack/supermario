@@ -134,6 +134,21 @@ a:hover { text-decoration: underline; }
   font-size: 21px; font-weight: 600; margin-top: 8px;
 }
 
+.recording-panel {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 0.28fr); gap: 24px;
+  align-items: start;
+}
+.recording-frame {
+  width: 100%; max-height: 70vh; border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--surface-black);
+}
+.recording-note {
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--surface-pearl); padding: 16px;
+}
+.recording-note p { color: var(--ink-muted-80); margin-bottom: 12px; }
+.recording-note p:last-child { margin-bottom: 0; }
+
 .coverage-grid {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
 }
@@ -175,9 +190,24 @@ a:hover { text-decoration: underline; }
 .action-result .detail { color: var(--ink-muted-48); font-size: 14px; margin-top: 4px; }
 
 .step-entry { margin-bottom: 32px; }
+.step-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  margin-bottom: 12px;
+}
 .step-entry h4 {
   font-size: 17px; font-weight: 600; margin-bottom: 12px;
 }
+.step-head h4 { margin-bottom: 0; }
+.step-tag {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); padding: 4px 10px;
+  font-size: 12px; font-weight: 600; color: var(--ink-muted-80);
+}
+.step-tag.pass { color: var(--pass); }
+.step-tag.pass-with-issue, .step-tag.pass-with-limitation { color: #8a6d00; }
+.step-tag.fail { color: var(--fail); }
+.step-tag.excluded, .step-tag.inconclusive { color: var(--ink-muted-48); }
 .step-photos {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
 }
@@ -186,6 +216,31 @@ a:hover { text-decoration: underline; }
   font-size: 12px; color: var(--ink-muted-48); text-align: center; margin-top: 8px;
 }
 .step-diff { margin-top: 12px; font-size: 14px; }
+.log-filter {
+  position: sticky; top: 0; z-index: 2;
+  display: grid; grid-template-columns: minmax(220px, 1fr) auto; gap: 12px; align-items: center;
+  margin: -8px 0 18px; padding: 12px;
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+}
+.log-filter input {
+  width: 100%; height: 36px; border: 1px solid var(--hairline); border-radius: 8px;
+  padding: 0 12px; font: inherit; font-size: 14px; background: var(--canvas); color: var(--ink);
+}
+.filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-button {
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); color: var(--ink-muted-80);
+  padding: 7px 11px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.filter-button:hover { border-color: var(--ink-muted-48); }
+.filter-button.active { background: var(--surface-black); color: var(--on-dark); border-color: var(--surface-black); }
+.filter-count { font-size: 13px; color: var(--ink-muted-48); margin: 0 0 14px; }
+.empty-log {
+  display: none; border: 1px dashed var(--hairline); border-radius: 8px;
+  padding: 18px; color: var(--ink-muted-48); background: var(--canvas);
+}
+.step-entry.is-hidden, .step-card.is-hidden { display: none; }
 
 .issue-card {
   background: var(--canvas); border-radius: 8px; padding: 24px; margin-bottom: 16px;
@@ -216,9 +271,11 @@ a:hover { text-decoration: underline; }
   .hero h1 { font-size: 40px; }
   .hero .subtitle { font-size: 21px; }
   .tldr { grid-template-columns: 1fr; gap: 24px; }
+  .recording-panel { grid-template-columns: 1fr; }
   .tldr-score .value { font-size: 56px; }
   .score-grid { grid-template-columns: repeat(2, 1fr); }
   .coverage-grid { grid-template-columns: 1fr; }
+  .log-filter { grid-template-columns: 1fr; }
   .step-photos { grid-template-columns: 1fr; }
 }
 </style>
@@ -253,6 +310,17 @@ a:hover { text-decoration: underline; }
         <span class="meta-tag">{count} issues</span>
         <span class="meta-tag url">{url}</span>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Session Recording</h2>
+  <div class="recording-panel">
+    <video class="recording-frame" src="session.webm" controls preload="metadata"></video>
+    <div class="recording-note">
+      <p>The full browser session is embedded here when recording is enabled.</p>
+      <p><a href="session.webm">Open or download session.webm</a></p>
     </div>
   </div>
 </div>
@@ -327,8 +395,27 @@ a:hover { text-decoration: underline; }
 <!-- Exploration Log -->
 <div class="section-alt">
   <h2>Exploration Log</h2>
-  <div class="step-entry">
-    <h4>Step {N}: {action description}</h4>
+  <div class="log-filter">
+    <input type="search" data-log-search placeholder="Filter steps by title, note, status, or issue id" aria-label="Filter exploration steps">
+    <div class="filter-buttons" aria-label="Exploration log status filters">
+      <button class="filter-button active" type="button" data-log-filter="all">All</button>
+      <button class="filter-button" type="button" data-log-filter="pass">Pass</button>
+      <button class="filter-button" type="button" data-log-filter="issues">Issues</button>
+      <button class="filter-button" type="button" data-log-filter="excluded">Excluded</button>
+      <button class="filter-button" type="button" data-log-filter="inconclusive">Inconclusive</button>
+    </div>
+  </div>
+  <p class="filter-count" data-log-count></p>
+  <p class="empty-log" data-log-empty>No exploration steps match the current filters.</p>
+  <div class="step-entry" data-result="{resultSlug}" data-intent="{intentSlug}" data-variant="{variantSlug}" data-risk="{riskSlug}">
+    <div class="step-head">
+      <h4>Step {N}: {action description}</h4>
+      <span class="step-tag {resultSlug}">{result}</span>
+      <span class="step-tag">{intent}</span>
+      <span class="step-tag">{variant}</span>
+      <span class="step-tag">{risk}</span>
+    </div>
+    <p>{observation}</p>
     <div class="step-photos">
       <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
       <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
@@ -351,6 +438,55 @@ a:hover { text-decoration: underline; }
     <p>{description}</p>
   </div>
 </div>
+
+<script>
+(() => {
+  const initFilters = () => {
+    const cards = [...document.querySelectorAll('.step-entry, .step-card')];
+    const search = document.querySelector('[data-log-search]');
+    const buttons = [...document.querySelectorAll('[data-log-filter]')];
+    const count = document.querySelector('[data-log-count]');
+    const empty = document.querySelector('[data-log-empty]');
+    let active = 'all';
+
+    const normalize = (value) => value.trim().toLowerCase().replace(/\s+/g, '-');
+    const getStatus = (card) => (
+      card.dataset.result ||
+      card.querySelector('.step-tag, .step-head .tag')?.textContent ||
+      ''
+    ).trim().toLowerCase();
+    const matchesFilter = (status, filter) => (
+      filter === 'all' ||
+      (filter === 'issues' && (status.includes('issue') || status === 'fail')) ||
+      normalize(status) === filter
+    );
+    const applyFilter = () => {
+      const query = (search?.value || '').trim().toLowerCase();
+      let visible = 0;
+      for (const card of cards) {
+        const status = getStatus(card);
+        const ok = matchesFilter(status, active) && (!query || card.textContent.toLowerCase().includes(query));
+        card.classList.toggle('is-hidden', !ok);
+        if (ok) visible += 1;
+      }
+      if (count) count.textContent = `Showing ${visible} of ${cards.length} steps`;
+      if (empty) empty.style.display = visible ? 'none' : 'block';
+    };
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        active = button.dataset.logFilter;
+        for (const item of buttons) item.classList.toggle('active', item === button);
+        applyFilter();
+      });
+    }
+    search?.addEventListener('input', applyFilter);
+    applyFilter();
+  };
+
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', initFilters) : initFilters();
+})();
+</script>
 
 <script type="module">
   import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';

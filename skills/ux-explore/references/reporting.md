@@ -161,6 +161,8 @@ Use `templates/ux-report-template.html` to generate `{OUTPUT_DIR}/ux-report.html
 
 Use `templates/usage-template.html` to generate `{OUTPUT_DIR}/usage.html` from `usage.md`.
 
+The UX report HTML must embed `{OUTPUT_DIR}/explore-video.webm` with native video controls and include a direct link to the same file.
+
 The UX report HTML must render every step with Before, Target, and After screenshots.
 
 The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
@@ -171,5 +173,5 @@ The usage HTML must render each discovered capability as a readable section with
 2. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
 3. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
 4. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
-5. Open both HTML files and verify relative links and image references. The UX report HTML must show before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
+5. Open both HTML files and verify relative links and image references. Also verify the UX report video player. The UX report HTML must show the session recording plus before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
 6. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.

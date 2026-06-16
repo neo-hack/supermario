@@ -2,7 +2,9 @@
 
 Use this reference in every QA mode. Element coverage answers "which controls were touched"; behavior testing answers "which user-facing capabilities were exercised."
 
-The profiles below are a baseline seed set, not an exhaustive list. Always extend them with behavior inferred from the current snapshot, screenshot, visible copy, ARIA roles/states, and overlays revealed during testing.
+The profiles below are a baseline seed set, not an exhaustive list. In every mode, start from this baseline, then test additional product-specific behavior inferred from the current snapshot, screenshot, visible copy, ARIA roles/states, and overlays revealed during testing. Do not treat the baseline as a maximum coverage list.
+
+Keep this reference product-agnostic. It should describe behavior shapes and stress dimensions, not product-specific objects, labels, commands, domain entities, or business workflows. Product-specific behavior comes from the current snapshot, screenshot, visible copy, ARIA roles/states, qa.md, init QA inputs, and overlays revealed during testing.
 
 ## Feature Model Inference
 
@@ -58,9 +60,25 @@ scopeKey + "|" + model + "|" + behaviorName + "|" + variant
 
 ## Case Generation
 
-Generate baseline behavior cases before processing raw element actions, then keep adding snapshot-derived behavior cases as the page reveals new states. Behavior cases have priority over mechanical element clicks. If a behavior case covers an element, do not repeat that element only to satisfy element coverage.
+Generate baseline behavior cases before processing raw element actions, then keep adding snapshot-derived behavior cases as the page reveals new states. Behavior cases have priority over mechanical element clicks. Generate normal behavior first when needed to understand the workflow, then generate boundary, interruption, sequence, recovery, state, and console-risk variants for high-risk models such as editors, forms, pickers, uploads, dialogs, search, and destructive actions. If a behavior case covers an element, do not repeat that element only to satisfy element coverage.
 
 Do not mark a feature complete after only opening a control, menu, picker, or popover. Opening reveals capability; it does not prove the capability works.
+
+When a scoped or full-page snapshot exposes a product capability not named in the baseline profiles, create a behavior case for the observable workflow using the product's own language. Examples include inserting a reference, choosing a command, selecting an option, attaching a file, or changing a mode.
+
+## General Fault-Seeking Dimensions
+
+For every inferred feature model, generate behavior cases from these dimensions when applicable:
+
+- Normal: prove the basic workflow works before stressing it.
+- Boundary: use empty values, whitespace, long values, non-ASCII text, emoji, special characters, multiline input, invalid values, unavailable values, or no-match values.
+- Interruption: stop a workflow midway with Escape, outside click, blur/focus change, cancel, close, or route-safe dismissal.
+- Sequence: repeat or combine operations after cleanup, such as open-close-reopen, select-then-edit, delete-then-retry, or switch mode then return.
+- Recovery: verify the surface remains usable after cancellation, validation errors, no-match states, failed safe actions, or dismissed overlays.
+- State consistency: verify role/name/state, focus, selected/expanded/disabled/busy/invalid states, counters, badges, placeholders, chips, and visible copy remain coherent.
+- Console risk: treat any new error, warning, unhandled rejection, or failed critical request as an issue candidate unless explicitly benign.
+
+Do not test every dimension blindly for every element. Apply the dimensions that match the feature model and visible UI, then record skipped dimensions with clear reasons when they are unsafe, impossible, or out of scope.
 
 ## Behavior Profiles
 
@@ -77,10 +95,38 @@ Required cases when applicable:
 - Non-ASCII text and emoji.
 - Keyboard editing: Backspace, Delete, Escape.
 - Submit/reset behavior.
-- Trigger sequence behavior for any trigger-like character or toolbar entry that opens suggestions, commands, mentions, references, emoji, macros, or similar insertion UI.
-- Token insertion, continuing after inserted content, and deletion if the editor creates chips, links, commands, or structured tokens.
+- Trigger sequence behavior for any trigger-like character or control that opens suggestions, commands, mentions, references, emoji, macros, or similar insertion UI.
+- Structured inline object lifecycle when a selected suggestion or command creates a chip, pill, inline link, mention, command block, or similar non-plain-text object.
+
+Use mature editors as pattern examples, not expected behavior sources: Notion, Slack, Linear, GitHub comments, and Google Docs smart chips all expose trigger or insertion flows where selecting an item may create text, links, mentions, chips, commands, or other inline objects. The target product's visible UI still defines expected behavior.
+
+Trigger sequence and structured-object lifecycle are separate behavior cases. Opening, filtering, canceling, and selecting from a suggestion UI covers the trigger sequence. If selection creates a non-plain-text object, separately verify that users can continue typing around it and remove or clear it when practical. If selection creates only plain text or is unsafe to perform, mark the structured-object case as skipped with the reason.
 
 Trigger sequence cases must continue typing after the trigger, verify filtered suggestions update, select an option when available, test close/cancel behavior, and record residual text behavior. Do not count a trigger sequence as covered immediately after the popover opens.
+
+#### Composer Trigger Sequences
+
+When the scoped component is a composer/editor and exposes trigger characters such as `@`, `/`, `#`, `:`, or controls that open insertion UI, test the observable workflow without assuming a product-specific editor model.
+
+Typed trigger path:
+
+- Start from a clean empty editor with no open popover, stale trigger text, token, or selected item.
+- Type the trigger character directly into the editor.
+- Verify the suggestion popover/list appears.
+- Type at least two filtering characters when practical.
+- Verify suggestions update or a clear empty state appears.
+- Test the cancel path: close with Escape or the visible close affordance, then verify focus and editor content return to a coherent state.
+- Test the selection path when safe: select one candidate if selection is reversible, local to the tested surface, or clearly expected for the workflow. Skip candidates that navigate away, submit data, create external resources, or perform destructive actions.
+- After selection, record whether the result is plain text, a structured object, or another visible state change.
+- Clear or reset the editor before starting another trigger sequence.
+
+Alternative entry points:
+
+- If the same insertion capability is exposed through a button, menu item, toolbar control, shortcut, or other UI entry point, test that entry point as its own behavior case when practical.
+- Verify that opening and dismissing the alternative entry point leaves the editor and focus in a coherent, user-understandable state.
+- Do not assume the alternative entry point should insert trigger text, keep the editor focused, or behave identically to typed triggers. Judge only the observable contract exposed by the UI.
+
+Do not run a second trigger while the first trigger text, token, popover, or selected item remains active.
 
 ### Form
 

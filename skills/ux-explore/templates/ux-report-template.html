@@ -31,6 +31,13 @@ a:hover { text-decoration: underline; }
 .meta-tags { display: flex; gap: 8px; flex-wrap: wrap; }
 .tag { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: #fff; font-size: 13px; }
 .goodwill { font-size: 32px; font-weight: 700; }
+.recording-panel {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end;
+}
+.recording-frame {
+  width: 100%; margin-top: 16px; border: 1px solid var(--line); border-radius: 8px; background: #000;
+}
+.recording-note { color: var(--muted); margin: 0; }
 .step-entry { margin-bottom: 40px; }
 .step-entry h3 { margin: 0 0 12px; }
 .step-photos {
@@ -45,6 +52,7 @@ a:hover { text-decoration: underline; }
 @media (max-width: 760px) {
   .hero, .section, .section-alt { padding: 32px 20px; }
   .hero h1 { font-size: 36px; }
+  .recording-panel { grid-template-columns: 1fr; }
   .step-photos { grid-template-columns: 1fr; }
 }
 </style>
@@ -64,6 +72,17 @@ a:hover { text-decoration: underline; }
     <span class="tag">{elementCount} elements explored</span>
     <a class="tag" href="usage.html">Usage guide</a>
   </div>
+</section>
+
+<section class="section-alt">
+  <div class="recording-panel">
+    <div>
+      <h2>Session Recording</h2>
+      <p class="recording-note">Full exploration video captured during this UX review.</p>
+    </div>
+    <a class="tag" href="explore-video.webm">Open or download explore-video.webm</a>
+  </div>
+  <video class="recording-frame" src="explore-video.webm" controls preload="metadata"></video>
 </section>
 
 <section class="section-alt">

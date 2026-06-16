@@ -161,6 +161,10 @@ Halted after ISSUE-001 (P0). 7/19 elements explored. 12 pending elements were no
 
 Do not count pending elements as passed.
 
+For aggressive free exploration and aggressive supplemental exploration, every behavior step must identify its `intent`, `variant`, and `riskLevel` when those fields exist in `coverage.json`. Report these as compact tags, for example: `fault-seeking`, `boundary`, `high risk`. Scenario verification steps should use `checklist` intent and should not be labeled as aggressive unless qa.md explicitly asked for adversarial input.
+
+Do not add a new complex filter system for the first version. Preserve the existing result filters (`All`, `Pass`, `Issues`, `Excluded`, `Inconclusive`) and search behavior. Intent, variant, and risk are displayed as compact tags so the reader can understand why each action was performed.
+
 Required top-level sections:
 
 - Title: `# QA Report: {URL}`
@@ -173,6 +177,8 @@ Required top-level sections:
 - Exploration Log or Uncovered Elements: step-by-step action evidence.
 - Issues: one block per issue.
 - Artifacts: links to report.html, baseline.json, screenshots, diffs, and snapshots.
+
+When qa.md exists, keep `Scenario Results` separate from `Aggressive Supplemental Exploration`. Scenario failures represent checklist expectation drift. Supplemental findings represent uncovered behavior discovered after scenario verification.
 
 Issue blocks must include:
 

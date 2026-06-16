@@ -49,13 +49,34 @@
 | {model} | {cases} | {cases} | {cases} | {notes} |
 
 <!-- Case verification mode: add Scenario Results and Scenario Details sections here -->
-<!-- Free exploration mode: skip directly to Exploration Log -->
+<!-- Free exploration mode: Exploration Log entries should include intent/variant/risk tags when available. -->
+<!-- Case verification mode: keep Scenario Results separate from Aggressive Supplemental Exploration entries. -->
 
 ## Exploration Log
 
 <!-- Copy this block for each element explored -->
 
+<!-- Example aggressive exploration step shape:
+### Step {NNN}: {action title}
+
+Tags: `{result}` `{intent}` `{variant}` `{risk}`
+
+- Intent: `{checklist | fault-seeking | coverage}`
+- Variant: `{normal | boundary | interruption | sequence | recovery | state | console-risk}`
+- Risk: `{high | medium | low}`
+- Action: {action}
+- Expected: {expected observable behavior}
+- Actual: {actual observable behavior}
+- Snapshot diff: [Snapshot diff](diffs/step-{NNN}.txt)
+
+![Before](screenshots/step-{NNN}.png) ![Target](screenshots/step-{NNN}-target.png) ![After](screenshots/step-{NNN}-after.png)
+-->
+
 ### Step {N}: {Action description}
+- **Tags**: `{result}` `{intent}` `{variant}` `{risk}`
+- **Intent**: {checklist | fault-seeking | coverage}
+- **Variant**: {normal | boundary | interruption | sequence | recovery | state | console-risk}
+- **Risk**: {high | medium | low}
 - **Before**: ![step-{NNN}](screenshots/step-{NNN}.png)
 - **Target**: ![step-{NNN}-target](screenshots/step-{NNN}-target.png)
 - **Action**: {action command}

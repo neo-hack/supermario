@@ -68,7 +68,9 @@ Ask the user to confirm when:
 ## Scoped Exploration Rules
 
 - Build queues only from elements inside the resolved scope.
+- Scope limits where exploration happens; it does not reduce behavior depth. Within the resolved scope, still generate baseline behavior cases and snapshot-derived behavior cases using `references/behavior-testing.md`.
 - Include popovers, menus, dialogs, and tooltips triggered by in-scope elements.
+- Treat behavior revealed by in-scope overlays as in-scope until it navigates, creates external side effects, becomes destructive, or leaves the resolved component workflow.
 - Mark navigation, header, footer, and unrelated page controls as out-of-scope.
 - If an in-scope action causes full-page navigation, stop that step and record out-of-scope navigation unless the user explicitly allows navigation.
 - Scroll the scoped container first. Scroll the page only when the scope itself cannot scroll.

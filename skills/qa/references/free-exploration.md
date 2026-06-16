@@ -1,6 +1,6 @@
 # Free Exploration
 
-Use this mode when no qa.md exists, or after case verification to cover interactive elements that were not exercised by scenarios.
+Use this mode when no qa.md exists, or after case verification to cover behavior and interactive elements that scenarios did not exercise. Free exploration is aggressive exploratory QA: it seeks bugs by exercising normal workflows plus boundary inputs, interruption paths, sequence abuse, recovery behavior, state consistency, and console/error risk.
 
 ## Coverage Ledger
 
@@ -32,7 +32,16 @@ Use this shape:
     "planned": [],
     "pending": [],
     "tested": [],
-    "skipped": []
+    "skipped": [],
+    "variants": {
+      "normal": 0,
+      "boundary": 0,
+      "interruption": 0,
+      "sequence": 0,
+      "recovery": 0,
+      "state": 0,
+      "console-risk": 0
+    }
   },
   "discovered": [],
   "pending": [],
@@ -40,6 +49,21 @@ Use this shape:
   "skipped": [],
   "outOfScope": [],
   "halted": null
+}
+```
+
+Example behavior case:
+
+```json
+{
+  "key": "scope|composer|trigger sequence|at|interruption",
+  "model": "composer",
+  "behaviorName": "trigger sequence",
+  "variant": "interruption",
+  "intent": "fault-seeking",
+  "riskLevel": "high",
+  "status": "pending",
+  "reason": "Popover cancellation can leave stale query text, broken focus, or inconsistent editor state."
 }
 ```
 
@@ -57,16 +81,64 @@ scopeKey + "|" + path + "|" + role + "|" + accessibleName + "|" + nearbyText + "
 
 Do not use `@eN` as the stable key. Refs are only valid for the current snapshot.
 
+## Fault-Seeking Variants
+
+Every behavior case should record one `variant`. Use these product-agnostic variants:
+
+| Variant | Meaning |
+|---------|---------|
+| `normal` | Prove the basic happy path still works. |
+| `boundary` | Try edge input or limits: empty, whitespace, long text, non-ASCII, emoji, special characters, multiline, invalid value, or no-match query. |
+| `interruption` | Interrupt an in-progress workflow with Escape, outside click, focus change, close control, cancel control, or route-safe dismissal. |
+| `sequence` | Combine or repeat actions: open-close-reopen, trigger A then trigger B after cleanup, select then continue typing, delete then retry. |
+| `recovery` | Verify the UI remains usable after cancel, failed validation, no-match state, dismissed overlay, or skipped unsafe action. |
+| `state` | Check visible state consistency: focus, selected, expanded, disabled, busy, checked, pressed, invalid, counters, badges, chips, or placeholder state. |
+| `console-risk` | Treat the interaction as likely to expose console errors, warnings, rejected promises, or failed critical requests. |
+
+Use `intent: "fault-seeking"` for behavior cases generated to find bugs. Use `intent: "coverage"` only for mechanical element actions that do not represent a user-facing behavior.
+
 ## Queue
 
 1. Run `agent-browser snapshot -i --json`.
 2. Normalize each visible enabled interactive element into a stable key.
 3. Infer feature models and add behavior cases from `references/behavior-testing.md` to `behaviorCases.planned` and `behaviorCases.pending`.
-4. Add unseen in-scope elements to `discovered` and `pending`.
-5. Sort `behaviorCases.pending` by user workflow order, then sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
-6. Before each action, rematch the stable key to the current `@eN`.
-7. Move completed work from `behaviorCases.pending` to `behaviorCases.tested` or `behaviorCases.skipped`, and from `pending` to `visited`, `skipped`, or `outOfScope`.
-8. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope behavior cases or elements to the queues.
+4. Expand each high-risk behavior model into fault-seeking variants before adding mechanical element actions.
+5. Add unseen in-scope elements to `discovered` and `pending` only after behavior case generation.
+6. Sort `behaviorCases.pending` by risk first (`high`, `medium`, `low`), then by user workflow order, then sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
+7. Before each action, rematch the stable key to the current `@eN`.
+8. Move completed work from `behaviorCases.pending` to `behaviorCases.tested` or `behaviorCases.skipped`, and from `pending` to `visited`, `skipped`, or `outOfScope`.
+9. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope behavior cases or elements to the queues.
+
+## Coverage Loop Overview
+
+Free exploration is not element-only traversal. It starts by generating baseline behavior cases from `references/behavior-testing.md`, then runs one coverage loop that prioritizes behavior testing before mechanical element actions.
+
+```mermaid
+flowchart TD
+    start["Start free exploration"] --> snapshot["Snapshot visible interactive state"]
+    snapshot --> baseline["Infer feature models and generate baseline behavior cases"]
+    baseline --> queue["Queue behavior cases + element actions"]
+
+    queue --> behaviorPending{"Pending behavior case?"}
+    behaviorPending -->|Yes| behavior["Run one behavior case with evidence"]
+    behaviorPending -->|No| elementPending{"Pending element action?"}
+    elementPending -->|Yes| element["Run one element action with evidence"]
+    elementPending -->|No| discover["Scroll or rediscover current scope"]
+
+    behavior --> rediscover["Snapshot again and discover new behavior or elements"]
+    element --> rediscover
+    discover --> rediscover
+
+    rediscover --> newWork{"New in-scope behavior or elements found?"}
+    newWork -->|Yes| reset["Add to queues and reset stable passes"]
+    reset --> queue
+    newWork -->|No| stable["Increment stable passes when queues stay empty"]
+    stable --> converged{"Pending empty and stable threshold reached?"}
+    converged -->|No| queue
+    converged -->|Yes| done["Coverage converged"]
+```
+
+The loop may execute element actions, but fault-seeking behavior cases remain first-class work. Do not report free exploration as complete while `behaviorCases.pending` contains untested high-risk or medium-risk cases. Low-risk cases may be skipped only with a clear reason in `behaviorCases.skipped`.
 
 ## Per-Element Workflow
 
@@ -175,7 +247,7 @@ If the issue does not reproduce, mark it intermittent and continue only if the p
 | Role | Action | Details |
 |------|--------|---------|
 | button | `agent-browser click @eN` | Wait up to 2s and observe the response |
-| textbox / searchbox | `agent-browser fill @eN "content"` | Use meaningful values: emails get `test@example.com`, search gets `test query` |
+| textbox / searchbox | `agent-browser type @eN "content"` | Use meaningful values: emails get `test@example.com`, search gets `test query` |
 | combobox | `agent-browser click @eN` then select an option | Screenshot the opened options before choosing |
 | checkbox / switch | `agent-browser click @eN` | Toggle once, then observe state and dependent UI |
 | radio | `agent-browser click @eN` | Select one option in the group |

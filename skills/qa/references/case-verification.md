@@ -1,6 +1,6 @@
 # Case Verification
 
-Use this mode when qa.md exists or was generated from E2E tests. Execute the user-defined scenarios first, then free-explore uncovered interactive elements and behavior testing cases.
+Use this mode when qa.md exists or was generated from init QA. Execute the user-defined scenarios exactly as written first. qa.md is checklist-style scenario verification, not aggressive fault-seeking. After scenario verification, use `references/free-exploration.md` only for uncovered interactive elements and behavior testing cases unless the user requested strict qa.md-only verification.
 
 ## qa.md Schema
 
@@ -61,6 +61,18 @@ agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.
 
 3. Add scenario totals to the report: total actions, PASS, FAIL, and issues.
 
+## Strict Scenario Contract
+
+During qa.md scenario execution:
+
+- Do not add extra actions that are not in qa.md.
+- Do not replace qa.md input values with boundary, stress, or adversarial values.
+- Do not add Escape, outside click, repeated open/close, long text, emoji, no-match, or recovery actions unless qa.md explicitly asks for them.
+- Judge PASS, FAIL, or BLOCKED only against the written `<expect>` and browser evidence.
+- If a written action is unsafe, impossible, or ambiguous, report that action result directly instead of inventing a safer substitute.
+
+Aggressive fault-seeking starts only after all executable qa.md scenarios are complete.
+
 ## Matching Guidance
 
 When matching action text to elements:
@@ -94,7 +106,7 @@ Track scenario coverage by stable traits, not by `@eN`. A covered element record
 }
 ```
 
-After all scenarios finish, compare covered traits against the current interactive element inventory and inferred behaviorCases from `references/behavior-testing.md`. Use `references/free-exploration.md` for all uncovered elements and behavior cases.
+After all scenarios finish, compare covered traits against the current interactive element inventory and inferred behaviorCases from `references/behavior-testing.md`. If strict qa.md-only verification was requested, report uncovered behavior as intentionally not explored. Otherwise, use `references/free-exploration.md` for aggressive supplemental exploration of all uncovered in-scope elements and behavior cases.
 
 ## Result Semantics
 
