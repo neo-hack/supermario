@@ -169,9 +169,9 @@ Operation guidance entries use this shape:
   "key": "scope|source|selector-or-label|instruction",
   "source": "aria-describedby",
   "instruction": "Use ArrowDown to enter the list",
-  "scopeKey": "repo-branch-picker",
+  "scopeKey": "current-picker",
   "status": "pending",
-  "behaviorCaseKey": "repo-branch-picker|picker|keyboard navigation|normal",
+  "behaviorCaseKey": "current-picker|picker|keyboard navigation|normal",
   "evidenceStep": null,
   "skipReason": null
 }
