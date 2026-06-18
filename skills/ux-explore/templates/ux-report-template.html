@@ -23,6 +23,17 @@ body {
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
+.step-photos img, .issue img {
+  cursor: zoom-in;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.step-photos img:hover, .issue img:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.medium-zoom-image--opened { border-radius: 8px; }
+.medium-zoom-overlay { z-index: 50; }
+.medium-zoom-image { z-index: 51; }
 .hero { padding: 64px 72px; background: #000; color: #fff; }
 .hero h1 { margin: 0 0 12px; font-size: 48px; line-height: 1.05; }
 .hero p { margin: 0; color: #d2d2d7; font-size: 20px; }
@@ -49,6 +60,26 @@ a:hover { text-decoration: underline; }
 .issue { border: 1px solid var(--line); border-left: 4px solid var(--medium); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
 .issue.high { border-left-color: var(--high); }
 .issue.low { border-left-color: var(--low); }
+.guidance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.guidance-table th,
+.guidance-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+.guidance-table th {
+  color: var(--muted);
+  background: var(--surface);
+}
 @media (max-width: 760px) {
   .hero, .section, .section-alt { padding: 32px 20px; }
   .hero h1 { font-size: 36px; }
@@ -99,13 +130,106 @@ a:hover { text-decoration: underline; }
   </article>
 </section>
 
+<section class="section" id="operation-guidance">
+  <h2>Operation Guidance</h2>
+  <table class="guidance-table">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Extracted operation</th>
+        <th>Status</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{source}</td>
+        <td>{extracted operation}</td>
+        <td>{status}</td>
+        <td>{evidence or skip reason}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
 <section class="section">
   <h2>Issues</h2>
   <article class="issue high">
     <h3>UX-{NNN}: {title}</h3>
     <p><strong>Severity:</strong> {severity}</p>
     <p>{description}</p>
+    <p><strong>Suggested improvement:</strong> {suggested improvement}</p>
   </article>
 </section>
+<script type="module">
+  import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';
+
+  const zoomSelector = '.step-photos img, .issue img';
+  const zoomOptions = {
+    background: 'rgba(0, 0, 0, 0.82)',
+    margin: 24,
+    scrollOffset: 40
+  };
+  let zoom = mediumZoom(zoomSelector, zoomOptions);
+  window.uxImageZoom = zoom;
+
+  function getZoomImages() {
+    return document.querySelectorAll(zoomSelector);
+  }
+
+  function wireImages() {
+    getZoomImages().forEach((image) => {
+      if (image._uxZoomClickHandler) {
+        image.removeEventListener('click', image._uxZoomClickHandler, true);
+      }
+      image._uxZoomClickHandler = (event) => {
+        if (image.classList.contains('medium-zoom-image--opened')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        zoom.open({ target: image });
+      };
+      image.addEventListener('click', image._uxZoomClickHandler, true);
+    });
+  }
+  wireImages();
+
+  function cleanupZoomArtifacts() {
+    document.querySelectorAll('.medium-zoom-overlay').forEach((overlay) => overlay.remove());
+    document.querySelectorAll('body > img.medium-zoom-image').forEach((image) => image.remove());
+    getZoomImages().forEach((image) => {
+      image.classList.remove('medium-zoom-image--opened', 'medium-zoom-image--hidden');
+      image.removeAttribute('style');
+    });
+  }
+
+  function resetZoom() {
+    zoom.detach();
+    cleanupZoomArtifacts();
+    zoom = mediumZoom(zoomSelector, zoomOptions);
+    window.uxImageZoom = zoom;
+    wireImages();
+  }
+
+  function forceCloseZoom() {
+    zoom.close();
+    window.setTimeout(() => {
+      resetZoom();
+    }, 140);
+  }
+
+  function closeOnEscape(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    forceCloseZoom();
+  }
+
+  document.addEventListener('keydown', closeOnEscape, true);
+  document.addEventListener('keyup', closeOnEscape, true);
+  document.addEventListener('click', (event) => {
+    if (event.target.matches('.medium-zoom-overlay, .medium-zoom-image--opened')) {
+      forceCloseZoom();
+    }
+  }, true);
+</script>
 </body>
 </html>

@@ -51,11 +51,28 @@ Write the UX report incrementally as you explore. Append each step and each UX i
 ## Exploration Or Journey Log
 [... one entry per element or journey step explored ...]
 
+## Operation Guidance
+
+| Source | Extracted operation | Status | Evidence |
+|--------|---------------------|--------|----------|
+| aria-describedby | Use ArrowDown to enter the list | covered | step-008 |
+| tooltip | Click to request access | skipped | external navigation not allowed |
+
 ## Goodwill
 [score, step deltas, and final verdict]
 
 ## UX Issues
 [... one entry per UX-NNN issue ...]
+
+Each UX issue must include:
+
+- Severity.
+- Evidence.
+- Visible behavior.
+- Why it matters.
+- Suggested improvement.
+
+Suggested improvements belong only in `ux-report.md`, not `usage.md`. Keep them actionable and behavior-level: describe the better interaction, feedback, copy, affordance, recovery path, or state model. Avoid vague advice such as "improve UX" or product-specific implementation details that cannot be inferred from browser evidence.
 
 ## Summary
 - Total issues: {count}
@@ -74,6 +91,8 @@ Write the UX report incrementally as you explore. Append each step and each UX i
 - Snapshots: snapshots/
 - Snapshot diffs: diffs/
 ```
+
+Include `Operation Guidance` when ARIA descriptions, visible helper text, tooltips, placeholders, or snapshot text materially shaped the exploration. Keep entries compact. Do not dump raw ARIA JSON. If no operation guidance was found, omit the section.
 
 ## Usage Guide Format
 
@@ -151,6 +170,8 @@ Product behavior paths belong in `usage.md`.
 
 `usage.md` avoids recommendations unless they are necessary to explain a limitation.
 
+UX recommendations belong in `ux-report.md` issue entries under `Suggested improvement`.
+
 Both free mode and journey mode produce both UX report and usage guide artifacts.
 
 Journey mode can use `usage.md` as source material for future goals, but this skill does not parse or replay `usage.md` automatically.
@@ -167,14 +188,17 @@ The UX report HTML must render every step with Before, Target, and After screens
 
 The usage HTML must render each discovered capability as a readable section with purpose, entry point, steps, result, related controls, evidence, limitations, and Before, Target, and After screenshots for the evidence step.
 
+Both HTML reports must support click-to-zoom screenshots with `mediumZoom` from `https://esm.sh/medium-zoom@1.1.0`. The UX report must attach zoom to `.step-photos img` and issue images. The usage guide must attach zoom to `.usage-photos img`. Expose the zoom instance as `window.uxImageZoom` so the generated report can be verified.
+
 Screenshots are UX judgment evidence. The Markdown reports must make it clear that each issue, goodwill delta, or journey confidence judgment came from inspecting the visible before/target/after states, not only from snapshot diff text. If an overlay, dropdown, menu, dialog, tooltip, suggestion panel, or drawer is involved, mention visible anchoring, clipping, overlap, readability, and perceived confidence when relevant.
 
 ## Cleanup Checklist
 
-1. Re-read `ux-report.md` and update the summary counts to match actual issues found.
-2. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
-3. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
-4. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
-5. Open both HTML files and verify relative links and image references. Also verify the UX report video player. The UX report HTML must show the session recording plus before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
-6. Re-check that UX issues, goodwill changes, and journey outcomes are backed by visible screenshot evidence, especially for overlays, dropdowns, menus, dialogs, tooltips, suggestion panels, and drawers.
-7. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
+1. Re-read `ux-report.md` and update the summary counts to match actual issues found. Confirm every UX issue includes a concrete `Suggested improvement`.
+2. If operation guidance shaped the run, confirm `ux-report.md` lists each extracted instruction as covered, skipped with a reason, inconclusive, or linked to an evidence step.
+3. Re-read `usage.md` and make sure every usage entry has evidence. Each usage entry has before, target, and after screenshot references. If no coherent capability was discovered, confirm the file says no complete usage path was observed.
+4. Generate `{OUTPUT_DIR}/ux-report.html` from `{OUTPUT_DIR}/ux-report.md` using `templates/ux-report-template.html`.
+5. Generate `{OUTPUT_DIR}/usage.html` from `{OUTPUT_DIR}/usage.md` using `templates/usage-template.html`.
+6. Open both HTML files and verify relative links, image references, screenshot zoom behavior, and `window.uxImageZoom`. Also verify the UX report video player. The UX report HTML must show the session recording plus before, target, and after screenshots for each step. The usage HTML must show before, target, and after screenshots for each documented capability.
+7. Re-check that UX issues, goodwill changes, and journey outcomes are backed by visible screenshot evidence, especially for overlays, dropdowns, menus, dialogs, tooltips, suggestion panels, and drawers.
+8. Tell the user both Markdown and HTML artifacts are ready and summarize: goodwill score with verdict, total issues, breakdown by severity, most critical UX items, and the number of usage entries documented.
