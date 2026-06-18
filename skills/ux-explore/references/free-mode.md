@@ -16,33 +16,37 @@ agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}.png
 agent-browser snapshot > {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt
 ```
 
-3. **Highlight the target element and screenshot it**:
+3. **Scan for operation guidance** when controls, menus, panels, dialogs, form fields, or overlays are visible. Use the ARIA description scan from `SKILL.md` when relevant and inspect visible helper text, tooltips, placeholders, and snapshot text.
+
+4. **Queue in-scope guidance** as exploration work. Each instruction must be covered by an upcoming step, linked to an already covered step, or skipped with a reason.
+
+5. **Highlight the target element and screenshot it**:
 
 ```bash
 agent-browser highlight @eN
 agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-target.png
 ```
 
-4. **Execute the operation** based on the element's ARIA role.
-5. **Wait** for the page to settle: `agent-browser wait 1000`.
-6. **Screenshot after** the interaction:
+6. **Execute the operation** based on the element's ARIA role.
+7. **Wait** for the page to settle: `agent-browser wait 1000`.
+8. **Screenshot after** the interaction:
 
 ```bash
 agent-browser screenshot {OUTPUT_DIR}/screenshots/step-{NNN}-after.png
 ```
 
-7. **Diff the snapshot**:
+9. **Diff the snapshot**:
 
 ```bash
 agent-browser diff snapshot --baseline {OUTPUT_DIR}/snapshots/step-{NNN}-before.txt > {OUTPUT_DIR}/diffs/step-{NNN}.txt
 ```
 
-8. Use `agent-browser snapshot` only when the diff needs more page context.
-9. Check `agent-browser console` and `agent-browser errors`.
-10. Inspect the before, target, and after screenshots before writing the observation or issue severity. Treat screenshots as UX judgment evidence, not only report attachments.
-11. Judge the interaction against intuition criteria, interaction states, and interaction feel. Snapshot diff explains what changed semantically; the screenshots decide what the user could see, trust, understand, or miss.
-12. If the action opened a popover, menu, tooltip, dropdown, combobox list, suggestion panel, dialog, drawer, or other overlay, verify from the after screenshot that the overlay is anchored where a user expects, readable, not clipped, not covering unrelated critical UI, and visually connected to the action.
-13. Log the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
+10. Use `agent-browser snapshot` only when the diff needs more page context.
+11. Check `agent-browser console` and `agent-browser errors`.
+12. Inspect the before, target, and after screenshots before writing the observation or issue severity. Treat screenshots as UX judgment evidence, not only report attachments.
+13. Judge the interaction against intuition criteria, interaction states, and interaction feel. Snapshot diff explains what changed semantically; the screenshots decide what the user could see, trust, understand, or miss.
+14. If the action opened a popover, menu, tooltip, dropdown, combobox list, suggestion panel, dialog, drawer, or other overlay, verify from the after screenshot that the overlay is anchored where a user expects, readable, not clipped, not covering unrelated critical UI, and visually connected to the action.
+15. Log the observation in first person. If an issue is found, assign a UX-NNN ID and record it.
 
 ## Action Strategy
 
@@ -88,6 +92,16 @@ Increment `{NNN}` for each element explored (001, 002, 003...). A step without b
 - **Diff**: [step-001 diff](diffs/step-001.txt)
 - **Observation**: [what happened, what changed]
 - **Issue**: None / UX-NNN
+```
+
+## Operation Guidance Entry
+
+When operation guidance affects a step, include a compact note:
+
+```markdown
+- **Guidance source**: aria-describedby / visible helper text / tooltip / placeholder / snapshot text
+- **Extracted operation**: {short product-language instruction}
+- **Guidance result**: covered by this step / covered by step N / skipped because {reason}
 ```
 
 ## Stopping Condition

@@ -72,6 +72,7 @@ Do not default to `--profile Default`. If the page requires login and no profile
 ```bash
 agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/initial.png
 agent-browser snapshot -i
+agent-browser eval '(() => Array.from(document.querySelectorAll("[aria-describedby], [aria-description]")).map(el => { const ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean); const text = node => (node?.textContent || "").replace(/\s+/g, " ").trim(); const selector = el.getAttribute("data-testid") ? `[data-testid=${JSON.stringify(el.getAttribute("data-testid"))}]` : el.id ? `#${CSS.escape(el.id)}` : el.tagName.toLowerCase(); return { selector, tag: el.tagName.toLowerCase(), role: el.getAttribute("role") || "", ariaLabel: el.getAttribute("aria-label") || "", text: text(el).slice(0, 160), ariaDescription: el.getAttribute("aria-description") || null, ariaDescribedBy: ids.map(id => { const target = document.getElementById(id); return { id, found: !!target, tag: target?.tagName.toLowerCase() || null, text: text(target) }; }) }; }))()' > {OUTPUT_DIR}/snapshots/initial-aria-descriptions.json
 agent-browser console
 agent-browser errors
 ```
@@ -283,12 +284,26 @@ Use `agent-browser diff snapshot` to detect what changed after an interaction:
 
 The diff shows exactly which elements appeared, disappeared, or changed text content. This catches state changes that are invisible in screenshots (e.g., aria-label updates, hidden field changes, class toggles).
 
+## Operation Guidance Extraction
+
+Product-authored operation guidance is actionable exploration input. Treat `aria-describedby`, `aria-description`, visible helper text, tooltip copy, placeholder text, and snapshot text as guidance when they describe how a user can operate the current control, panel, dialog, menu, picker, form, editor, or page region.
+
+For each in-scope instruction:
+
+1. Convert it into an exploration step or link it to an existing step that already covered the same operation.
+2. Exercise it with the normal before, target, after, snapshot diff, console, and error evidence model.
+3. If the guidance is unsafe, impossible, out of scope, redundant, or would navigate away, record it as skipped with the reason.
+4. Report the source, extracted operation, status, and evidence in `ux-report.md`.
+
+Do not add a keyboard-specific checklist. Keyboard behavior is tested when the product describes it, when it is attached to the scoped control, or when the visible interaction model makes keyboard behavior part of the user-facing contract.
+
 ## Guidance
 
 - **Judge as a user, not a tester.** You are exploring like a real person who has never seen this page before. If something feels off, investigate.
 - **Narrate in first person.** "I click the button... nothing happens... did it work?" — not "the interaction lacked feedback." Specific, concrete, naming elements. If you can't name the element, you're generating platitudes.
 - **Write findings incrementally.** Append each issue to the report as you discover it. If the session is interrupted, findings are preserved. Never batch all issues for the end.
 - **Use the right snapshot command.** `snapshot -i` finds clickable/fillable elements. `agent-browser diff snapshot --baseline` records what changed after an action. `snapshot` (no flag) reads page content when the diff needs more context.
+- **Supplement snapshots with ARIA descriptions.** After a meaningful snapshot, run the `aria-describedby` / `aria-description` scan and save it beside the snapshot when controls, menus, panels, dialogs, or form fields appear. Do not replace normal snapshots with `--compact`; the description scan is additive because `agent-browser snapshot` shows roles/names/states but not accessible descriptions or their ID bindings.
 - **Screenshot each step.** Capture the before state, highlighted target, and after state so someone reading the report can follow along visually.
 - **Read screenshots as UX evidence.** Before writing the first-person observation, goodwill delta, issue severity, or usage note for a step, inspect the before, target, and after screenshots. Snapshot diff can explain semantic changes, but UX judgment must come from what the user can see: visual feedback, placement, hierarchy, readability, anchoring, clipping, overlap, motion, and perceived confidence.
 - **Match evidence to issue type.** Every issue needs a screenshot reference. If the issue involves user interaction or state change, reference the before, target, and after screenshots.

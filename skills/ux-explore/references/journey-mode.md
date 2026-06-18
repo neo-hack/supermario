@@ -35,6 +35,12 @@ Define success criteria as observable product states, not internal implementatio
 5. Keep navigation within the product unless the journey explicitly requires leaving the page.
 6. Do not traverse unrelated elements before the journey is complete or blocked.
 
+## Operation Guidance In Journeys
+
+During journey mode, operation guidance is followed only when it is attached to the journey path, the active scoped component, or a surface revealed by the journey. Do not traverse unrelated guidance before the journey is complete or blocked.
+
+If in-scope guidance explains how to complete, recover, cancel, filter, select, or continue the journey, convert it into a journey step with normal evidence. If guidance would navigate away, perform an unsafe action, or leave the stated journey, record it as skipped with the reason.
+
 ## Journey Execution
 
 For each journey step:
