@@ -43,6 +43,12 @@ Use this shape:
       "console-risk": 0
     }
   },
+  "operationGuidance": {
+    "discovered": [],
+    "pending": [],
+    "covered": [],
+    "skipped": []
+  },
   "discovered": [],
   "pending": [],
   "visited": [],
@@ -100,14 +106,16 @@ Use `intent: "fault-seeking"` for behavior cases generated to find bugs. Use `in
 ## Queue
 
 1. Run `agent-browser snapshot -i --json`.
-2. Normalize each visible enabled interactive element into a stable key.
-3. Infer feature models and add behavior cases from `references/behavior-testing.md` to `behaviorCases.planned` and `behaviorCases.pending`.
-4. Expand each high-risk behavior model into fault-seeking variants before adding mechanical element actions.
-5. Add unseen in-scope elements to `discovered` and `pending` only after behavior case generation.
-6. Sort `behaviorCases.pending` by risk first (`high`, `medium`, `low`), then by user workflow order, then sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
-7. Before each action, rematch the stable key to the current `@eN`.
-8. Move completed work from `behaviorCases.pending` to `behaviorCases.tested` or `behaviorCases.skipped`, and from `pending` to `visited`, `skipped`, or `outOfScope`.
-9. After every interaction, run `agent-browser snapshot -i --json` again and add newly revealed in-scope behavior cases or elements to the queues.
+2. Run or refresh the ARIA description scan when controls, menus, panels, dialogs, form fields, or overlays are visible.
+3. Normalize each visible enabled interactive element into a stable key.
+4. Infer feature models and add behavior cases from `references/behavior-testing.md` to `behaviorCases.planned` and `behaviorCases.pending`.
+5. Extract operation guidance from ARIA descriptions, visible helper text, tooltip text, placeholders, and snapshot text. Add in-scope guidance to `operationGuidance.discovered` and `operationGuidance.pending`, and create or link a behavior case for each instruction.
+6. Expand each high-risk behavior model into fault-seeking variants before adding mechanical element actions.
+7. Add unseen in-scope elements to `discovered` and `pending` only after behavior case and operation guidance generation.
+8. Sort `operationGuidance.pending` and `behaviorCases.pending` by risk first (`high`, `medium`, `low`), then by user workflow order. Sort `pending` top-to-bottom, left-to-right when position is known; otherwise keep snapshot order.
+9. Before each action, rematch the stable key to the current `@eN`.
+10. Move completed guidance from `operationGuidance.pending` to `operationGuidance.covered` or `operationGuidance.skipped`. Move completed behavior from `behaviorCases.pending` to `behaviorCases.tested` or `behaviorCases.skipped`, and from `pending` to `visited`, `skipped`, or `outOfScope`.
+11. After every interaction, run `agent-browser snapshot -i --json` again, refresh operation guidance when a meaningful surface changed, and add newly revealed in-scope guidance, behavior cases, or elements to the queues.
 
 ## Coverage Loop Overview
 
@@ -139,6 +147,10 @@ flowchart TD
 ```
 
 The loop may execute element actions, but fault-seeking behavior cases remain first-class work. Do not report free exploration as complete while `behaviorCases.pending` contains untested high-risk or medium-risk cases. Low-risk cases may be skipped only with a clear reason in `behaviorCases.skipped`.
+
+## Completion Rule
+
+Behavior testing is complete only when `behaviorCases.pending` is empty or every remaining case is skipped with a clear reason. Operation guidance coverage is complete only when `operationGuidance.pending` is empty or every remaining instruction is skipped with a clear reason. The convergence loop must consider pending operation guidance and behavior cases in addition to pending element actions.
 
 ## Per-Element Workflow
 
@@ -201,15 +213,16 @@ agent-browser errors > {OUTPUT_DIR}/errors-step-{NNN}.txt
 
 Continue until the queue converges:
 
-1. If `behaviorCases.pending` has an item, process exactly one behavior case using the same evidence workflow.
-2. If `pending` has an item, process exactly one item through the per-element workflow.
-3. After the action, discover again with `agent-browser snapshot -i --json`.
-4. If new in-scope stable keys or behavior cases appear, add them to the appropriate pending queue and set `stablePasses` to 0.
-5. If both pending behavior cases and pending element actions are empty, scroll the scope container. If no scope exists, scroll the page.
-6. Discover again with `agent-browser snapshot -i --json`.
-7. If no new stable keys or behavior cases appear, increment `stablePasses`.
-8. If new stable keys or behavior cases appear, add them to pending and set `stablePasses` to 0.
-9. Stop only when `pending` is empty, `behaviorCases.pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
+1. If `operationGuidance.pending` has an item, process exactly one in-scope guidance instruction by running or linking the corresponding behavior case with the normal evidence workflow.
+2. If `behaviorCases.pending` has an item, process exactly one behavior case using the same evidence workflow.
+3. If `pending` has an item, process exactly one item through the per-element workflow.
+4. After the action, discover again with `agent-browser snapshot -i --json` and refresh operation guidance if a meaningful surface changed.
+5. If new in-scope operation guidance, stable keys, or behavior cases appear, add them to the appropriate pending queue and set `stablePasses` to 0.
+6. If pending operation guidance, pending behavior cases, and pending element actions are empty, scroll the scope container. If no scope exists, scroll the page.
+7. Discover again with `agent-browser snapshot -i --json`.
+8. If no new in-scope operation guidance, stable keys, or behavior cases appear, increment `stablePasses`.
+9. If new in-scope operation guidance, stable keys, or behavior cases appear, add them to pending and set `stablePasses` to 0.
+10. Stop only when `operationGuidance.pending` is empty, `pending` is empty, `behaviorCases.pending` is empty, `stablePasses >= coverageThresholds.stablePassesRequired`, the scroll boundary is reached, and no open menu, popover, or dialog remains unexplored.
 
 For scoped exploration, apply every convergence check only to the resolved scope and to overlays triggered by that scope.
 

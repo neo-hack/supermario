@@ -75,6 +75,16 @@ During qa.md scenario execution:
 
 Aggressive fault-seeking starts only after all executable qa.md scenarios are complete.
 
+## Operation Guidance During Scenario Verification
+
+During strict qa.md scenario execution, operation guidance is recorded but does not create extra actions inside the scenario. If a snapshot, ARIA description, visible helper text, tooltip, placeholder, or opened surface exposes in-scope guidance, record it as uncovered guidance for the supplemental exploration phase.
+
+After all executable qa.md scenarios finish:
+
+- If strict qa.md-only verification was requested, report uncovered operation guidance as intentionally not explored.
+- Otherwise, convert uncovered in-scope guidance into supplemental behavior cases and run them through `references/free-exploration.md`.
+- If guidance is unsafe, impossible, out of scope, redundant with a scenario step, or would navigate away, record it as skipped with the reason.
+
 ## Matching Guidance
 
 When matching action text to elements:
