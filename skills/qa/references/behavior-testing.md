@@ -37,6 +37,27 @@ Before and after each action, inspect the current snapshot and screenshot for pr
 
 Do not limit testing to the common models list. When the snapshot exposes a capability that is not named below, create a behavior case with the closest product language and test the observable user workflow.
 
+## Operation Guidance Extraction
+
+Product-authored operation guidance is actionable exploration input. Treat `aria-describedby`, `aria-description`, visible helper text, tooltip copy, placeholder text, and snapshot text as guidance when they describe how a user can operate the current control, panel, dialog, menu, picker, form, editor, or page region.
+
+Operation guidance sources include:
+
+- ARIA descriptions and `aria-describedby` targets.
+- Visible helper text near controls.
+- Tooltips and popovers that explain how to use a control.
+- Placeholder text that describes an allowed operation or format.
+- Snapshot text that describes keyboard, pointer, selection, filtering, drag, upload, command, or recovery behavior.
+- Labels that imply a non-obvious workflow, such as multi-select, apply, clear, retry, manage, expand, choose, or request access.
+
+When guidance is in scope, convert it into behavior cases using the product's own language. Each extracted instruction must become one of:
+
+- `behaviorCases.pending` when it should be exercised.
+- `behaviorCases.tested` when an existing or new step covers it.
+- `behaviorCases.skipped` when it is unsafe, out of scope, redundant, impossible, or would navigate away.
+
+Do not add a keyboard-specific checklist. Keyboard behavior is tested when the product describes it or when a feature model normally requires it. The general rule is that described operation contracts must be verified from the live browser with screenshots, snapshot diffs, console, and errors.
+
 ## Ledger Shape
 
 Track behavior testing in `{OUTPUT_DIR}/coverage.json`:
@@ -48,6 +69,12 @@ Track behavior testing in `{OUTPUT_DIR}/coverage.json`:
     "pending": [],
     "tested": [],
     "skipped": []
+  },
+  "operationGuidance": {
+    "discovered": [],
+    "pending": [],
+    "covered": [],
+    "skipped": []
   }
 }
 ```
@@ -56,6 +83,21 @@ Use stable behavior keys:
 
 ```text
 scopeKey + "|" + model + "|" + behaviorName + "|" + variant
+```
+
+Operation guidance entries use this shape:
+
+```json
+{
+  "key": "scope|source|selector-or-label|instruction",
+  "source": "aria-describedby",
+  "instruction": "Use ArrowDown to enter the list",
+  "scopeKey": "current-picker",
+  "status": "pending",
+  "behaviorCaseKey": "current-picker|picker|keyboard navigation|normal",
+  "evidenceStep": null,
+  "skipReason": null
+}
 ```
 
 ## Case Generation

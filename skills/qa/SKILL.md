@@ -39,6 +39,7 @@ The convergence threshold controls how many consecutive passes find no new in-sc
 - When a profile is provided, put it before the subcommand on every relevant command.
 - Test from the browser only. Never inspect the target app source code to decide whether behavior is correct. In init QA, tests, stories, and source code may be read only to generate coverage hypotheses for qa.md; live browser evidence still decides PASS or FAIL.
 - Capture evidence for every action before judging it.
+- Treat product-authored operation guidance as actionable exploration input. Guidance from `aria-describedby`, `aria-description`, visible helper text, tooltips, placeholders, and snapshot text must be exercised when in scope, or explicitly skipped with a reason. Do not treat guidance as documentation-only evidence.
 - Judge every action from the before, target, and after screenshots plus snapshot diff, console, and errors. Screenshots are not archival-only; the after screenshot must be visually inspected before assigning PASS, FAIL, Pass with issue, Inconclusive, or Excluded.
 - Start recording by default before the first exploratory interaction and save it as `{OUTPUT_DIR}/session.webm`.
 - Use `agent-browser diff snapshot --baseline` as the primary change detector after each action.
@@ -122,7 +123,11 @@ Use `templates/qa-report-template.md` and `templates/qa-report-template.html` fo
 3. Detect mode: `--init` generates qa.md then verifies it; provided/existing qa.md runs case verification; otherwise run free exploration.
 4. Start recording with `agent-browser record start {OUTPUT_DIR}/session.webm {URL}`, then `agent-browser wait --load networkidle`. If a profile was specified, apply it consistently before the subcommand.
 5. If opening reaches login/SSO, ask for a dedicated browser profile. If recording is disabled by user request, use `agent-browser open {URL}` and state that in the report.
-6. Capture initial evidence: `agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/initial.png`, `agent-browser snapshot -i`, `agent-browser console`, and `agent-browser errors`.
+6. Capture initial evidence: `agent-browser screenshot --annotate {OUTPUT_DIR}/screenshots/initial.png`, `agent-browser snapshot -i`, the ARIA description scan below, `agent-browser console`, and `agent-browser errors`.
+
+```bash
+agent-browser eval '(() => Array.from(document.querySelectorAll("[aria-describedby], [aria-description]")).map(el => { const ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean); const text = node => (node?.textContent || "").replace(/\s+/g, " ").trim(); const selector = el.getAttribute("data-testid") ? `[data-testid=${JSON.stringify(el.getAttribute("data-testid"))}]` : el.id ? `#${CSS.escape(el.id)}` : el.tagName.toLowerCase(); return { selector, tag: el.tagName.toLowerCase(), role: el.getAttribute("role") || "", ariaLabel: el.getAttribute("aria-label") || "", text: text(el).slice(0, 160), ariaDescription: el.getAttribute("aria-description") || null, ariaDescribedBy: ids.map(id => { const target = document.getElementById(id); return { id, found: !!target, tag: target?.tagName.toLowerCase() || null, text: text(target) }; }) }; }))()' > {OUTPUT_DIR}/snapshots/initial-aria-descriptions.json
+```
 7. Count interactive elements by role and infer behavior testing models using `references/behavior-testing.md`.
 
 ## Execution
