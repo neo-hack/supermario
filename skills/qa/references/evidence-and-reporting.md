@@ -171,6 +171,21 @@ Halted after ISSUE-001 (P0). 7/19 elements explored. 12 pending elements were no
 
 Do not count pending elements as passed.
 
+## Operation Guidance Reporting
+
+When operation guidance materially shaped exploration, the final report must include an `Operation Guidance` section:
+
+```markdown
+## Operation Guidance
+
+| Source | Extracted operation | Status | Evidence |
+|--------|---------------------|--------|----------|
+| aria-describedby | Use ArrowDown to enter the list | covered | step-008 |
+| tooltip | Click to request access | skipped | external navigation not allowed |
+```
+
+Use product language for the extracted operation. Do not dump full ARIA payloads into the report. If guidance was discovered but not exercised, the `Evidence` column must contain the skip reason. If guidance is covered by an existing scenario or behavior step, link that step instead of duplicating the action.
+
 For aggressive free exploration and aggressive supplemental exploration, every behavior step must identify its `intent`, `variant`, and `riskLevel` when those fields exist in `coverage.json`. Report these as compact tags, for example: `fault-seeking`, `boundary`, `high risk`. Scenario verification steps should use `checklist` intent and should not be labeled as aggressive unless qa.md explicitly asked for adversarial input.
 
 Do not add a new complex filter system for the first version. Preserve the existing result filters (`All`, `Pass`, `Issues`, `Excluded`, `Inconclusive`) and search behavior. Intent, variant, and risk are displayed as compact tags so the reader can understand why each action was performed.
@@ -183,6 +198,7 @@ Required top-level sections:
 - Health Score: category table and final score.
 - Coverage Status: status, scope, ledger counts, stable passes, threshold, and halt reason.
 - Behavior Testing: inferred feature models, behavior cases planned, tested, skipped, and untested limitations.
+- Operation Guidance: product-authored instructions discovered from ARIA descriptions, visible helper text, tooltips, placeholders, and snapshots; each listed as covered, skipped, inconclusive, or linked to a behavior step.
 - Scenario Results: only in case verification or init mode.
 - Exploration Log or Uncovered Elements: step-by-step action evidence.
 - Issues: one block per issue.
@@ -205,7 +221,7 @@ Use `templates/qa-report-template.md` for Markdown shape and `templates/qa-repor
 
 `templates/qa-report-template.html` is the source of truth for report layout and behavior. Generate `report.html` by filling or extending that template. Do not create a new standalone HTML shell, even if it contains screenshots, filters, zoom, or video. If a needed feature is missing from the template, update the template first and then regenerate the report from it.
 
-The generated `report.html` must preserve template markers and behavior hooks: `.hero`, `.tldr`, `.score-grid`, `.log-filter`, `.step-photos`, `[data-log-filter]`, `[data-log-search]`, `mediumZoom` or `window.qaImageZoom`, and the `session.webm` video/link when recording is enabled.
+The generated `report.html` must preserve template markers and behavior hooks: `.hero`, `.tldr`, `.score-grid`, `.log-filter`, `.step-photos`, `#operation-guidance`, `[data-log-filter]`, `[data-log-search]`, `mediumZoom` or `window.qaImageZoom`, and the `session.webm` video/link when recording is enabled.
 
 ## Snapshot Diff Links
 
@@ -225,6 +241,7 @@ Before finishing:
 - Ensure every issue has evidence.
 - Ensure new console delta has either an issue or an explicit benign explanation.
 - Ensure behavior testing lists every planned, tested, or skipped behavior case.
+- Ensure operation guidance discovered during the run is listed as covered, skipped with a reason, inconclusive, or intentionally out of scope.
 - Ensure every step has before, target, and after screenshots plus a snapshot diff.
 - Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
 - Ensure `report.html` was generated from `templates/qa-report-template.html` and still contains the required template markers and behavior hooks.
