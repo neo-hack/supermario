@@ -106,9 +106,11 @@ When operation guidance affects a step, include a compact note:
 
 ## Stopping Condition
 
-The exploration ends naturally when all interactive elements on the page have been explored. After every element has been visited or skipped with a documented reason, proceed to reporting and cleanup.
+The exploration ends naturally when all interactive elements on the page have been explored and all in-scope operation guidance has been covered, linked to an evidence step, or skipped with a documented reason. After every element and in-scope guidance instruction has a documented outcome, proceed to reporting and cleanup.
 
 If a scroll reveals new interactive elements that were not in the initial snapshot, discover them with `agent-browser snapshot -i` after scrolling, add them to the queue, and continue the loop.
+
+If scrolling or opening a control reveals new in-scope operation guidance, add it to the queue before declaring exploration complete.
 
 ## Artifacts
 
@@ -117,7 +119,7 @@ If a scroll reveals new interactive elements that were not in the initial snapsh
 
 ## Reporting Handoff
 
-After every interactive element has been visited or skipped with a documented reason, follow `references/reporting.md`.
+After every interactive element and in-scope operation guidance instruction has been visited, covered, linked to an evidence step, or skipped with a documented reason, follow `references/reporting.md`.
 
 Create both report families:
 

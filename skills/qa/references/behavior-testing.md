@@ -50,11 +50,11 @@ Operation guidance sources include:
 - Snapshot text that describes keyboard, pointer, selection, filtering, drag, upload, command, or recovery behavior.
 - Labels that imply a non-obvious workflow, such as multi-select, apply, clear, retry, manage, expand, choose, or request access.
 
-When guidance is in scope, convert it into behavior cases using the product's own language. Each extracted instruction must become one of:
+When guidance is in scope, record each extracted instruction in `operationGuidance` and convert it into behavior cases using the product's own language. Each instruction must become one of:
 
-- `behaviorCases.pending` when it should be exercised.
-- `behaviorCases.tested` when an existing or new step covers it.
-- `behaviorCases.skipped` when it is unsafe, out of scope, redundant, impossible, or would navigate away.
+- `operationGuidance.pending` when it should be exercised, with a linked or newly created behavior case.
+- `operationGuidance.covered` when an existing or new scenario, behavior, or element step covers it.
+- `operationGuidance.skipped` when it is unsafe, out of scope, redundant, impossible, or would navigate away.
 
 Do not add a keyboard-specific checklist. Keyboard behavior is tested when the product describes it or when a feature model normally requires it. The general rule is that described operation contracts must be verified from the live browser with screenshots, snapshot diffs, console, and errors.
 
@@ -93,12 +93,15 @@ Operation guidance entries use this shape:
   "source": "aria-describedby",
   "instruction": "Use ArrowDown to enter the list",
   "scopeKey": "current-picker",
+  "riskLevel": "medium",
   "status": "pending",
   "behaviorCaseKey": "current-picker|picker|keyboard navigation|normal",
   "evidenceStep": null,
   "skipReason": null
 }
 ```
+
+Set `riskLevel` from the linked behavior case when one exists. If no behavior case exists yet, infer risk from the operation's user impact and update it when the guidance is linked to a behavior case.
 
 ## Case Generation
 

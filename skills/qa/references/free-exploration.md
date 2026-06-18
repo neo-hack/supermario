@@ -125,23 +125,27 @@ Free exploration is not element-only traversal. It starts by generating baseline
 flowchart TD
     start["Start free exploration"] --> snapshot["Snapshot visible interactive state"]
     snapshot --> baseline["Infer feature models and generate baseline behavior cases"]
-    baseline --> queue["Queue behavior cases + element actions"]
+    baseline --> guidanceExtract["Extract operation guidance"]
+    guidanceExtract --> queue["Queue operation guidance + behavior cases + element actions"]
 
-    queue --> behaviorPending{"Pending behavior case?"}
+    queue --> guidancePending{"Pending operation guidance?"}
+    guidancePending -->|Yes| guidance["Run or link one guidance-backed behavior case"]
+    guidancePending -->|No| behaviorPending{"Pending behavior case?"}
     behaviorPending -->|Yes| behavior["Run one behavior case with evidence"]
     behaviorPending -->|No| elementPending{"Pending element action?"}
     elementPending -->|Yes| element["Run one element action with evidence"]
     elementPending -->|No| discover["Scroll or rediscover current scope"]
 
-    behavior --> rediscover["Snapshot again and discover new behavior or elements"]
+    guidance --> rediscover["Snapshot again and discover new guidance, behavior, or elements"]
+    behavior --> rediscover
     element --> rediscover
     discover --> rediscover
 
-    rediscover --> newWork{"New in-scope behavior or elements found?"}
+    rediscover --> newWork{"New in-scope guidance, behavior, or elements found?"}
     newWork -->|Yes| reset["Add to queues and reset stable passes"]
     reset --> queue
     newWork -->|No| stable["Increment stable passes when queues stay empty"]
-    stable --> converged{"Pending empty and stable threshold reached?"}
+    stable --> converged{"All pending queues empty and stable threshold reached?"}
     converged -->|No| queue
     converged -->|Yes| done["Coverage converged"]
 ```
