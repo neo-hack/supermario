@@ -1,11 +1,11 @@
 ---
 name: create-mr
-description: Use when creating a GitHub pull request or merge request from the current branch, especially when a project PR template may exist.
+description: Use when creating a GitHub pull request or merge request from the current branch, especially when a project PR template may exist. Creates the PR with GitHub CLI, verifies it, and arranges a scheduled CI monitor so the MR/PR is followed until required checks pass or a failure needs repair.
 ---
 
 # Create MR
 
-Create a GitHub pull request from the current branch by reading the repository state, respecting any PR template, and verifying the created PR.
+Create a GitHub pull request from the current branch by reading the repository state, respecting any PR template, verifying the created PR, and arranging follow-up monitoring for CI.
 
 ## Workflow
 
@@ -128,7 +128,32 @@ For machine-readable verification, prefer:
 gh pr view <number> --json number,title,url,state,headRefName,baseRefName
 ```
 
-Report the PR URL to the user.
+Capture the PR number, URL, head branch, base branch, and current head SHA for the CI monitor.
+
+## Monitor PR CI
+
+After verifying the PR, arrange a scheduled follow-up to check CI until all required checks pass or a real failure needs repair.
+
+When running in the Codex app and `automation_update` is available, use that tool. If it is not in the active tool list but `tool_search` is available, discover it with a query such as `automation_update recurring monitor`.
+
+If no automation tool is available in the current agent environment, do not claim a monitor was created. Instead, provide a concise follow-up prompt and suggested check interval for the host system or human operator to schedule.
+
+Prefer a short `heartbeat` with `destination: "thread"` for same-thread follow-up shortly after PR creation. Use `cron` only when the monitoring should run independently of this thread or workspace.
+
+Set the automation prompt to include:
+
+- PR number and URL.
+- Repository path.
+- Head branch, base branch, and last pushed SHA.
+- Instruction to fetch PR status with `gh pr view <number> --json statusCheckRollup,headRefOid,state,url`.
+- Instruction to inspect failed runs with `gh run list` and `gh run view --log-failed`.
+- Instruction to stop and report success once all required checks pass.
+- Instruction to use the `fix-ci` skill if checks fail and a code or configuration repair is needed.
+- Instruction to schedule another follow-up only when checks are still pending or a pushed repair needs another CI rerun.
+
+When an automation tool is available, do not hand-write raw automation directives in the final response; use the tool call. When no automation tool is available, clearly state that monitoring was not created and include the follow-up prompt that should be scheduled elsewhere.
+
+Report the PR URL and whether CI monitoring was created or handed off.
 
 ## Common Mistakes
 
@@ -139,3 +164,4 @@ Report the PR URL to the user.
 | Claiming tests passed without evidence | Put only verified commands in the test plan. |
 | Omitting a required changeset | When Changesets is configured, any content change to a versioned package needs a `.changeset/*.md`. Skills and docs count too. |
 | Forgetting to push the branch | Push with `git push -u origin HEAD`, then create the PR. |
+| Forgetting post-create CI follow-up | Arrange a monitor after PR verification, or clearly hand off the follow-up prompt if no automation tool exists. |
