@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix CI"
+  short_description: "Fetch CI failures and repair them"
+  default_prompt: "Use $fix-ci to inspect the current PR CI failure, debug the root cause, fix it, push, and monitor the rerun."
