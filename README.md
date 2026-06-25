@@ -20,6 +20,34 @@ A collection of agent skills for documentation, code annotation, visual mockups,
 
 ## Quick Start
 
+### Claude Code plugin
+
+Add this repository as a local Claude Code plugin marketplace, then install the
+Supermario plugin into the current project scope:
+
+```bash
+claude plugin marketplace add ./ --scope project
+claude plugin install supermario@supermario-marketplace --scope project
+```
+
+Validate the plugin manifest:
+
+```bash
+pnpm plugin:validate
+```
+
+After restarting Claude Code, Supermario skills are available as namespaced
+plugin skills, for example:
+
+```text
+/supermario:mockup
+```
+
+The marketplace installs `plugins/supermario`, a lightweight plugin wrapper
+around the repository's `skills/` directory.
+
+### skills.sh
+
 Install all skills into your agent environment:
 
 ```bash
