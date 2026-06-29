@@ -11,8 +11,8 @@ Analyze a codebase, get confirmation on the module map, then add high-value comm
 
 Before Phase 1, ask the user to choose one execution mode and wait for the answer: "Choose `subagent driven` or `inline exec`."
 
-1. `subagent driven`: use concurrent subagents for both Phase 1 exploration and Phase 2 annotation when scopes can be kept independent.
-2. `inline exec`: use concurrent subagents for Phase 1 exploration when useful, but do Phase 2 edits in the current thread; before each docs-code edit, briefly explain why that annotation is worth adding.
+1. `subagent driven`: use concurrent subagents for both Phase 1 exploration and Phase 2 annotation when scopes can be kept independent; do not pause after each module during Phase 2.
+2. `inline exec`: use concurrent subagents for Phase 1 exploration when useful, but do Phase 2 edits in the current thread with mandatory module gates; before each docs-code edit, briefly explain why that annotation is worth adding.
 
 If the user already specified a mode, proceed with that mode.
 
@@ -29,16 +29,22 @@ For `subagent driven` mode:
 - During Phase 2, use concurrent annotation subagents only after Phase 1 confirmation.
 - Each annotation subagent must read the Phase 1 report, its owned files, and any immediately relevant local imports or importers before editing.
 - Require each annotation subagent to add comments only within its owned files and to preserve code behavior.
-- Consolidate post-confirmation annotation results into the final annotation summary.
+- Do not pause after each module during Phase 2.
+- Require each annotation subagent to return changed files, annotation types, and an ASCII flow for its owned module.
+- Consolidate post-confirmation annotation results into the final annotation summary without per-module user gates.
 
 For `inline exec` mode:
 
 - Work directly in the current thread.
 - During Phase 2, re-read the Phase 1 report, the target files, and any immediately relevant local imports or importers before editing.
+- Process Phase 2 module by module.
+- Before starting each module, show the module annotation plan and wait for user confirmation.
 - Before adding each file header, doc comment, or inline comment, state the reason it helps future readers.
 - When practical, show the reason together with the planned comment and a short code snippet or pseudocode sketch so the user can see where the comment will land.
 - Pseudocode is allowed for readability, but it must reflect code that was actually re-read and must not replace checking the real target code before editing.
 - Keep each reason brief and tied to intent, dependency boundaries, invariants, or non-obvious control flow.
+- After finishing each module, show changed files, annotation types, and an ASCII flow explaining the module flow and comment coverage.
+- Wait for user confirmation before continuing to the next module.
 
 Inline exec preview format:
 
@@ -50,6 +56,31 @@ Code or pseudocode:
 [small snippet or pseudocode sketch showing where the comment will be inserted]
 ```
 ````
+
+### ASCII Flow Summaries
+
+Module flow summaries use terminal-friendly ASCII. Explain the module's key flow and where the new comments help future readers understand API boundaries, invariants, state transitions, data flow, or non-obvious branches.
+
+Use descriptive labels such as `[API]`, `[Boundary]`, `[Invariant]`, `[Flow]`, `[State]`, or `[Compatibility]`. The labels are examples, not a fixed taxonomy.
+
+Example:
+
+```text
+Module: parser
+
+[API] parse(input)
+   |
+   v
+[Invariant] normalize tokens
+   |
+   v
+{ cached? }
+   | yes              | no
+   v                  v
+[Flow] return hit   [Boundary] resolve grammar
+```
+
+Use Mermaid only in separate written documentation when explicitly useful.
 
 ## Argument Handling
 
@@ -211,16 +242,56 @@ Example section banner:
 // ═══════════ Parsing ═══════════
 ```
 
+## Phase 3: Verify
+
+Run verification after Phase 2 and before the final report.
+
+The main thread owns verification in both execution modes. Subagents can report local observations, but they do not decide that the full task is verified.
+
+Verification steps:
+
+1. Detect the project validation commands from package scripts, build files, CI config, or existing docs.
+2. Run the relevant commands for the changed scope, such as tests, type checks, lint, formatting checks, and builds.
+3. Report commands that were skipped and why, such as missing scripts or unavailable tooling.
+4. If verification fails, inspect whether the failure is caused by the annotation changes.
+5. Fix comment-related failures when possible and rerun the failing verification command.
+6. Do not present the task as complete until verification passes or the remaining failure is clearly reported as unrelated or blocked.
+
 ## Final Report
 
-Process files module by module. After each module, list changed files and annotation types:
+The final report comes after Phase 3 verification.
 
-```markdown
+Process files module by module. For each module, list changed files, annotation types, and the ASCII flow summary:
+
+````markdown
 ## Annotation Summary
+
+### parser
 
 - `src/parser.ts` — file header and exported function docs
 - `src/render.tsx` — JSX-safe inline comments for non-obvious branches
+
+```text
+Module: parser
+
+[API] parse(input)
+   |
+   v
+[Invariant] normalize tokens
+   |
+   v
+[Flow] return parsed document
 ```
+````
+
+Also report:
+
+- Changed files by module.
+- Annotation types added by module.
+- ASCII flow summaries by module.
+- Verification commands and outcomes.
+- Skipped verification with reasons.
+- Remaining risk, especially if a verification failure is unrelated or blocked.
 
 ## Common Mistakes
 
