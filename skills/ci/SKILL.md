@@ -49,7 +49,6 @@ Scan the project for existing files that may conflict:
 | CI workflow (Rust, Tauri) | `.github/workflows/ci-rust-tauri.yml` | | | ✓ | |
 | CI workflow (pure Rust) | `.github/workflows/ci.yml` | | | | ✓ |
 | Release workflow | `.github/workflows/release.yml` | ✓ | ✓ | ✓ | |
-| Snapshot release workflow | `.github/workflows/snapshot-release.yml` | ✓ | ✓ | ✓ | |
 | Tauri release workflow | `.github/workflows/release-tauri.yml` | | | ✓ | |
 | PR template | `.github/PULL_REQUEST_TEMPLATE.md` | ✓ | ✓ | ✓ | ✓ |
 | Bug report template | `.github/ISSUE_TEMPLATE/bug_report.md` | ✓ | ✓ | ✓ | ✓ |
@@ -86,8 +85,7 @@ For each item approved (or with no conflict), copy from `assets/<category>/` to 
 
 - `assets/eslint/eslint.config.mjs` → `eslint.config.mjs`
 - `assets/workflows/<pm>/ci.yml` → `.github/workflows/ci.yml`
-- `assets/workflows/<pm>/release.yml` → `.github/workflows/release.yml`
-- `assets/workflows/<pm>/snapshot-release.yml` → `.github/workflows/snapshot-release.yml`
+- `assets/workflows/<pm>/release.yml` → `.github/workflows/release.yml` (covers both formal releases on push and snapshot releases on manual dispatch — npm allows only one trusted publisher per package, registered by workflow filename, so both paths live in one workflow routed by `github.event_name`)
 - `assets/changeset/config.json` → `.changeset/config.json`
 - `assets/changeset/README.md` → `.changeset/README.md`
 - `assets/husky/pre-commit` → `.husky/pre-commit`
@@ -131,7 +129,7 @@ Where `<pm>` is the detected package manager (`pnpm` or `bun`).
 - **pnpm/action-setup ordering**: `pnpm/action-setup@v4` must run BEFORE `actions/setup-node@v5` in all pnpm workflows. This is required because setup-node v5 expects the package manager to already be on PATH.
 - **Cross-platform shell compatibility**: Any step using `$GITHUB_ENV` must include `shell: bash` to work on Windows runners (which default to PowerShell). This applies to pnpm store path detection and similar env-setting steps.
 - **pnpm store caching**: All pnpm workflows include pnpm store caching (`actions/cache@v4`) between install and build steps. The cache key is derived from `pnpm-lock.yaml` hashes.
-- **npm publish provenance**: All release and snapshot-release workflows include `id-token: write` permission, `registry-url` in setup-node, and `NPM_CONFIG_PROVENANCE: true` + `NODE_AUTH_TOKEN` environment variables for OIDC-based supply-chain traceability.
+- **npm publish provenance (OIDC trusted publishing)**: Release workflows use Node 24 (npm ≥ 11.5.1) and include `id-token: write` + `registry-url` so the npm CLI authenticates via OIDC and auto-generates provenance attestations. Keep `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` as a fallback: npm prefers OIDC when a trusted publisher is configured (provenance attached) and falls back to the token otherwise (e.g. a brand-new package's first publish, before a trusted publisher exists). After publishing the package once, configure a trusted publisher on npmjs.com → package Settings → Trusted Publisher (repository, workflow filename `release.yml`, branch, "Allow npm publish"); OIDC then takes over and provenance is attached automatically. Note: `NPM_CONFIG_PROVENANCE` is intentionally NOT set — it is a no-op under pnpm/bun `publish`, and provenance is automatic under trusted publishing. npm allows only one trusted publisher per package, which is why the release and snapshot paths are merged into a single `release.yml` (routed by `github.event_name`).
 - **Tauri monorepo builds**: For pnpm monorepo Tauri projects, workspace dependencies (shared types, UI components, etc.) must be built before `tauri-action`. The template includes a `Build workspace dependencies` step using `pnpm build` (runs all packages). For targeted builds, replace with `pnpm --filter '<package-name>...' build` to build only the Tauri app and its transitive dependencies in topological order.
 
 **Make husky scripts executable:** After copying, run `chmod +x` on `.husky/pre-commit` and `.husky/pre-merge`.

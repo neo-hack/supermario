@@ -5,10 +5,22 @@ on:
       - main
       - master
       - 'releases/*'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Enter the branch name for snapshot release'
+        required: true
+        default: 'main'
+        type: string
+
 env:
   CI: true
+
 jobs:
+  # Formal release: runs on push. changesets opens a "update versions" PR,
+  # then publishes when versions are bumped.
   release:
+    if: github.event_name == 'push'
     timeout-minutes: 15
     runs-on: ubuntu-latest
     permissions:
@@ -29,23 +41,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
       - name: Get pnpm store directory
+        id: pnpm-cache
         shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@v4
         name: Setup pnpm cache
         with:
-          path: ${{ env.STORE_PATH }}
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install
-        run: |
-          pnpm install --frozen-lockfile=false
-      - name: create and publish versions
+        run: pnpm install --frozen-lockfile=false
+      - name: Create and publish versions
         uses: changesets/action@v1
         with:
           version: pnpm ci:version
@@ -54,5 +65,51 @@ jobs:
           publish: pnpm ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Snapshot release: runs on manual dispatch, publishes a prerelease under
+  # the `snapshot` dist-tag. OIDC is preferred (auto provenance) when a trusted
+  # publisher is configured on npm; NODE_AUTH_TOKEN is the fallback (e.g. for a
+  # brand-new package's first publish before a trusted publisher is set up).
+  snapshot:
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install
+        run: pnpm install --frozen-lockfile=false
+      - name: Create and publish snapshot
+        run: |
+          pnpm ci:snapshot
+          pnpm ci:prerelease
+        env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
