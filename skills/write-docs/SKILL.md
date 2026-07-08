@@ -1,6 +1,6 @@
 ---
 name: write-docs
-description: Use when asked to create, rewrite, audit, or maintain README, ARCHITECTURE, CONTRIBUTING, TUTORIAL, docs navigation, project options, badges, or documentation signatures.
+description: Use when asked to create, rewrite, audit, or maintain README, PRODUCT, ARCHITECTURE, CONTRIBUTING, TUTORIAL, docs navigation, project options, badges, or documentation signatures.
 ---
 
 # Write Docs
@@ -14,6 +14,7 @@ Before drafting or editing any document, read:
 
 Required mapping:
 - `README.md` -> `references/readme.md`
+- `PRODUCT.md` -> `references/product.md`
 - `ARCHITECTURE.md` -> `references/architecture.md`
 - `CONTRIBUTING.md` -> `references/contributing.md`
 - `TUTORIAL.md` -> `references/tutorial.md`
@@ -30,6 +31,8 @@ The final response must list the references read.
 
 - "Write a README"
 - "Improve the README"
+- "Write PRODUCT.md"
+- "Audit product docs"
 - "Create architecture docs"
 - "Write CONTRIBUTING.md"
 - "Make a tutorial"
@@ -48,6 +51,7 @@ Agents without this skill tend to:
 - Treat a default value as proof of an option type.
 - Add nonstandard signatures such as "Written with care by X".
 - Link to mixed-case docs paths without checking the actual filenames.
+- Turn product documentation into unsupported personas, vague strategy, or a feature wishlist.
 
 Treat those as red flags. Read repository facts first.
 
@@ -59,6 +63,7 @@ skills/write-docs/
   references/
     elements-of-style.md           # General writing rules for all docs
     readme.md                      # README identity, badge rules, boundaries
+    product.md                     # Product intent, UX layers, scope, flows
     architecture.md                # System boundary, modules, flows, decisions
     contributing.md                # Setup, checks, PR workflow, option changes
     tutorial.md                    # Goal-led teaching path
@@ -70,6 +75,7 @@ Canonical filenames:
 
 ```text
 README.md
+PRODUCT.md
 ARCHITECTURE.md
 CONTRIBUTING.md
 TUTORIAL.md
@@ -86,6 +92,7 @@ Then read the matching document reference:
 | Target | Reference |
 | --- | --- |
 | `README.md` | `references/readme.md` |
+| `PRODUCT.md` | `references/product.md` |
 | `ARCHITECTURE.md` | `references/architecture.md` |
 | `CONTRIBUTING.md` | `references/contributing.md` |
 | `TUTORIAL.md` | `references/tutorial.md` |
@@ -101,9 +108,10 @@ Determine the requested document type from the user's words or the target filena
 If multiple documents are requested, handle them in this order unless the user gives another order:
 
 1. `README.md`
-2. `ARCHITECTURE.md`
-3. `CONTRIBUTING.md`
-4. `TUTORIAL.md`
+2. `PRODUCT.md`
+3. `ARCHITECTURE.md`
+4. `CONTRIBUTING.md`
+5. `TUTORIAL.md`
 
 ### Phase 2: Audit Existing Docs
 
@@ -112,13 +120,13 @@ Before writing, search for existing documentation.
 **Git projects** — use `git ls-files` to respect `.gitignore`:
 
 ```bash
-git ls-files 'README*' 'ARCHITECTURE*' 'CONTRIBUTING*' 'TUTORIAL*' 'docs/**'
+git ls-files 'README*' 'PRODUCT*' 'ARCHITECTURE*' 'CONTRIBUTING*' 'TUTORIAL*' 'docs/**'
 ```
 
 **Non-git projects** — use `rg --files` with common exclusion globs:
 
 ```bash
-rg --files -g 'README*' -g 'ARCHITECTURE*' -g 'CONTRIBUTING*' -g 'TUTORIAL*' -g 'docs/**' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
+rg --files -g 'README*' -g 'PRODUCT*' -g 'ARCHITECTURE*' -g 'CONTRIBUTING*' -g 'TUTORIAL*' -g 'docs/**' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 ```
 
 If a `.gitignore` exists, read it and add its top-level directory patterns as `-g '!<pattern>'` globs to the `rg` command.
@@ -138,6 +146,7 @@ Look for:
 - Entry points and important source directories.
 - Badge sources: `package.json`, lockfiles, `LICENSE*`, `.github/workflows/*`, runtime/build config, existing docs, and package metadata.
 - Options, configuration, schema, or environment definitions.
+- Product facts for `PRODUCT.md`: existing product notes, roadmap notes, issue templates, design docs, README positioning, routes, screens, commands, components, prompts, examples, tests, and user-facing configuration.
 
 Useful searches:
 
@@ -147,6 +156,7 @@ Useful searches:
 git ls-files 'package.json' 'pnpm-lock.yaml' 'package-lock.json' 'yarn.lock' 'pyproject.toml' 'Cargo.toml' 'go.mod' 'Makefile' '.env.example' 'LICENSE*'
 git ls-files | rg 'scripts|dev|test|lint|build|start|serve|deploy'
 git ls-files | rg 'options|config|schema|default|env'
+git ls-files | rg 'product|roadmap|issue|design|route|screen|component|prompt|example|spec|test'
 ```
 
 **Non-git projects:**
@@ -155,9 +165,10 @@ git ls-files | rg 'options|config|schema|default|env'
 rg --files -g 'package.json' -g 'pnpm-lock.yaml' -g 'package-lock.json' -g 'yarn.lock' -g 'pyproject.toml' -g 'Cargo.toml' -g 'go.mod' -g 'Makefile' -g '.env.example' -g 'LICENSE*' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 rg -n "scripts|dev|test|lint|build|start|serve|deploy" package.json Makefile pyproject.toml Cargo.toml go.mod 2>/dev/null
 rg -n "options|config|schema|default|env" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
+rg -n "product|roadmap|persona|user|job|journey|flow|route|screen|component|prompt|example|spec|test" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 ```
 
-Do not invent commands, defaults, paths, badges, options, types, examples, or capabilities. If repository facts are unavailable, say what cannot be verified instead of filling the gap from convention.
+Do not invent commands, defaults, paths, badges, options, types, examples, capabilities, personas, business goals, feature promises, market claims, or roadmap items. If repository facts are unavailable, say what cannot be verified instead of filling the gap from convention.
 
 ### Phase 4: Write or Edit
 
@@ -186,6 +197,8 @@ Before finishing, check:
 - Sections serve reader tasks instead of a fixed template.
 - Generic filler, passive phrasing, and repeated setup prose are removed.
 - Every options table uses `Option | Type | Default | Example | Description`.
+- `PRODUCT.md` ties product claims to repository facts, user-provided requirements, existing docs, visible UI, or clearly marked assumptions.
+- `PRODUCT.md` covers Strategy, Scope, Structure, Skeleton, and Surface either directly or by an intentional omission.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
@@ -200,6 +213,7 @@ In the final response, say:
 - Badge sources checked, when the target is README.
 - Missing facts that blocked required identity elements, when applicable.
 - Whether README boundaries were enforced, when the target is README.
+- Product references read and product facts verified, when the target is `PRODUCT.md`.
 - Which checks or commands were run.
 
 If no file changed, say what blocked the edit and what facts were missing.
@@ -214,4 +228,4 @@ If no file changed, say what blocked the edit and what facts were missing.
 | Badge looks nice but has no source | Remove it or replace it with a verified fact badge. |
 | README signature is not a cat signature | Use only the README cat signature rule. |
 | Docs links have casual casing | Match real filenames exactly. |
-
+| Product docs become unsupported personas or vague strategy | Ground product claims in repository facts, user-provided requirements, existing docs, visible UI, or marked assumptions. |
