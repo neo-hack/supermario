@@ -35,7 +35,34 @@ Useful sections:
 - Surface and Voice.
 - Open Questions.
 
-For small projects, combine sections. For complex products, keep `PRODUCT.md` focused on product-experience intent and link to deeper specs only when those files exist.
+For small projects, sections may be combined. For complex products, `PRODUCT.md` should stay focused on product-experience intent and link to deeper specs only when those files exist.
+
+## Document Relationships
+
+`PRODUCT.md` is upstream of feature, design, and architecture docs:
+
+```text
+PRODUCT.md   -> intent, users, scope boundaries, why
+FEATURES.md  -> functional specs, user behavior, states, acceptance
+DESIGN.md    -> UI system, visual treatment, components, interaction style
+ARCHITECTURE.md -> implementation structure, modules, data flow
+```
+
+`PRODUCT.md` may weakly link to `FEATURES.md` for detailed functional behavior, but it should not depend on `FEATURES.md` to define product direction.
+
+`PRODUCT.md` may define a release baseline or milestone strategy when that clarifies product scope. Do not maintain live milestone status, delivery order, owner assignments, or completion tracking here. Put those in `MILESTONES.md`, `ROADMAP.md`, planning docs, or issues.
+
+Prefer:
+
+```markdown
+This section defines product boundaries. Detailed page-level behavior and functional specifications belong in [FEATURES.md](./FEATURES.md) when that document exists.
+```
+
+Avoid:
+
+```markdown
+This product is defined by the feature list in [FEATURES.md](./FEATURES.md).
+```
 
 ## Evidence Rules
 
@@ -47,6 +74,8 @@ Product claims must come from at least one of these sources:
 - Routes, screens, components, commands, prompts, examples, tests, or fixtures.
 - Configuration that changes user-facing behavior.
 - Clearly marked assumptions.
+
+Roadmap notes and milestone notes can support scope decisions, but they do not automatically define product direction. Use them as evidence for a product choice only when the item is tied back to a user need, product objective, or explicit constraint.
 
 Write assumptions explicitly:
 
@@ -98,7 +127,7 @@ The product delivers a seamless and delightful documentation experience for ever
 
 ### Scope
 
-Scope separates what the product includes from what it excludes.
+Scope is the product's prioritized commitment, not a feature inventory. It separates what the product includes from what it excludes, and it explains why each decision belongs in that status.
 
 `PRODUCT.md` should distinguish:
 
@@ -106,19 +135,29 @@ Scope separates what the product includes from what it excludes.
 - Explicitly excluded.
 - Deferred or open.
 
+Each scope decision should be justified by:
+
+- The user need it serves.
+- The product objective it supports.
+- The feasibility, dependency, or constraint that makes it current, deferred, or excluded.
+
+If an item cannot be tied back to strategy fit or feasibility, mark it as open or out of scope instead of listing it as planned.
+
 Use this shape when scope matters:
 
 ```markdown
 ## Scope
 
-| Status | Item | Evidence |
-| --- | --- | --- |
-| Included | README, PRODUCT, ARCHITECTURE, CONTRIBUTING, and TUTORIAL guidance | `skills/write-docs/SKILL.md` supported documents |
-| Excluded | Publishing a documentation website | No publishing workflow exists in the repository |
-| Deferred | More product research examples | No verified source exists yet |
+| Status | Item | Why It Belongs Here | Evidence |
+| --- | --- | --- | --- |
+| Included | README, PRODUCT, FEATURES, ARCHITECTURE, CONTRIBUTING, and TUTORIAL guidance | Maintainers need consistent docs that route to the right reference before drafting. | `skills/write-docs/SKILL.md` supported documents |
+| Excluded | Publishing a documentation website | The product objective is repository-grounded documentation editing, not docs hosting or distribution. | No publishing workflow exists in the repository |
+| Deferred | More product research examples | Product guidance would benefit from more examples, but no verified source defines them yet. | No verified source exists yet |
+
+Detailed feature behavior belongs in [FEATURES.md](./FEATURES.md) when that document exists.
 ```
 
-Do not turn scope into a wishlist. If the repository only proves current behavior, say that.
+Do not turn scope into a wishlist, release plan, or milestone tracker. If the repository only proves current behavior, say that. If a future item appears only in a milestone discussion, keep it out of `PRODUCT.md` unless the document can explain the user need, product objective, and constraint behind the decision.
 
 ### Structure
 
@@ -219,7 +258,8 @@ When creating a new `PRODUCT.md`:
 3. Read the files that support product claims.
 4. Draft only claims that are supported or marked as assumptions.
 5. Use the five layers to check that product intent, scope, flow, interface model, and surface quality are covered.
-6. Keep architecture details, changelogs, issue tracking, and long roadmaps out of `PRODUCT.md`.
+6. Link to `FEATURES.md` only as the place for detailed functional behavior, not as the source of product direction.
+7. Keep architecture details, changelogs, issue tracking, and long roadmaps out of `PRODUCT.md`.
 
 ## Audit Workflow
 
@@ -231,7 +271,8 @@ When auditing an existing `PRODUCT.md`, check:
 - Skeleton: interface, navigation, input, output, feedback, and recovery expectations are concrete.
 - Surface: tone, visual feel, state behavior, and perceived quality are specific.
 - Evidence: claims match repository facts or are marked as assumptions.
-- Boundaries: the document is not acting as architecture, changelog, roadmap, or issue tracker.
+- Boundaries: the document is not acting as architecture, changelog, roadmap, feature specification, or issue tracker.
+- Cross-links: references to `FEATURES.md`, `DESIGN.md`, or `ARCHITECTURE.md` are weak links to detail docs, not upstream product-definition sources.
 
 For audit reports, lead with gaps that would mislead future product or engineering decisions.
 
@@ -242,6 +283,7 @@ Before finishing `PRODUCT.md`, verify:
 - Every product claim is supported by repository facts, user-provided requirements, existing docs, visible UI, or a marked assumption.
 - The document names a user, job, or context when evidence exists.
 - Scope separates included, excluded, and deferred work.
+- Scope links to `FEATURES.md` for detailed functional behavior when that document exists.
 - Key flows describe sequence and dependency, not only features.
 - Interface guidance covers inputs, outputs, feedback, defaults, and missing-fact behavior.
 - Surface guidance avoids empty adjectives and ties tone or visual feel to product behavior.
@@ -259,3 +301,4 @@ Before finishing `PRODUCT.md`, verify:
 | UX language is generic. | Tie each experience principle to a user action, state, or product decision. |
 | Visual guidance says only "clean" or "modern". | Describe tone, hierarchy, density, feedback, and state behavior. |
 | Architecture details dominate the product doc. | Move module maps, data flow internals, and implementation decisions to `ARCHITECTURE.md`. |
+| Feature details dominate the product doc. | Keep scope boundaries in `PRODUCT.md` and move page-level behavior to `FEATURES.md`. |
