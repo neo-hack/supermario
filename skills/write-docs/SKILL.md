@@ -247,3 +247,4 @@ If no file changed, say what blocked the edit and what facts were missing.
 | Milestone notes become feature specs | Keep delivery planning in roadmap or milestone docs unless a user-visible behavior is accepted into product scope. |
 | README signature is not a cat signature | Use only the README cat signature rule. |
 | Docs links have casual casing | Match real filenames exactly. |
+| User asks for an implementation plan, task plan, or planning document | Do not use `write-docs`; use the planning workflow unless the user is explicitly creating or editing project documentation. |

@@ -1,0 +1,4 @@
+interface:
+  display_name: "What Have Done"
+  short_description: "Summarize completed work and review needs"
+  default_prompt: "Use $what-have-done to summarize what was completed and what still needs human verification."

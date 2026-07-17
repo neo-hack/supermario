@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usage Guide - {DOMAIN}</title>
+<style>
+:root {
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --canvas: #ffffff;
+  --surface: #f5f5f7;
+  --line: #d2d2d7;
+  --accent: #0071e3;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: var(--ink); background: var(--canvas); line-height: 1.55;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.usage-photos img {
+  cursor: zoom-in;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.usage-photos img:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.medium-zoom-image--opened { border-radius: 8px; }
+.medium-zoom-overlay { z-index: 50; }
+.medium-zoom-image { z-index: 51; }
+.hero { padding: 64px 72px; background: var(--surface); }
+.hero h1 { margin: 0 0 12px; font-size: 48px; line-height: 1.05; }
+.hero p { margin: 0; color: var(--muted); font-size: 20px; }
+.section { padding: 48px 72px; }
+.capability {
+  border: 1px solid var(--line); border-radius: 8px; padding: 24px; margin-bottom: 24px;
+}
+.capability h2 { margin-top: 0; }
+.field { margin: 16px 0; }
+.field .label { font-weight: 700; margin-bottom: 4px; }
+.usage-photos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px;
+}
+.usage-photos figure { margin: 0; }
+.usage-photos img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.usage-photos figcaption { margin-top: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+ol, ul { padding-left: 22px; }
+@media (max-width: 760px) {
+  .hero, .section { padding: 32px 20px; }
+  .hero h1 { font-size: 36px; }
+  .usage-photos { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>Usage Guide</h1>
+  <p>{URL} - {DATE}</p>
+</header>
+
+<main class="section">
+  <article class="capability">
+    <h2>Add an RSS feed</h2>
+    <div class="field"><div class="label">Purpose</div><div>Subscribe to a new RSS source.</div></div>
+    <div class="field"><div class="label">Entry point</div><div>"Add feed" button in the sidebar.</div></div>
+    <div class="field">
+      <div class="label">Steps</div>
+      <ol>
+        <li>Click "Add feed".</li>
+        <li>Paste an RSS URL into the feed URL field.</li>
+        <li>Click "Add".</li>
+        <li>Confirm the feed appears in the feed list.</li>
+      </ol>
+    </div>
+    <div class="field"><div class="label">Result</div><div>The app subscribes to the feed and starts fetching items.</div></div>
+    <div class="field"><div class="label">Related controls</div><div>Refresh feed, Open item, Remove feed.</div></div>
+    <div class="field"><div class="label">Evidence</div><div><a href="ux-report.html#step-003">steps 003-006</a></div></div>
+    <div class="usage-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
+    <div class="field"><div class="label">Limitations</div><div>None observed.</div></div>
+  </article>
+</main>
+<script type="module">
+  import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';
+
+  const zoomSelector = '.usage-photos img';
+  const zoomOptions = {
+    background: 'rgba(0, 0, 0, 0.82)',
+    margin: 24,
+    scrollOffset: 40
+  };
+  let zoom = mediumZoom(zoomSelector, zoomOptions);
+  window.uxImageZoom = zoom;
+
+  function getZoomImages() {
+    return document.querySelectorAll(zoomSelector);
+  }
+
+  function wireImages() {
+    getZoomImages().forEach((image) => {
+      if (image._uxZoomClickHandler) {
+        image.removeEventListener('click', image._uxZoomClickHandler, true);
+      }
+      image._uxZoomClickHandler = (event) => {
+        if (image.classList.contains('medium-zoom-image--opened')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        zoom.open({ target: image });
+      };
+      image.addEventListener('click', image._uxZoomClickHandler, true);
+    });
+  }
+  wireImages();
+
+  function cleanupZoomArtifacts() {
+    document.querySelectorAll('.medium-zoom-overlay').forEach((overlay) => overlay.remove());
+    document.querySelectorAll('body > img.medium-zoom-image').forEach((image) => image.remove());
+    getZoomImages().forEach((image) => {
+      image.classList.remove('medium-zoom-image--opened', 'medium-zoom-image--hidden');
+      image.removeAttribute('style');
+    });
+  }
+
+  function resetZoom() {
+    zoom.detach();
+    cleanupZoomArtifacts();
+    zoom = mediumZoom(zoomSelector, zoomOptions);
+    window.uxImageZoom = zoom;
+    wireImages();
+  }
+
+  function forceCloseZoom() {
+    zoom.close();
+    window.setTimeout(() => {
+      resetZoom();
+    }, 140);
+  }
+
+  function closeOnEscape(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    forceCloseZoom();
+  }
+
+  document.addEventListener('keydown', closeOnEscape, true);
+  document.addEventListener('keyup', closeOnEscape, true);
+  document.addEventListener('click', (event) => {
+    if (event.target.matches('.medium-zoom-overlay, .medium-zoom-image--opened')) {
+      forceCloseZoom();
+    }
+  }, true);
+</script>
+</body>
+</html>

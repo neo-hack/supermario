@@ -6,17 +6,21 @@ A collection of agent skills for documentation, code annotation, visual mockups,
 
 ## Skills
 
-| Skill | Description | Gitmoji |
-| --- | --- | --- |
-| [changeset](skills/changeset/SKILL.md) | Create Changesets release note files from verified package metadata, semver impact, and actual diffs. | `:memo:` |
-| [ci](skills/ci/SKILL.md) | Set up developer tooling including ESLint, Changesets, Husky, lint-staged, GitHub workflows, templates, and commitizen. | `:construction_worker:` |
-| [codemermaid](skills/codemermaid/SKILL.md) | Generate interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, and module dependency tutorials. | `:memo:` |
-| [create-mr](skills/create-mr/SKILL.md) | Create a GitHub pull request from the current branch, respecting project PR templates. | `:twisted_rightwards_arrows:` |
-| [docs-code](skills/docs-code/SKILL.md) | Analyze code and add explanatory annotations, file headers, doc comments, and inline comments. | `:bulb:` |
-| [fast-commit](skills/fast-commit/SKILL.md) | Stage all changes and commit with an automatically selected message. | `:wrench:` |
-| [mockup](skills/mockup/SKILL.md) | Create framed PNG screenshot mockups from images, URLs, or local HTML in Chrome, Safari, iPhone, or iPad frames. | `:camera_flash:` |
-| [request-plan-review](skills/request-plan-review/SKILL.md) | Convert markdown plan/spec files into styled HTML review pages with code highlighting, Mermaid diagrams, inline comments, and a theme toggle. | `:mag:` |
-| [write-docs](skills/write-docs/SKILL.md) | Write and maintain README, ARCHITECTURE, CONTRIBUTING, TUTORIAL, and other project documentation. | `:memo:` |
+| Skill | Description | Gitmoji | Status |
+| --- | --- | --- | --- |
+| [changeset](skills/changeset/SKILL.md) | Create Changesets release note files from verified package metadata, semver impact, and actual diffs. | `:memo:` | ✅ Available |
+| [ci](skills/ci/SKILL.md) | Set up developer tooling including ESLint, Changesets, Husky, lint-staged, GitHub workflows, templates, and commitizen. | `:construction_worker:` | ✅ Available |
+| [codemermaid](skills/codemermaid/SKILL.md) | Generate interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, and module dependency tutorials. | `:memo:` | ✅ Available |
+| [create-mr](skills/create-mr/SKILL.md) | Create a GitHub pull request from the current branch, respecting project PR templates. | `:twisted_rightwards_arrows:` | ✅ Available |
+| [docs-code](skills/docs-code/SKILL.md) | Analyze code and add explanatory annotations, file headers, doc comments, and inline comments. | `:bulb:` | ✅ Available |
+| [fast-commit](skills/fast-commit/SKILL.md) | Stage all changes and commit with an automatically selected message. | `:wrench:` | ✅ Available |
+| [fire](skills/fire/SKILL.md) | Dispatch parallel explorer agents to find, prove, and remove dead code, and report duplicated code. | `:fire:` | ✅ Available |
+| [mockup](skills/mockup/SKILL.md) | Create framed PNG screenshot mockups from images, URLs, or local HTML in Chrome, Safari, iPhone, or iPad frames. | `:camera_flash:` | 🚧 WIP |
+| [qa](skills/qa/SKILL.md) | Systematically QA test a web page with agent-browser, record evidence, and produce Markdown and HTML reports. | `:mag:` | 🚧 WIP |
+| [request-plan-review](skills/request-plan-review/SKILL.md) | Convert markdown plan/spec files into styled HTML review pages with code highlighting, Mermaid diagrams, inline comments, and a theme toggle. | `:mag:` | ✅ Available |
+| [ui-review](skills/ui-review/SKILL.md) | Review UI implementation fidelity, visual quality, and code compliance against design or Web Interface Guidelines. | `:art:` | ✅ Available |
+| [ux-explore](skills/ux-explore/SKILL.md) | Systematically explore a web page's interactive elements, record interactions, and produce a UX audit report. | `:compass:` | 🚧 WIP |
+| [write-docs](skills/write-docs/SKILL.md) | Write and maintain README, ARCHITECTURE, CONTRIBUTING, TUTORIAL, and other project documentation. | `:memo:` | ✅ Available |
 
 ## Quick Start
 

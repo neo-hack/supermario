@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Explore Report - {DOMAIN}</title>
+<style>
+:root {
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --canvas: #ffffff;
+  --surface: #f5f5f7;
+  --line: #d2d2d7;
+  --accent: #0071e3;
+  --high: #ff3b30;
+  --medium: #ff9500;
+  --low: #34c759;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: var(--ink); background: var(--canvas); line-height: 1.5;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.step-photos img, .issue img {
+  cursor: zoom-in;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.step-photos img:hover, .issue img:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.medium-zoom-image--opened { border-radius: 8px; }
+.medium-zoom-overlay { z-index: 50; }
+.medium-zoom-image { z-index: 51; }
+.hero { padding: 64px 72px; background: #000; color: #fff; }
+.hero h1 { margin: 0 0 12px; font-size: 48px; line-height: 1.05; }
+.hero p { margin: 0; color: #d2d2d7; font-size: 20px; }
+.section { padding: 48px 72px; }
+.section-alt { padding: 48px 72px; background: var(--surface); }
+.meta-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: #fff; font-size: 13px; }
+.goodwill { font-size: 32px; font-weight: 700; }
+.recording-panel {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end;
+}
+.recording-frame {
+  width: 100%; margin-top: 16px; border: 1px solid var(--line); border-radius: 8px; background: #000;
+}
+.recording-note { color: var(--muted); margin: 0; }
+.step-entry { margin-bottom: 40px; }
+.step-entry h3 { margin: 0 0 12px; }
+.step-photos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.step-photos figure { margin: 0; }
+.step-photos img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.step-photos figcaption { margin-top: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+.issue { border: 1px solid var(--line); border-left: 4px solid var(--medium); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.issue.high { border-left-color: var(--high); }
+.issue.low { border-left-color: var(--low); }
+.guidance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.guidance-table th,
+.guidance-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+.guidance-table th {
+  color: var(--muted);
+  background: var(--surface);
+}
+@media (max-width: 760px) {
+  .hero, .section, .section-alt { padding: 32px 20px; }
+  .hero h1 { font-size: 36px; }
+  .recording-panel { grid-template-columns: 1fr; }
+  .step-photos { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>UX Explore Report</h1>
+  <p>{URL} - {DATE}</p>
+</header>
+
+<section class="section">
+  <h2>Summary</h2>
+  <p class="goodwill">{goodwillScore}/100 {verdict}</p>
+  <div class="meta-tags">
+    <span class="tag">{mode}</span>
+    <span class="tag">{issueCount} issues</span>
+    <span class="tag">{elementCount} elements explored</span>
+    <a class="tag" href="usage.html">Usage guide</a>
+  </div>
+</section>
+
+<section class="section-alt">
+  <div class="recording-panel">
+    <div>
+      <h2>Session Recording</h2>
+      <p class="recording-note">Full exploration video captured during this UX review.</p>
+    </div>
+    <a class="tag" href="explore-video.webm">Open or download explore-video.webm</a>
+  </div>
+  <video class="recording-frame" src="explore-video.webm" controls preload="metadata"></video>
+</section>
+
+<section class="section-alt">
+  <h2>Exploration Log</h2>
+  <article class="step-entry">
+    <h3>Step {N}: {action description}</h3>
+    <div class="step-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
+    <p><a href="diffs/step-{NNN}.txt">Snapshot diff</a></p>
+    <p>{observation}</p>
+  </article>
+</section>
+
+<section class="section" id="operation-guidance">
+  <h2>Operation Guidance</h2>
+  <table class="guidance-table">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Extracted operation</th>
+        <th>Status</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{source}</td>
+        <td>{extracted operation}</td>
+        <td>{status}</td>
+        <td>{evidence or skip reason}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <h2>Issues</h2>
+  <article class="issue high">
+    <h3>UX-{NNN}: {title}</h3>
+    <p><strong>Severity:</strong> {severity}</p>
+    <p>{description}</p>
+    <p><strong>Suggested improvement:</strong> {suggested improvement}</p>
+  </article>
+</section>
+<script type="module">
+  import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';
+
+  const zoomSelector = '.step-photos img, .issue img';
+  const zoomOptions = {
+    background: 'rgba(0, 0, 0, 0.82)',
+    margin: 24,
+    scrollOffset: 40
+  };
+  let zoom = mediumZoom(zoomSelector, zoomOptions);
+  window.uxImageZoom = zoom;
+
+  function getZoomImages() {
+    return document.querySelectorAll(zoomSelector);
+  }
+
+  function wireImages() {
+    getZoomImages().forEach((image) => {
+      if (image._uxZoomClickHandler) {
+        image.removeEventListener('click', image._uxZoomClickHandler, true);
+      }
+      image._uxZoomClickHandler = (event) => {
+        if (image.classList.contains('medium-zoom-image--opened')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        zoom.open({ target: image });
+      };
+      image.addEventListener('click', image._uxZoomClickHandler, true);
+    });
+  }
+  wireImages();
+
+  function cleanupZoomArtifacts() {
+    document.querySelectorAll('.medium-zoom-overlay').forEach((overlay) => overlay.remove());
+    document.querySelectorAll('body > img.medium-zoom-image').forEach((image) => image.remove());
+    getZoomImages().forEach((image) => {
+      image.classList.remove('medium-zoom-image--opened', 'medium-zoom-image--hidden');
+      image.removeAttribute('style');
+    });
+  }
+
+  function resetZoom() {
+    zoom.detach();
+    cleanupZoomArtifacts();
+    zoom = mediumZoom(zoomSelector, zoomOptions);
+    window.uxImageZoom = zoom;
+    wireImages();
+  }
+
+  function forceCloseZoom() {
+    zoom.close();
+    window.setTimeout(() => {
+      resetZoom();
+    }, 140);
+  }
+
+  function closeOnEscape(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    forceCloseZoom();
+  }
+
+  document.addEventListener('keydown', closeOnEscape, true);
+  document.addEventListener('keyup', closeOnEscape, true);
+  document.addEventListener('click', (event) => {
+    if (event.target.matches('.medium-zoom-overlay, .medium-zoom-image--opened')) {
+      forceCloseZoom();
+    }
+  }, true);
+</script>
+</body>
+</html>

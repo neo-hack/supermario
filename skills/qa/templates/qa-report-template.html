@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report - {DOMAIN}</title>
+<style>
+:root {
+  --primary: #0066cc;
+  --primary-focus: #0071e3;
+  --primary-on-dark: #2997ff;
+  --ink: #1d1d1f;
+  --body-on-dark: #ffffff;
+  --body-muted: #cccccc;
+  --ink-muted-80: #333333;
+  --ink-muted-48: #7a7a7a;
+  --divider-soft: #f0f0f0;
+  --hairline: #e0e0e0;
+  --canvas: #ffffff;
+  --parchment: #f5f5f7;
+  --surface-pearl: #fafafc;
+  --surface-tile-1: #272729;
+  --surface-tile-2: #2a2a2c;
+  --surface-black: #000000;
+  --on-primary: #ffffff;
+  --on-dark: #ffffff;
+  --critical: #ff3b30;
+  --high: #ff9500;
+  --medium: #ffcc00;
+  --low: #34c759;
+  --pass: #34c759;
+  --fail: #ff3b30;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 17px; font-weight: 400; line-height: 1.47; letter-spacing: 0;
+  color: var(--ink); background: var(--canvas);
+}
+img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.step-photos img, .issue-card img {
+  cursor: zoom-in;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.step-photos img:hover, .issue-card img:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.medium-zoom-image--opened { border-radius: 8px; }
+.medium-zoom-overlay { z-index: 50; }
+.medium-zoom-image { z-index: 51; }
+
+.hero {
+  background: var(--surface-black); color: var(--on-dark);
+  padding: 80px 80px 96px; text-align: center;
+}
+.hero h1 {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 56px; font-weight: 600; line-height: 1.07; letter-spacing: 0; margin-bottom: 16px;
+}
+.hero .subtitle {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 28px; font-weight: 400; line-height: 1.14; letter-spacing: 0; color: var(--body-muted);
+}
+
+.section {
+  padding: 64px 80px;
+}
+.section-alt {
+  padding: 64px 80px;
+  background: var(--parchment);
+}
+.section-dark {
+  padding: 64px 80px;
+  background: var(--surface-black);
+  color: var(--on-dark);
+}
+.section h2, .section-alt h2, .section-dark h2 {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 40px; font-weight: 600; line-height: 1.1; margin-bottom: 32px;
+}
+.section-dark h2 { color: var(--on-dark); }
+
+.tldr {
+  display: grid; grid-template-columns: minmax(180px, 0.35fr) 1fr; gap: 40px;
+  align-items: center;
+}
+.tldr-score .value {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 72px; font-weight: 600; line-height: 1;
+}
+.tldr-score .label { font-size: 21px; font-weight: 600; margin-top: 8px; }
+.tldr-copy { font-size: 21px; line-height: 1.38; margin-bottom: 22px; }
+.meta-tags, .summary-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.meta-tag, .summary-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); padding: 6px 12px;
+  font-size: 13px; font-weight: 600; color: var(--ink-muted-80);
+  max-width: 100%;
+}
+.meta-tag.url {
+  max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.summary-tag.critical { color: var(--critical); }
+.summary-tag.high { color: var(--high); }
+.summary-tag.medium { color: #8a6d00; }
+.summary-tag.low { color: var(--low); }
+
+.score-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  max-width: 900px; margin: 0 auto;
+}
+.score-card {
+  background: var(--surface-tile-1); border-radius: 8px; padding: 24px;
+  text-align: center;
+}
+.score-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--body-muted); margin-bottom: 8px; }
+.score-card .value { font-family: "SF Pro Display", system-ui, -apple-system, sans-serif; font-size: 32px; font-weight: 600; }
+.score-card .weight { font-size: 12px; color: var(--body-muted); margin-top: 4px; }
+
+.score-total {
+  text-align: center; margin-top: 32px;
+}
+.score-total .value {
+  font-family: "SF Pro Display", system-ui, -apple-system, sans-serif;
+  font-size: 64px; font-weight: 600;
+}
+.score-total .verdict {
+  font-size: 21px; font-weight: 600; margin-top: 8px;
+}
+
+.recording-panel {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 0.28fr); gap: 24px;
+  align-items: start;
+}
+.recording-frame {
+  width: 100%; max-height: 70vh; border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--surface-black);
+}
+.recording-note {
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--surface-pearl); padding: 16px;
+}
+.recording-note p { color: var(--ink-muted-80); margin-bottom: 12px; }
+.recording-note p:last-child { margin-bottom: 0; }
+
+.coverage-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+}
+.coverage-pill {
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--surface-pearl); padding: 14px 16px;
+}
+.coverage-pill .label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-muted-48); margin-bottom: 4px;
+}
+.coverage-pill .value { font-size: 17px; font-weight: 600; }
+
+.scenario-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 32px;
+}
+.scenario-table th {
+  text-align: left; padding: 12px 16px; border-bottom: 2px solid var(--hairline);
+  font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted-48);
+}
+.scenario-table td { padding: 12px 16px; border-bottom: 1px solid var(--divider-soft); }
+
+.scenario-detail { margin-bottom: 40px; }
+.scenario-detail h3 {
+  font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 21px; font-weight: 600; margin-bottom: 16px;
+}
+.action-result {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--divider-soft);
+}
+.action-result .tag {
+  font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.tag-pass { background: rgba(52, 199, 89, 0.12); color: var(--pass); }
+.tag-fail { background: rgba(255, 59, 48, 0.12); color: var(--fail); }
+.action-result .text { flex: 1; }
+.action-result .detail { color: var(--ink-muted-48); font-size: 14px; margin-top: 4px; }
+
+.step-entry { margin-bottom: 32px; }
+.step-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  margin-bottom: 12px;
+}
+.step-entry h4 {
+  font-size: 17px; font-weight: 600; margin-bottom: 12px;
+}
+.step-head h4 { margin-bottom: 0; }
+.step-tag {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); padding: 4px 10px;
+  font-size: 12px; font-weight: 600; color: var(--ink-muted-80);
+}
+.step-tag.pass { color: var(--pass); }
+.step-tag.pass-with-issue, .step-tag.pass-with-limitation { color: #8a6d00; }
+.step-tag.fail { color: var(--fail); }
+.step-tag.excluded, .step-tag.inconclusive { color: var(--ink-muted-48); }
+.step-photos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.step-photos figure { margin: 0; }
+.step-photos figcaption {
+  font-size: 12px; color: var(--ink-muted-48); text-align: center; margin-top: 8px;
+}
+.step-diff { margin-top: 12px; font-size: 14px; }
+.log-filter {
+  position: sticky; top: 0; z-index: 2;
+  display: grid; grid-template-columns: minmax(220px, 1fr) auto; gap: 12px; align-items: center;
+  margin: -8px 0 18px; padding: 12px;
+  border: 1px solid var(--hairline); border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+}
+.log-filter input {
+  width: 100%; height: 36px; border: 1px solid var(--hairline); border-radius: 8px;
+  padding: 0 12px; font: inherit; font-size: 14px; background: var(--canvas); color: var(--ink);
+}
+.filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-button {
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--canvas); color: var(--ink-muted-80);
+  padding: 7px 11px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.filter-button:hover { border-color: var(--ink-muted-48); }
+.filter-button.active { background: var(--surface-black); color: var(--on-dark); border-color: var(--surface-black); }
+.filter-count { font-size: 13px; color: var(--ink-muted-48); margin: 0 0 14px; }
+.empty-log {
+  display: none; border: 1px dashed var(--hairline); border-radius: 8px;
+  padding: 18px; color: var(--ink-muted-48); background: var(--canvas);
+}
+.step-entry.is-hidden, .step-card.is-hidden { display: none; }
+
+.issue-card {
+  background: var(--canvas); border-radius: 8px; padding: 24px; margin-bottom: 16px;
+  border: 1px solid var(--hairline);
+}
+.issue-card.critical { border-left: 4px solid var(--critical); }
+.issue-card.high { border-left: 4px solid var(--high); }
+.issue-card.medium { border-left: 4px solid var(--medium); }
+.issue-card.low { border-left: 4px solid var(--low); }
+.issue-card h4 { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+.issue-meta {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.issue-meta span {
+  font-size: 14px; color: var(--ink-muted-48);
+}
+.severity-badge {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: 4px;
+}
+.severity-badge.critical { background: rgba(255, 59, 48, 0.12); color: var(--critical); }
+.severity-badge.high { background: rgba(255, 149, 0, 0.12); color: var(--high); }
+.severity-badge.medium { background: rgba(255, 204, 0, 0.12); color: #b38600; }
+.severity-badge.low { background: rgba(52, 199, 89, 0.12); color: var(--low); }
+
+@media (max-width: 760px) {
+  .hero, .section, .section-alt, .section-dark { padding: 40px 24px; }
+  .hero h1 { font-size: 40px; }
+  .hero .subtitle { font-size: 21px; }
+  .tldr { grid-template-columns: 1fr; gap: 24px; }
+  .recording-panel { grid-template-columns: 1fr; }
+  .tldr-score .value { font-size: 56px; }
+  .score-grid { grid-template-columns: repeat(2, 1fr); }
+  .coverage-grid { grid-template-columns: 1fr; }
+  .log-filter { grid-template-columns: 1fr; }
+  .step-photos { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>QA Report</h1>
+  <p class="subtitle">{URL} - {DATE}</p>
+</div>
+
+<div class="section-alt">
+  <h2>TL;DR</h2>
+  <div class="tldr">
+    <div class="tldr-score">
+      <div class="value">{finalScore}</div>
+      <div class="label">{verdict}</div>
+    </div>
+    <div>
+      <p class="tldr-copy">Top issue: {title}. Review the failing scenario and snapshot diff before release.</p>
+      <div class="summary-tags">
+        <span class="summary-tag critical">{N} Critical</span>
+        <span class="summary-tag high">{N} High</span>
+        <span class="summary-tag medium">{N} Medium</span>
+        <span class="summary-tag low">{N} Low</span>
+      </div>
+      <div class="meta-tags" style="margin-top:16px">
+        <span class="meta-tag">{mode}</span>
+        <span class="meta-tag">{date}</span>
+        <span class="meta-tag">{count} elements found</span>
+        <span class="meta-tag">{count} explored</span>
+        <span class="meta-tag">{count} issues</span>
+        <span class="meta-tag url">{url}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Session Recording</h2>
+  <div class="recording-panel">
+    <video class="recording-frame" src="session.webm" controls preload="metadata"></video>
+    <div class="recording-note">
+      <p>The full browser session is embedded here when recording is enabled.</p>
+      <p><a href="session.webm">Open or download session.webm</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="section-dark">
+  <h2>Health Score</h2>
+  <div class="score-grid">
+    <div class="score-card"><div class="label">Console</div><div class="value">{score}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Links</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Visual</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Functional</div><div class="value">{score}</div><div class="weight">20%</div></div>
+    <div class="score-card"><div class="label">UX</div><div class="value">{score}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Performance</div><div class="value">{score}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Content</div><div class="value">{score}</div><div class="weight">5%</div></div>
+    <div class="score-card"><div class="label">Accessibility</div><div class="value">{score}</div><div class="weight">15%</div></div>
+  </div>
+  <div class="score-total">
+    <div class="value">{finalScore}</div>
+    <div class="verdict">{verdict}</div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Coverage Status</h2>
+  <div class="coverage-grid">
+    <div class="coverage-pill"><div class="label">Status</div><div class="value">{coverageStatus}</div></div>
+    <div class="coverage-pill"><div class="label">Scope</div><div class="value">{scope}</div></div>
+    <div class="coverage-pill"><div class="label">Raw interactive elements</div><div class="value">{rawInteractiveElements}</div></div>
+    <div class="coverage-pill"><div class="label">Coverage actions discovered</div><div class="value">{discoveredCount}</div></div>
+    <div class="coverage-pill"><div class="label">Coverage actions visited</div><div class="value">{visitedCount}</div></div>
+    <div class="coverage-pill"><div class="label">Skipped</div><div class="value">{skippedCount}</div></div>
+    <div class="coverage-pill"><div class="label">Out of scope</div><div class="value">{outOfScopeCount}</div></div>
+    <div class="coverage-pill"><div class="label">Pending</div><div class="value">{pendingCount}</div></div>
+    <div class="coverage-pill"><div class="label">Stable pass threshold</div><div class="value">{stablePassThreshold}</div></div>
+    <div class="coverage-pill"><div class="label">Halt reason</div><div class="value">{haltReason}</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Behavior Testing</h2>
+  <table class="scenario-table">
+    <thead><tr><th>Feature Model</th><th>Planned Cases</th><th>Tested Cases</th><th>Skipped Cases</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>{model}</td><td>{plannedCases}</td><td>{testedCases}</td><td>{skippedCases}</td><td>{notes}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<section class="section" id="operation-guidance">
+  <h2>Operation Guidance</h2>
+  <table class="scenario-table">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Extracted operation</th>
+        <th>Status</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{source}</td>
+        <td>{extractedOperation}</td>
+        <td>{status}</td>
+        <td>{evidenceOrSkipReason}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Case verification mode: Scenario Results section -->
+<div class="section">
+  <h2>Scenario Results</h2>
+  <table class="scenario-table">
+    <thead><tr><th>Scenario</th><th>Total</th><th>PASS</th><th>FAIL</th></tr></thead>
+    <tbody>
+      <tr><td>{name}</td><td>{total}</td><td>{pass}</td><td>{fail}</td></tr>
+    </tbody>
+  </table>
+
+  <div class="scenario-detail">
+    <h3>{scenario name}</h3>
+    <div class="action-result">
+      <span class="tag tag-pass">PASS</span>
+      <div class="text">{action text}</div>
+    </div>
+    <div class="action-result">
+      <span class="tag tag-fail">FAIL</span>
+      <div class="text">{action text}<div class="detail">{expected} vs {actual}</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Exploration Log -->
+<div class="section-alt">
+  <h2>Exploration Log</h2>
+  <div class="log-filter">
+    <input type="search" data-log-search placeholder="Filter steps by title, note, status, or issue id" aria-label="Filter exploration steps">
+    <div class="filter-buttons" aria-label="Exploration log status filters">
+      <button class="filter-button active" type="button" data-log-filter="all">All</button>
+      <button class="filter-button" type="button" data-log-filter="pass">Pass</button>
+      <button class="filter-button" type="button" data-log-filter="issues">Issues</button>
+      <button class="filter-button" type="button" data-log-filter="excluded">Excluded</button>
+      <button class="filter-button" type="button" data-log-filter="inconclusive">Inconclusive</button>
+    </div>
+  </div>
+  <p class="filter-count" data-log-count></p>
+  <p class="empty-log" data-log-empty>No exploration steps match the current filters.</p>
+  <div class="step-entry" data-result="{resultSlug}" data-intent="{intentSlug}" data-variant="{variantSlug}" data-risk="{riskSlug}">
+    <div class="step-head">
+      <h4>Step {N}: {action description}</h4>
+      <span class="step-tag {resultSlug}">{result}</span>
+      <span class="step-tag">{intent}</span>
+      <span class="step-tag">{variant}</span>
+      <span class="step-tag">{risk}</span>
+    </div>
+    <p>{observation}</p>
+    <div class="step-photos">
+      <figure><img src="screenshots/step-{NNN}.png" alt="Before"><figcaption>Before</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-target.png" alt="Target"><figcaption>Target</figcaption></figure>
+      <figure><img src="screenshots/step-{NNN}-after.png" alt="After"><figcaption>After</figcaption></figure>
+    </div>
+    <p class="step-diff"><a href="diffs/step-{NNN}.txt">Snapshot diff</a></p>
+  </div>
+</div>
+
+<!-- Issues -->
+<div class="section">
+  <h2>Issues</h2>
+  <div class="issue-card high">
+    <h4>ISSUE-{NNN}: {title}</h4>
+    <div class="issue-meta">
+      <span class="severity-badge high">High</span>
+      <span>{category}</span>
+      <span>@e{N} {role} "{label}"</span>
+    </div>
+    <p>{description}</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const initFilters = () => {
+    const cards = [...document.querySelectorAll('.step-entry, .step-card')];
+    const search = document.querySelector('[data-log-search]');
+    const buttons = [...document.querySelectorAll('[data-log-filter]')];
+    const count = document.querySelector('[data-log-count]');
+    const empty = document.querySelector('[data-log-empty]');
+    let active = 'all';
+
+    const normalize = (value) => value.trim().toLowerCase().replace(/\s+/g, '-');
+    const getStatus = (card) => (
+      card.dataset.result ||
+      card.querySelector('.step-tag, .step-head .tag')?.textContent ||
+      ''
+    ).trim().toLowerCase();
+    const matchesFilter = (status, filter) => (
+      filter === 'all' ||
+      (filter === 'issues' && (status.includes('issue') || status === 'fail')) ||
+      normalize(status) === filter
+    );
+    const applyFilter = () => {
+      const query = (search?.value || '').trim().toLowerCase();
+      let visible = 0;
+      for (const card of cards) {
+        const status = getStatus(card);
+        const ok = matchesFilter(status, active) && (!query || card.textContent.toLowerCase().includes(query));
+        card.classList.toggle('is-hidden', !ok);
+        if (ok) visible += 1;
+      }
+      if (count) count.textContent = `Showing ${visible} of ${cards.length} steps`;
+      if (empty) empty.style.display = visible ? 'none' : 'block';
+    };
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        active = button.dataset.logFilter;
+        for (const item of buttons) item.classList.toggle('active', item === button);
+        applyFilter();
+      });
+    }
+    search?.addEventListener('input', applyFilter);
+    applyFilter();
+  };
+
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', initFilters) : initFilters();
+})();
+</script>
+
+<script type="module">
+  import mediumZoom from 'https://esm.sh/medium-zoom@1.1.0';
+
+  const zoomSelector = '.step-photos img, .issue-card img';
+  const zoomOptions = {
+    background: 'rgba(0, 0, 0, 0.82)',
+    margin: 24,
+    scrollOffset: 40
+  };
+  let zoom = mediumZoom(zoomSelector, zoomOptions);
+  window.qaImageZoom = zoom;
+
+  function getZoomImages() {
+    return document.querySelectorAll(zoomSelector);
+  }
+
+  function wireImages() {
+    getZoomImages().forEach((image) => {
+      if (image._qaZoomClickHandler) {
+        image.removeEventListener('click', image._qaZoomClickHandler, true);
+      }
+      image._qaZoomClickHandler = (event) => {
+        if (image.classList.contains('medium-zoom-image--opened')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        zoom.open({ target: image });
+      };
+      image.addEventListener('click', image._qaZoomClickHandler, true);
+    });
+  }
+  wireImages();
+
+  function cleanupZoomArtifacts() {
+    document.querySelectorAll('.medium-zoom-overlay').forEach((overlay) => overlay.remove());
+    document.querySelectorAll('body > img.medium-zoom-image').forEach((image) => image.remove());
+    getZoomImages().forEach((image) => {
+      image.classList.remove('medium-zoom-image--opened', 'medium-zoom-image--hidden');
+      image.removeAttribute('style');
+    });
+  }
+
+  function resetZoom() {
+    zoom.detach();
+    cleanupZoomArtifacts();
+    zoom = mediumZoom(zoomSelector, zoomOptions);
+    window.qaImageZoom = zoom;
+    wireImages();
+  }
+
+  function forceCloseZoom() {
+    zoom.close();
+    window.setTimeout(() => {
+      resetZoom();
+    }, 140);
+  }
+
+  function closeOnEscape(event) {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    forceCloseZoom();
+  }
+
+  document.addEventListener('keydown', closeOnEscape, true);
+  document.addEventListener('keyup', closeOnEscape, true);
+  document.addEventListener('click', (event) => {
+    if (event.target.matches('.medium-zoom-overlay, .medium-zoom-image--opened')) {
+      forceCloseZoom();
+    }
+  }, true);
+</script>
+
+</body>
+</html>
