@@ -20,6 +20,8 @@ Required mapping:
 - `CONTRIBUTING.md` -> `references/contributing.md`
 - `TUTORIAL.md` -> `references/tutorial.md`
 
+When drafting or auditing `PRODUCT.md`'s Structure section beyond a short paragraph — site maps, cross-feature journeys — also read `references/structure.md`.
+
 For unsupported document types, read `references/elements-of-style.md`,
 choose the closest supported reference, and tell the user which fallback
 reference was used.
@@ -68,6 +70,7 @@ skills/write-docs/
     elements-of-style.md           # General writing rules for all docs
     readme.md                      # README identity, badge rules, boundaries
     product.md                     # Product intent, UX layers, scope, flows
+    structure.md                   # Detail template for PRODUCT.md's Structure layer: site maps, cross-feature journeys
     features.md                    # Functional specs, user behavior, states
     architecture.md                # System boundary, modules, flows, decisions
     contributing.md                # Setup, checks, PR workflow, option changes
@@ -103,6 +106,8 @@ Then read the matching document reference:
 | `ARCHITECTURE.md` | `references/architecture.md` |
 | `CONTRIBUTING.md` | `references/contributing.md` |
 | `TUTORIAL.md` | `references/tutorial.md` |
+
+For `PRODUCT.md`'s Structure section, also read `references/structure.md` when it needs a site map or a cross-feature journey, not just a paragraph.
 
 If the user asks for another document type, use `references/elements-of-style.md`, scan the repository, and adapt the closest supported reference. Tell the user which reference you used.
 
@@ -213,6 +218,7 @@ Before finishing, check:
 - `PRODUCT.md` justifies scope decisions by user need, product objective, and feasibility or constraints instead of listing features by enthusiasm.
 - `FEATURES.md` explains user-visible behavior, system response, states, and acceptance checks instead of only listing feature names.
 - `FEATURES.md` does not turn milestone ideas, release sequencing, or delivery tasks into feature specs unless product scope evidence accepts the behavior.
+- `FEATURES.md`'s per-feature Flow diagrams stay inside one feature; cross-feature journeys and site maps live in `PRODUCT.md`'s Structure section instead.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
