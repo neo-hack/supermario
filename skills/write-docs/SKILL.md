@@ -1,6 +1,6 @@
 ---
 name: write-docs
-description: Use when asked to create, rewrite, audit, or maintain README, PRODUCT, FEATURES, ARCHITECTURE, CONTRIBUTING, TUTORIAL, docs navigation, project options, badges, or documentation signatures.
+description: Use when asked to create, rewrite, audit, or maintain README, PRODUCT, FEATURES, ARCHITECTURE, CONTRIBUTING, TUTORIAL, DESIGN, docs navigation, project options, badges, or documentation signatures.
 ---
 
 # Write Docs
@@ -19,6 +19,7 @@ Required mapping:
 - `ARCHITECTURE.md` -> `references/architecture.md`
 - `CONTRIBUTING.md` -> `references/contributing.md`
 - `TUTORIAL.md` -> `references/tutorial.md`
+- `DESIGN.md` -> `references/designmd.md`
 
 When drafting or auditing `PRODUCT.md`'s Structure section beyond a short paragraph — site maps, cross-feature journeys — also read `references/structure.md`.
 
@@ -41,6 +42,7 @@ The final response must list the references read.
 - "Create architecture docs"
 - "Write CONTRIBUTING.md"
 - "Make a tutorial"
+- "Write DESIGN.md"
 - "Audit these docs"
 - "Document these options"
 - "Add docs badges"
@@ -75,6 +77,7 @@ skills/write-docs/
     architecture.md                # System boundary, modules, flows, decisions
     contributing.md                # Setup, checks, PR workflow, option changes
     tutorial.md                    # Goal-led teaching path
+    designmd.md                    # DESIGN.md visual identity, alpha spec, gates
 ```
 
 ## Supported Documents
@@ -88,6 +91,7 @@ FEATURES.md
 ARCHITECTURE.md
 CONTRIBUTING.md
 TUTORIAL.md
+DESIGN.md
 ```
 
 If creating a new document, use the canonical filename. If editing an existing document with different casing, preserve that file unless the user asks to normalize names or the repository already has a clear casing convention.
@@ -106,6 +110,7 @@ Then read the matching document reference:
 | `ARCHITECTURE.md` | `references/architecture.md` |
 | `CONTRIBUTING.md` | `references/contributing.md` |
 | `TUTORIAL.md` | `references/tutorial.md` |
+| `DESIGN.md` | `references/designmd.md` |
 
 For `PRODUCT.md`'s Structure section, also read `references/structure.md` when it needs a site map or a cross-feature journey, not just a paragraph.
 
@@ -125,6 +130,7 @@ If multiple documents are requested, handle them in this order unless the user g
 4. `ARCHITECTURE.md`
 5. `CONTRIBUTING.md`
 6. `TUTORIAL.md`
+7. `DESIGN.md`
 
 ### Phase 2: Audit Existing Docs
 
@@ -195,6 +201,12 @@ For README targets, obey the extra hard blocks in `references/readme.md`:
 - `<readme_identity>`
 - `<readme_boundaries>`
 
+For DESIGN.md targets, obey the extra hard blocks in `references/designmd.md`:
+
+- `<designmd_facts_source>` — identify the visual-facts source before drafting any token.
+- `<boundary>` (Lint Gate) — `npx @google/design.md lint DESIGN.md` must exit `0` before reporting done.
+- `<designmd_no_visual_surface>` — stop instead of drafting a placeholder when the project has no visual surface.
+
 When documenting repository options or configuration in a table, always use this column order:
 
 ```markdown
@@ -219,6 +231,7 @@ Before finishing, check:
 - `FEATURES.md` explains user-visible behavior, system response, states, and acceptance checks instead of only listing feature names.
 - `FEATURES.md` does not turn milestone ideas, release sequencing, or delivery tasks into feature specs unless product scope evidence accepts the behavior.
 - `FEATURES.md`'s per-feature Flow diagrams stay inside one feature; cross-feature journeys and site maps live in `PRODUCT.md`'s Structure section instead.
+- `DESIGN.md` names its visual-facts source, invents no token values, and passes `npx @google/design.md lint` before being reported done.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
@@ -235,6 +248,7 @@ In the final response, say:
 - Whether README boundaries were enforced, when the target is README.
 - Product references read and product facts verified, when the target is `PRODUCT.md`.
 - Feature references read and feature facts verified, when the target is `FEATURES.md`.
+- The visual-facts source and lint result, when the target is `DESIGN.md`.
 - Which checks or commands were run.
 
 If no file changed, say what blocked the edit and what facts were missing.
@@ -251,6 +265,8 @@ If no file changed, say what blocked the edit and what facts were missing.
 | Feature docs are only a feature list | Add user need, entry points, actions, system responses, states, and acceptance checks. |
 | Scope is only a wishlist or status table | Justify each scope item by strategy fit, user need, product objective, and feasibility or constraints. |
 | Milestone notes become feature specs | Keep delivery planning in roadmap or milestone docs unless a user-visible behavior is accepted into product scope. |
+| DESIGN.md tokens invented without a facts source | Stop and report the missing source; never guess hex codes, fonts, or spacing. |
+| DESIGN.md reported done without running the lint gate | Run `npx @google/design.md lint DESIGN.md` and fix errors before reporting done. |
 | README signature is not a cat signature | Use only the README cat signature rule. |
 | Docs links have casual casing | Match real filenames exactly. |
 | User asks for an implementation plan, task plan, or planning document | Do not use `write-docs`; use the planning workflow unless the user is explicitly creating or editing project documentation. |

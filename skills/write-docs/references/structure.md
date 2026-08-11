@@ -2,6 +2,8 @@
 
 `structure.md` expands the Structure layer of `PRODUCT.md` (see `product.md`) into a detailed template: how a user moves through the product as a whole, across features and pages.
 
+In Jesse James Garrett's *The Elements of User Experience*, the Structure plane splits into Interaction Design and Information Architecture. This reference's Site Map is Information Architecture's concrete output — the categorization and connection scheme for the product's content. Its Flow entries are Interaction Design's output — the rules for how the system responds across that structure. Skeleton (Interface Design, Navigation Design, Information Design) is a distinct, later layer: it concretely presents this structure on screen, and currently has no dedicated reference in this skill.
+
 Structure is not a standalone document type. It has no canonical filename of its own — its content lives inside `PRODUCT.md` under a `## Structure` heading, or in a linked file when the product has enough cross-feature flows to warrant one. Use this reference whenever `PRODUCT.md`'s Structure section needs more than a paragraph.
 
 ```text
@@ -59,6 +61,8 @@ Choose sections by project need. Do not force every heading into every `PRODUCT.
 ## Structure
 
 ### Site Map
+
+The Information Architecture output — what content exists and how it's categorized and connected, independent of how it will later be presented as on-screen navigation (that presentation is Skeleton's Navigation Design, not this section).
 
 Depth alone does not decide the format. Use a plain text tree by default, even for deep hierarchies — indentation already expresses level, and it stays easy to write, diff, and read without a renderer. Switch to a mermaid graph only when the map stops being a tree: a page reachable from more than one parent, or a cross-link between branches. A text tree cannot express that without duplicating the node; a graph can.
 
