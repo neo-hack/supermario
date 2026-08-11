@@ -60,16 +60,32 @@ Choose sections by project need. Do not force every heading into every `PRODUCT.
 
 ### Site Map
 
-<!-- Tree, table, or list — pick what the project's navigation actually looks like. -->
+Depth alone does not decide the format. Use a plain text tree by default, even for deep hierarchies — indentation already expresses level, and it stays easy to write, diff, and read without a renderer. Switch to a mermaid graph only when the map stops being a tree: a page reachable from more than one parent, or a cross-link between branches. A text tree cannot express that without duplicating the node; a graph can.
+
+Default — plain tree, any depth:
 
 \`\`\`text
 Home
 ├── Search
 │   └── Result Detail
+│       └── Reviews
 ├── Account
 │   ├── Settings
+│   │   ├── Profile
+│   │   └── Notifications
 │   └── History
 └── Help
+\`\`\`
+
+Only when a node has more than one parent — mermaid graph:
+
+\`\`\`mermaid
+graph TD
+  Home --> Search
+  Home --> Account
+  Search --> Detail[Result Detail]
+  Account --> History
+  History --> Detail
 \`\`\`
 
 ### Flow: <Name>
@@ -163,6 +179,8 @@ Before finishing the Structure section, verify:
 | Mistake | Fix |
 | --- | --- |
 | Structure is a feature list with no connections | Add a site map or journey showing how features relate. |
+| Site map switches to mermaid just because it is deep | Keep a plain text tree; depth alone does not need mermaid. |
+| Site map is a text tree but a page has two parents, duplicated to fake it | Switch to a mermaid graph — it is no longer a tree. |
 | A journey step is really one feature's internal state machine | Move it to that feature's `### Flow` in `FEATURES.md`. |
 | Site map includes pages Scope excludes or has not committed to | Mark as an open question, or remove until Scope accepts it. |
 | Steps are listed in order but no dependency is stated | Rewrite to show what each step requires from the one before it. |
