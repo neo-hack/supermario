@@ -31,6 +31,38 @@ Record the intended UI system before inspecting live differences:
 
 If multiple design frames exist, map each frame to the live route, viewport, and state it should match.
 
+## Reading Exact Values
+
+A screenshot of a Figma frame cannot be read precisely by eye — a vision model looking at a rendered image cannot reliably tell 14px from 15px, or `#1A1C1E` from `#1B1D1F`. Treat "Figma" as more than a picture to eyeball:
+
+- If the design reference is a Figma file or link, prefer Figma's Dev Mode inspect panel, the Figma REST API, or a Figma MCP tool to read exact values: hex/rgba colors, font family/size/weight/line-height/letter-spacing, spacing and padding in px, corner radius, and component properties. Use these over visual estimation whenever the tooling is available.
+- If exact extraction isn't available — a flat screenshot, an exported image, a photo of a whiteboard — say so, and label derived values as visual estimates, not exact reads.
+- Any finding that states a specific numeric mismatch (e.g. "24px in the reference vs. 12px live") must say where the reference number came from: Dev Mode/API/MCP, or "visual estimate." Do not present an eyeballed guess with the same confidence as an inspected value.
+- This does not block review when only a screenshot exists — it changes how confidently a numeric mismatch is reported, and whether it's worth flagging at all when the estimate is too rough to trust.
+
+## Coverage: Enumerate Before Comparing
+
+A prose checklist ("check layout, typography, color...") gets skimmed, not completed — reviews drift toward the obvious hero section and miss the footer, secondary states, or frames buried in the file. Fix this by making coverage a concrete, checkable list instead of a mental reminder:
+
+- Before inspecting the live product, produce an explicit enumerated list of every frame, section, component, and state present in the design reference. This is the review's checklist — not a summary written after the fact.
+- Walk through the list item by item. Each item resolves to one of: compared and matching, compared and mismatched (becomes a finding), or explicitly skipped with a stated reason (out of requested scope, no live counterpart exists, reference frame is a duplicate).
+- Report coverage as `<compared>/<total>`, naming every skipped item. Never let an item silently drop out of scope — an unstated gap reads as "reviewed and fine" when it was never looked at.
+- In Deep mode the enumeration can be long. That's expected — a long, honest list beats a short review that quietly narrowed its own scope.
+
+### Report Coverage As A Comparison Table, Not A Verdict Word
+
+A one-line verdict like "compared, mostly consistent" is a hedge — "mostly" admits a gap exists without saying what it is, and there is nowhere in that sentence a reader can check the claim. Do not write coverage items this way. Instead, report each item as a row with both sides' actual values, not just a conclusion:
+
+```markdown
+| Item | Design reference | Live implementation | Verdict |
+| --- | --- | --- | --- |
+| Outer padding | 8px | 8px | Match |
+| Item content rhythm | Title + description, gap 4 | Title only, still 56px tall | Visible difference |
+| Item description | 14/20, Regular, visible | Visually hidden (sr-only) | Visible difference |
+```
+
+This structurally prevents the vague-verdict problem: a verdict of "match" or "difference" is only meaningful because both raw values sit next to it. Filling in "mostly consistent" without a number in either column is not an option the table allows. If a row's difference is material, it also gets a full Finding; if it's minor enough not to warrant one, the table row itself is where that difference is disclosed — it does not just live inside a hedge word.
+
 ## Inspect The Live Product
 
 Capture evidence for each reviewed surface:
