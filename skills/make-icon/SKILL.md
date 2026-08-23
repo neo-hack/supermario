@@ -41,6 +41,8 @@ After selecting one downstream skill, read at most one reference when the user r
 - [Gradient flat shapes](references/gradient-flat-shapes.md) — one or two regular gradient shapes by default, with sparse anthropomorphic marks; irregular forms require an explicit cue.
 - [Layered translucent cards](references/layered-translucent-cards.md) — a small hierarchy of offset glass and opaque planes.
 - [Classic skeuomorphic object](references/classic-skeuomorphic-object.md) — a recognizable physical object compressed into a polished icon with realistic material, shallow depth, and studio lighting.
+- [Flocked plush mascot](references/flocked-plush-mascot.md) — a full-bleed abstract rounded character covered in dense ultra-short fur with recessed facial marks; not for concrete objects.
+- [Interlocking toy-brick symbol](references/interlocking-toy-brick-symbol.md) — one compact icon mark assembled from a strict budget of large modular bricks, sparse studs, flat two- or three-level isometric color blocking, and deliberate negative space.
 
 The selected downstream skill remains the structural base. The reference changes only shape finish, material, depth, and composition where it explicitly says so. Never combine multiple references unless the user asks for a hybrid.
 
