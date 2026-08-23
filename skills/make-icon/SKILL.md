@@ -1,6 +1,6 @@
 ---
 name: make-icon
-description: Use when a cute rounded mascot icon request is missing, ambiguous, or conflicting about whether it should be an extremely simple brand symbol or a tactile paper-clay app icon.
+description: Use when an app icon request is visually ambiguous or combines minimalist symbols, tactile mascots, flat geometric avatars, translucent layers, or classic skeuomorphic objects.
 ---
 
 # Make Icon
@@ -40,6 +40,7 @@ After selecting one downstream skill, read at most one reference when the user r
 - [Outlined sticker with soft shadow](references/outlined-sticker-with-soft-shadow.md) — nested keyline, flat graphic foreground, shallow separation shadow, optional quiet base.
 - [Gradient flat shapes](references/gradient-flat-shapes.md) — one or two regular gradient shapes by default, with sparse anthropomorphic marks; irregular forms require an explicit cue.
 - [Layered translucent cards](references/layered-translucent-cards.md) — a small hierarchy of offset glass and opaque planes.
+- [Classic skeuomorphic object](references/classic-skeuomorphic-object.md) — a recognizable physical object compressed into a polished icon with realistic material, shallow depth, and studio lighting.
 
 The selected downstream skill remains the structural base. The reference changes only shape finish, material, depth, and composition where it explicitly says so. Never combine multiple references unless the user asks for a hybrid.
 
