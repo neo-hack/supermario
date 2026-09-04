@@ -1,11 +1,11 @@
 ---
 name: docs-code
-description: Use when asked to analyze code and add explanatory code annotations, file headers, doc comments, inline comments, or JSX-safe comments.
+description: Use when asked to analyze code and add explanatory code annotations, file headers, doc comments, inline comments, or JSX-safe comments. Also use when cleaning or rewriting existing comments, processing review feedback about comments, or when comments contain experimental notes, one-off timings, or one-time investigation data.
 ---
 
 # Docs Code
 
-Analyze a codebase, get confirmation on the module map, then add high-value comments without changing code behavior.
+Analyze a codebase, get confirmation on the module map, then add high-value comments and clean experimental comments without changing code behavior.
 
 ## Phase 0: Execution Mode
 
@@ -19,7 +19,7 @@ If the user already specified a mode, proceed with that mode.
 Phase 1 exploration rule for both modes:
 
 - Prefer dispatching explorer subagents during Phase 1 when the target contains two or more independent modules, directories, or meaningful file groups.
-- Give each explorer subagent a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, and likely annotation targets.
+- Give each explorer subagent a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, likely annotation targets, and existing experimental comments to clean.
 - Keep exploration read-only. Explorer subagents must not edit files.
 - If the target is a single small file or has no sensible independent scopes, explore inline and state why subagents were not useful.
 - Consolidate explorer findings into the Phase 1 report, then wait for user confirmation before any edits.
@@ -28,7 +28,7 @@ For `subagent driven` mode:
 
 - During Phase 2, use concurrent annotation subagents only after Phase 1 confirmation.
 - Each annotation subagent must read the Phase 1 report, its owned files, and any immediately relevant local imports or importers before editing.
-- Require each annotation subagent to add comments only within its owned files and to preserve code behavior.
+- Require each annotation subagent to change only comments (add, rewrite, or delete) within its owned files and to preserve code behavior.
 - Do not pause after each module during Phase 2.
 - Require each annotation subagent to return changed files, annotation types, and an ASCII flow for its owned module.
 - Consolidate post-confirmation annotation results into the final annotation summary without per-module user gates.
@@ -39,7 +39,7 @@ For `inline exec` mode:
 - During Phase 2, re-read the Phase 1 report, the target files, and any immediately relevant local imports or importers before editing.
 - Process Phase 2 module by module.
 - Before starting each module, show the module annotation plan and wait for user confirmation.
-- Before adding each file header, doc comment, or inline comment, state the reason it helps future readers.
+- Before adding, rewriting, or deleting each file header, doc comment, or inline comment, state the reason it helps future readers.
 - When practical, show the reason together with the planned comment and a short code snippet or pseudocode sketch so the user can see where the comment will land.
 - Pseudocode is allowed for readability, but it must reflect code that was actually re-read and must not replace checking the real target code before editing.
 - Keep each reason brief and tied to intent, dependency boundaries, invariants, or non-obvious control flow.
@@ -125,7 +125,8 @@ Complete this phase before editing.
    - Core exports or public API.
    - Dependencies on other modules.
    - Which modules depend on it.
-5. Present a report and wait for user confirmation before Phase 2.
+5. Scan existing comments in the target files for experimental data.
+6. Present a report and wait for user confirmation before Phase 2.
 
 Report format:
 
@@ -140,6 +141,7 @@ Report format:
 - **Exports**: key exported functions, types, classes, or commands
 - **Depends On**: other modules it uses
 - **Used By**: modules that depend on it
+- **Comments to clean**: existing experimental comments and the planned rewrite or deletion
 ```
 
 For a file argument, skip the module-level report. Instead:
@@ -147,12 +149,13 @@ For a file argument, skip the module-level report. Instead:
 1. Read the target file.
 2. Read files it imports or requires and files that import it, one hop within the project.
 3. Produce one paragraph explaining what the file does, what it depends on, and what depends on it.
-4. Wait for user confirmation.
-5. In Phase 2, annotate only the target file.
+4. Scan existing comments in the target files for experimental data and list **Comments to clean**.
+5. Wait for user confirmation.
+6. In Phase 2, annotate only the target file.
 
 ## Phase 2: Add Annotations
 
-After user confirmation, add only comments. Do not modify code logic.
+After user confirmation, change only comments (add, rewrite, or delete). Do not modify code logic.
 
 Primary goal: help future maintainers understand the project. Public APIs must be documented, but they are not the only target. Also document internal contracts, module boundaries, data flow, state machines, invariants, compatibility paths, and non-obvious maintenance decisions.
 
@@ -198,7 +201,7 @@ JSX / TSX rule: `//` and `/* */` are invalid inside JSX markup. Inside returned 
 
 ### What to Add
 
-Add comments only where they do not already exist:
+Add comments where they do not already exist. Rewrite or delete existing comments that violate Comment Quality Rules:
 
 1. File header: brief role of the file in the module.
 2. Public functions, classes, interfaces, and class members: purpose, parameters, and return value when useful.
@@ -219,7 +222,7 @@ Add comments only where they do not already exist:
 
 - Explain why, not what.
 - Do not restate obvious code.
-- Do not duplicate existing comments.
+- Do not duplicate existing comments. Rewriting an experimental comment is not duplication.
 - If a comment would be vague, leave it out and flag the code as unclear.
 - For bug workarounds, explain the bug and reference the issue when available.
 - For copied or adapted code, include a source link.
@@ -228,6 +231,30 @@ Add comments only where they do not already exist:
 - Add `NOTE:` for critical logic that requires extra care.
 - Do not add emojis to comments.
 - Match the natural language of existing comments, README, or the user's language.
+
+Do not add, and do not preserve, experimental comments. Existing comments that contain experimental data must be rewritten to the constraint reason or deleted if no durable reason remains.
+
+Remove from comments:
+
+- One-off benchmark or timing measurements
+- One-time investigation conclusions
+- Phrases like "previously 577ms" or "later measured 1200ms"
+
+These belong in a performance report, not long-lived business code. Keep only the durable constraint reason.
+
+Good:
+
+```ts
+// Timeout must cover cold start so slow requests are not killed.
+```
+
+Bad:
+
+```ts
+// Previously 577ms; later measured 1200ms, so timeout was raised to 2000.
+```
+
+Do not skip a comment because it already exists. Review feedback about comments is in scope. If a reviewer asks to clean experimental comments, apply the cleanup. Do not leave those comments in place.
 
 ## Large File Rules
 
@@ -297,7 +324,9 @@ Also report:
 
 | Mistake | Fix |
 | --- | --- |
-| Editing code while documenting | Only add comments. |
+| Editing code while documenting | Change only comments (add, rewrite, or delete). |
+| Leaving experimental comments | Rewrite to the constraint reason or delete. |
+| Skipping existing comments | Existing experimental comments must be cleaned, not preserved. |
 | Skipping Phase 1 confirmation | Stop after the report and wait. |
 | Using `//` inside JSX markup | Use `{/* ... */}` inside JSX. |
 | Commenting trivial code | Explain intent only where it reduces confusion. |

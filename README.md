@@ -10,9 +10,10 @@ A collection of agent skills for documentation, code annotation, visual mockups,
 | --- | --- | --- | --- |
 | [changeset](skills/changeset/SKILL.md) | Create Changesets release note files from verified package metadata, semver impact, and actual diffs. | `:memo:` | ✅ Available |
 | [ci](skills/ci/SKILL.md) | Set up developer tooling including ESLint, Changesets, Husky, lint-staged, GitHub workflows, templates, and commitizen. | `:construction_worker:` | ✅ Available |
+| [clean-code](skills/clean-code/SKILL.md) | Simplify live code in successive Clean Code passes without changing behavior. | `:recycle:` | ✅ Available |
 | [codemermaid](skills/codemermaid/SKILL.md) | Generate interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, and module dependency tutorials. | `:memo:` | ✅ Available |
 | [create-mr](skills/create-mr/SKILL.md) | Create a GitHub pull request from the current branch, respecting project PR templates. | `:twisted_rightwards_arrows:` | ✅ Available |
-| [docs-code](skills/docs-code/SKILL.md) | Analyze code and add explanatory annotations, file headers, doc comments, and inline comments. | `:bulb:` | ✅ Available |
+| [docs-code](skills/docs-code/SKILL.md) | Analyze code, add explanatory annotations, and clean experimental comments. | `:bulb:` | ✅ Available |
 | [fast-commit](skills/fast-commit/SKILL.md) | Stage all changes and commit with an automatically selected message. | `:wrench:` | ✅ Available |
 | [fire](skills/fire/SKILL.md) | Dispatch parallel explorer agents to find, prove, and remove dead code, and report duplicated code. | `:fire:` | ✅ Available |
 | [mockup](skills/mockup/SKILL.md) | Create framed PNG screenshot mockups from images, URLs, or local HTML in Chrome, Safari, iPhone, or iPad frames. | `:camera_flash:` | 🚧 WIP |
