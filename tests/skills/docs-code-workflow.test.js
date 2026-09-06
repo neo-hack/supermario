@@ -106,3 +106,40 @@ test('final report includes module summaries and verification results', () => {
     'Remaining risk, especially if a verification failure is unrelated or blocked.',
   ]);
 });
+
+test('phase 1 inventories experimental comments before edits', () => {
+  const skill = readSkill();
+  const phase1 = sectionBetween(
+    skill,
+    '## Phase 1: Module Analysis',
+    '## Phase 2: Add Annotations',
+  );
+
+  assertIncludesAll(phase1, [
+    'Scan existing comments in the target files for experimental data.',
+    '**Comments to clean**:',
+  ]);
+});
+
+test('experimental comments are cleaned, not preserved', () => {
+  const skill = readSkill();
+  const qualitySection = sectionBetween(
+    skill,
+    '## Comment Quality Rules',
+    '## Large File Rules',
+  );
+
+  assertIncludesAll(qualitySection, [
+    'Do not add, and do not preserve, experimental comments.',
+    'One-off benchmark or timing measurements',
+    'One-time investigation conclusions',
+    'Keep only the durable constraint reason.',
+    'Do not skip a comment because it already exists.',
+  ]);
+
+  assertIncludesAll(skill, [
+    'change only comments (add, rewrite, or delete)',
+    'Review feedback about comments is in scope.',
+    'Leaving experimental comments',
+  ]);
+});

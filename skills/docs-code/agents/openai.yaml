@@ -1,4 +1,4 @@
 interface:
   display_name: "Docs Code"
-  short_description: "Add high-value code annotations"
-  default_prompt: "Use $docs-code to analyze the codebase and add useful explanatory comments."
+  short_description: "Add and clean high-value code annotations"
+  default_prompt: "Use $docs-code to analyze the codebase, add useful explanatory comments, and clean experimental comments."
