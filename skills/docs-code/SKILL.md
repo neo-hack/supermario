@@ -1,13 +1,28 @@
 ---
 name: docs-code
-description: Use when asked to analyze code and add explanatory code annotations, file headers, doc comments, inline comments, or JSX-safe comments. Also use when cleaning or rewriting existing comments, processing review feedback about comments, or when comments contain experimental notes, one-off timings, or one-time investigation data.
+description: Use when the user asks to add, modify, or delete code comments, or when about to write comments.
 ---
 
 # Docs Code
 
-Analyze a codebase, get confirmation on the module map, then add high-value comments and clean experimental comments without changing code behavior.
+Analyze a codebase, get confirmation on the module map, then make every comment high-value — add, modify, or delete as needed, including cleaning experimental comments — without changing code behavior.
+
+## When NOT to Use
+
+- The goal is simplifying or refactoring code: use `clean-code` instead. This skill only changes comments, never code logic.
+- The goal is deleting unused code: use `fire` instead.
+- The goal is documentation beyond code comments (README, guides, tutorials): use `write-docs` instead.
+
+## Trigger Scope
+
+Pick one path based on how the skill was triggered:
+
+1. `full pass` (default when the user asks to document a codebase, directory, or module): run all phases below, including confirmations.
+2. `inline annotation` (when triggered proactively — e.g., the agent is about to write a comment — or the target is a single file, function, or small comment change): skip Phase 0 and Phase 1. Apply Comment Quality Rules, Comment Style, What to Add, and Large File Rules directly. When modifying or deleting comments, keep only those that pass the Comment Quality Rules. Then run Phase 3 verification on the changed scope.
 
 ## Phase 0: Execution Mode
+
+Full pass only. For `inline annotation`, skip this phase.
 
 Before Phase 1, ask the user to choose one execution mode and wait for the answer: "Choose `subagent driven` or `inline exec`."
 
@@ -15,14 +30,6 @@ Before Phase 1, ask the user to choose one execution mode and wait for the answe
 2. `inline exec`: use concurrent subagents for Phase 1 exploration when useful, but do Phase 2 edits in the current thread with mandatory module gates; before each docs-code edit, briefly explain why that annotation is worth adding.
 
 If the user already specified a mode, proceed with that mode.
-
-Phase 1 exploration rule for both modes:
-
-- Prefer dispatching explorer subagents during Phase 1 when the target contains two or more independent modules, directories, or meaningful file groups.
-- Give each explorer subagent a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, likely annotation targets, and existing experimental comments to clean.
-- Keep exploration read-only. Explorer subagents must not edit files.
-- If the target is a single small file or has no sensible independent scopes, explore inline and state why subagents were not useful.
-- Consolidate explorer findings into the Phase 1 report, then wait for user confirmation before any edits.
 
 For `subagent driven` mode:
 
@@ -57,31 +64,6 @@ Code or pseudocode:
 ```
 ````
 
-### ASCII Flow Summaries
-
-Module flow summaries use terminal-friendly ASCII. Explain the module's key flow and where the new comments help future readers understand API boundaries, invariants, state transitions, data flow, or non-obvious branches.
-
-Use descriptive labels such as `[API]`, `[Boundary]`, `[Invariant]`, `[Flow]`, `[State]`, or `[Compatibility]`. The labels are examples, not a fixed taxonomy.
-
-Example:
-
-```text
-Module: parser
-
-[API] parse(input)
-   |
-   v
-[Invariant] normalize tokens
-   |
-   v
-{ cached? }
-   | yes              | no
-   v                  v
-[Flow] return hit   [Boundary] resolve grammar
-```
-
-Use Mermaid only in separate written documentation when explicitly useful.
-
 ## Argument Handling
 
 This skill accepts an optional target path:
@@ -114,19 +96,20 @@ coverage
 
 ## Phase 1: Module Analysis
 
-Complete this phase before editing.
+Complete this phase before editing. Both execution modes follow the same exploration rules.
 
-1. Dispatch explorer subagents for independent modules, directories, or meaningful file groups when the scope is large enough to split.
-2. Explore the target codebase or directory exhaustively, using the explorer findings plus direct reads as needed.
-3. Identify project type: monorepo, single package, or multi-language project.
-4. For each top-level module, package, or meaningful directory, read key files and map:
+1. Dispatch explorer subagents when the target contains two or more independent modules, directories, or meaningful file groups. Give each explorer a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, likely annotation targets, and existing experimental comments to clean. Keep exploration read-only. Explorer subagents must not edit files.
+2. If the target is a single small file or has no sensible independent scopes, explore inline and state why subagents were not useful.
+3. Explore the target codebase or directory exhaustively, using the explorer findings plus direct reads as needed.
+4. Identify project type: monorepo, single package, or multi-language project.
+5. For each top-level module, package, or meaningful directory, read key files and map:
    - Module name and one-sentence responsibility.
    - Key files and what each does.
    - Core exports or public API.
    - Dependencies on other modules.
    - Which modules depend on it.
-5. Scan existing comments in the target files for experimental data.
-6. Present a report and wait for user confirmation before Phase 2.
+6. Scan existing comments in the target files for experimental data.
+7. Consolidate all findings into the report, present it, and wait for user confirmation before Phase 2.
 
 Report format:
 
@@ -153,9 +136,14 @@ For a file argument, skip the module-level report. Instead:
 5. Wait for user confirmation.
 6. In Phase 2, annotate only the target file.
 
-## Phase 2: Add Annotations
+## Phase 2: Add, Modify, or Delete Annotations
 
 After user confirmation, change only comments (add, rewrite, or delete). Do not modify code logic.
+
+- Add comments where missing and valuable, following "What to Add".
+- Modify comments that are outdated, wrong, vague, or fail the Comment Quality Rules.
+- Delete comments that restate code, duplicate other comments, or cannot be made useful.
+- Preserve good existing comments; do not rewrite for style alone. Experimental comments are not good comments; clean them as specified below.
 
 Primary goal: help future maintainers understand the project. Public APIs must be documented, but they are not the only target. Also document internal contracts, module boundaries, data flow, state machines, invariants, compatibility paths, and non-obvious maintenance decisions.
 
@@ -283,6 +271,31 @@ Verification steps:
 4. If verification fails, inspect whether the failure is caused by the annotation changes.
 5. Fix comment-related failures when possible and rerun the failing verification command.
 6. Do not present the task as complete until verification passes or the remaining failure is clearly reported as unrelated or blocked.
+
+## ASCII Flow Summaries
+
+Module flow summaries use terminal-friendly ASCII. Explain the module's key flow and where the new comments help future readers understand API boundaries, invariants, state transitions, data flow, or non-obvious branches.
+
+Use descriptive labels such as `[API]`, `[Boundary]`, `[Invariant]`, `[Flow]`, `[State]`, or `[Compatibility]`. The labels are examples, not a fixed taxonomy.
+
+Example:
+
+```text
+Module: parser
+
+[API] parse(input)
+   |
+   v
+[Invariant] normalize tokens
+   |
+   v
+{ cached? }
+   | yes              | no
+   v                  v
+[Flow] return hit   [Boundary] resolve grammar
+```
+
+Use Mermaid only in separate written documentation when explicitly useful.
 
 ## Final Report
 
