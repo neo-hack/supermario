@@ -1,0 +1,4 @@
+interface:
+  display_name: "Make Icon"
+  short_description: "Choose a focused visual direction for app icons"
+  default_prompt: "Use $make-icon to choose a visual direction and create an app icon for this subject."

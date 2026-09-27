@@ -1,11 +1,11 @@
 ---
 name: make-icon
-description: Use when an app icon request is visually ambiguous or combines minimalist symbols, tactile mascots, flat geometric avatars, translucent layers, or classic skeuomorphic objects.
+description: Use when an app icon request is visually ambiguous or calls for minimalist symbols, tactile mascots, hand-drawn ink objects, translucent card layers, modular toy bricks, or classic skeuomorphic objects.
 ---
 
 # Make Icon
 
-Route each request to exactly one downstream skill. Do not blend their full rule sets.
+Choose one route. Hand-drawn ink objects use the local reference directly; other requests select exactly one downstream skill. Do not blend full rule sets.
 
 **DOWNSTREAM SKILLS:**
 
@@ -18,6 +18,7 @@ If the selected skill is unavailable, tell the user which repository is required
 
 | Observable request signal | Select |
 |---|---|
+| Thick, imperfect ink contours; plain light ground; a recognizable object simplified with a few curved divisions | [Hand-drawn ink object](references/hand-drawn-ink-object.md), directly |
 | Paper clay, cut paper, paper fiber, handmade tactility, shallow relief, soft contact shadows | `pebble-logo` |
 | App-icon family, pose-aware face, side/profile crop, several crop modes | `pebble-logo` |
 | Brand IP, logo-like symbol, extreme simplification, geometric compression, two subject colors, 32 px recognition | `ip-as-logo` |
@@ -31,14 +32,12 @@ When signals conflict, identify which requested property defines the visual iden
 - Explicit near-flat brand-symbol treatment usually selects `ip-as-logo`; do not add a clay rendering merely because the user also says “soft.”
 - If both are explicit and neither is clearly secondary, ask the choice question below.
 
-Load and follow only the selected skill. Preserve the user's subject, palette, quantity, crop, and platform requirements.
+For the hand-drawn ink route, read its reference and generate directly; it intentionally replaces mascot anatomy, corner-emergence, and filled-shape rules. Otherwise load and follow only the selected downstream skill. Preserve the user's subject, palette, quantity, crop, and platform requirements.
 
 ## Optional Style References
 
-After selecting one downstream skill, read at most one reference when the user requests that material language:
+After selecting one downstream skill, read at most one of these optional references when the user requests that material language:
 
-- [Outlined sticker with soft shadow](references/outlined-sticker-with-soft-shadow.md) — nested keyline, flat graphic foreground, shallow separation shadow, optional quiet base.
-- [Gradient flat shapes](references/gradient-flat-shapes.md) — one or two regular gradient shapes by default, with sparse anthropomorphic marks; irregular forms require an explicit cue.
 - [Layered translucent cards](references/layered-translucent-cards.md) — a small hierarchy of offset glass and opaque planes.
 - [Classic skeuomorphic object](references/classic-skeuomorphic-object.md) — a recognizable physical object compressed into a polished icon with realistic material, shallow depth, and studio lighting.
 - [Flocked plush mascot](references/flocked-plush-mascot.md) — a full-bleed abstract rounded character covered in dense ultra-short fur with recessed facial marks; not for concrete objects.
@@ -64,7 +63,7 @@ If the request concerns the current product, inspect read-only product context f
 
 ## Handoff Contract
 
-State the selected direction in one short sentence, then execute it. If the user names either downstream skill, route there without asking unless the request is internally contradictory.
+State the selected direction in one short sentence, then execute it. If the user names either downstream skill or the hand-drawn ink reference, route there without asking unless the request is internally contradictory.
 
 ## Common Mistakes
 
