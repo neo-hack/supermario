@@ -71,7 +71,7 @@ Treat numeric values in the references as heuristics unless the design reference
 - **Standard**: 3-6 important pages or states. Use by default.
 - **Deep**: 10-15 pages, major components, key visible states, and responsive breakpoints.
 - **Diff-aware**: if no URL is given but the repo has a feature branch, map changed files to affected routes and audit those surfaces.
-- **Regression**: compare against a previous report or baseline when available. Report new, resolved, and worsened findings.
+- **Regression**: compare against a previous report or baseline when available. Look for the most recent report under `.ui-review/reports/` matching the same scope; if found, read it and report new, resolved, and worsened findings relative to it. If no prior report exists, say so explicitly and proceed as a fresh review — do not silently skip the comparison.
 
 ## Workflow
 
@@ -83,6 +83,7 @@ Treat numeric values in the references as heuristics unless the design reference
 6. **Run code compliance review, if requested or in scope**: read `references/code-compliance.md`, fetch the latest rules, and check affected files. Report violations as `Code compliance issue` findings.
 7. **Classify findings**: separate implementation mismatches, design-source concerns, and code compliance issues.
 8. **Report results**: prioritize the findings that materially affect fidelity, visual hierarchy, responsiveness, accessibility basics, code correctness, or polish.
+9. **Save the report**: write the full report to `.ui-review/reports/<YYYY-MM-DD>-<scope-slug>.md`, creating the directory if needed. This is what makes Regression mode possible on the next run — without a saved report, there is no baseline to diff against. Projects may `.gitignore` this directory to keep review history local, or commit it for an audit trail; this skill doesn't require either.
 
 Review rendered UI before source code. Use source code only to understand or fix a finding, or when running a code compliance review.
 
@@ -112,12 +113,14 @@ Return:
 5. UI quality score and category grades
 6. Code compliance summary, only if code compliance was requested or run
 7. Findings ordered by severity, each with a finding type
-8. Visible state coverage notes
-9. Responsive review notes
-10. Cross-page or cross-component UI consistency notes
-11. Quick wins: 3-5 fixes under 30 minutes
-12. Deferred or product-decision items
-13. Optional implementation plan, if the user wants code changes
+8. Coverage: the enumerated design-reference checklist from `references/implementation-fidelity.md`, with a `<compared>/<total>` ratio and named skips
+9. Visible state coverage notes
+10. Responsive review notes
+11. Cross-page or cross-component UI consistency notes
+12. Quick wins: 3-5 fixes under 30 minutes
+13. Deferred or product-decision items
+14. Optional implementation plan, if the user wants code changes
+15. Saved report path (`.ui-review/reports/...`), and — in Regression mode — which prior report it was diffed against
 
 Use this finding format:
 

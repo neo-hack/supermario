@@ -1,6 +1,6 @@
 ---
 name: write-docs
-description: Use when asked to create, rewrite, audit, or maintain README, PRODUCT, FEATURES, ARCHITECTURE, CONTRIBUTING, TUTORIAL, docs navigation, project options, badges, or documentation signatures.
+description: Use when asked to create, rewrite, audit, or maintain README, PRD, PRODUCT, FEATURES, ARCHITECTURE, CONTRIBUTING, TUTORIAL, DESIGN, docs navigation, project options, badges, or documentation signatures.
 ---
 
 # Write Docs
@@ -14,11 +14,15 @@ Before drafting or editing any document, read:
 
 Required mapping:
 - `README.md` -> `references/readme.md`
+- `PRD.md` -> `references/prdmd.md`
 - `PRODUCT.md` -> `references/product.md`
 - `FEATURES.md` -> `references/features.md`
 - `ARCHITECTURE.md` -> `references/architecture.md`
 - `CONTRIBUTING.md` -> `references/contributing.md`
 - `TUTORIAL.md` -> `references/tutorial.md`
+- `DESIGN.md` -> `references/designmd.md`
+
+When drafting or auditing `PRODUCT.md`'s Structure section beyond a short paragraph — site maps, cross-feature journeys — also read `references/structure.md`.
 
 For unsupported document types, read `references/elements-of-style.md`,
 choose the closest supported reference, and tell the user which fallback
@@ -32,6 +36,7 @@ The final response must list the references read.
 
 - "Write a README"
 - "Improve the README"
+- "Write a PRD"
 - "Write PRODUCT.md"
 - "Audit product docs"
 - "Write FEATURES.md"
@@ -39,6 +44,7 @@ The final response must list the references read.
 - "Create architecture docs"
 - "Write CONTRIBUTING.md"
 - "Make a tutorial"
+- "Write DESIGN.md"
 - "Audit these docs"
 - "Document these options"
 - "Add docs badges"
@@ -67,11 +73,14 @@ skills/write-docs/
   references/
     elements-of-style.md           # General writing rules for all docs
     readme.md                      # README identity, badge rules, boundaries
+    prdmd.md                       # PRD: self-contained initiative spec, flows, interaction/display rules
     product.md                     # Product intent, UX layers, scope, flows
+    structure.md                   # Detail template for PRODUCT.md's Structure layer: site maps, cross-feature journeys
     features.md                    # Functional specs, user behavior, states
     architecture.md                # System boundary, modules, flows, decisions
     contributing.md                # Setup, checks, PR workflow, option changes
     tutorial.md                    # Goal-led teaching path
+    designmd.md                    # DESIGN.md visual identity, alpha spec, gates
 ```
 
 ## Supported Documents
@@ -80,11 +89,13 @@ Canonical filenames:
 
 ```text
 README.md
+PRD.md
 PRODUCT.md
 FEATURES.md
 ARCHITECTURE.md
 CONTRIBUTING.md
 TUTORIAL.md
+DESIGN.md
 ```
 
 If creating a new document, use the canonical filename. If editing an existing document with different casing, preserve that file unless the user asks to normalize names or the repository already has a clear casing convention.
@@ -98,11 +109,15 @@ Then read the matching document reference:
 | Target | Reference |
 | --- | --- |
 | `README.md` | `references/readme.md` |
+| `PRD.md` | `references/prdmd.md` |
 | `PRODUCT.md` | `references/product.md` |
 | `FEATURES.md` | `references/features.md` |
 | `ARCHITECTURE.md` | `references/architecture.md` |
 | `CONTRIBUTING.md` | `references/contributing.md` |
 | `TUTORIAL.md` | `references/tutorial.md` |
+| `DESIGN.md` | `references/designmd.md` |
+
+For `PRODUCT.md`'s Structure section, also read `references/structure.md` when it needs a site map or a cross-feature journey, not just a paragraph.
 
 If the user asks for another document type, use `references/elements-of-style.md`, scan the repository, and adapt the closest supported reference. Tell the user which reference you used.
 
@@ -115,11 +130,13 @@ Determine the requested document type from the user's words or the target filena
 If multiple documents are requested, handle them in this order unless the user gives another order:
 
 1. `README.md`
-2. `PRODUCT.md`
-3. `FEATURES.md`
-4. `ARCHITECTURE.md`
-5. `CONTRIBUTING.md`
-6. `TUTORIAL.md`
+2. `PRD.md`
+3. `PRODUCT.md`
+4. `FEATURES.md`
+5. `ARCHITECTURE.md`
+6. `CONTRIBUTING.md`
+7. `TUTORIAL.md`
+8. `DESIGN.md`
 
 ### Phase 2: Audit Existing Docs
 
@@ -154,6 +171,7 @@ Look for:
 - Entry points and important source directories.
 - Badge sources: `package.json`, lockfiles, `LICENSE*`, `.github/workflows/*`, runtime/build config, existing docs, and package metadata.
 - Options, configuration, schema, or environment definitions.
+- PRD facts for `PRD.md`: user-provided requirements, flows, and constraints stated in the conversation; sibling planning docs (design specs, implementation plans, issues, briefs); existing UI/interaction conventions needed for accurate Interaction Rules and Compatibility Requirements.
 - Product facts for `PRODUCT.md`: existing product notes, roadmap notes, issue templates, design docs, README positioning, routes, screens, commands, components, prompts, examples, tests, and user-facing configuration.
 - Feature facts for `FEATURES.md`: routes, pages, screens, commands, feature specs, user flows, UI states, tests, examples, fixtures, and product scope docs when they exist.
 
@@ -165,6 +183,7 @@ Useful searches:
 git ls-files 'package.json' 'pnpm-lock.yaml' 'package-lock.json' 'yarn.lock' 'pyproject.toml' 'Cargo.toml' 'go.mod' 'Makefile' '.env.example' 'LICENSE*'
 git ls-files | rg 'scripts|dev|test|lint|build|start|serve|deploy'
 git ls-files | rg 'options|config|schema|default|env'
+git ls-files | rg 'prd|proposal|brief|rfc|initiative'
 git ls-files | rg 'product|roadmap|issue|design|route|screen|component|prompt|example|spec|test'
 git ls-files | rg 'feature|scope|route|page|screen|flow|state|spec|example|fixture|test'
 ```
@@ -175,6 +194,7 @@ git ls-files | rg 'feature|scope|route|page|screen|flow|state|spec|example|fixtu
 rg --files -g 'package.json' -g 'pnpm-lock.yaml' -g 'package-lock.json' -g 'yarn.lock' -g 'pyproject.toml' -g 'Cargo.toml' -g 'go.mod' -g 'Makefile' -g '.env.example' -g 'LICENSE*' -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 rg -n "scripts|dev|test|lint|build|start|serve|deploy" package.json Makefile pyproject.toml Cargo.toml go.mod 2>/dev/null
 rg -n "options|config|schema|default|env" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
+rg -n "prd|proposal|brief|rfc|initiative" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 rg -n "product|roadmap|persona|user|job|journey|flow|route|screen|component|prompt|example|spec|test" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 rg -n "feature|scope|route|page|screen|flow|state|empty|loading|error|acceptance|spec|example|fixture|test" . -g '!node_modules' -g '!vendor' -g '!.git' -g '!dist' -g '!build' -g '!coverage'
 ```
@@ -189,6 +209,16 @@ For README targets, obey the extra hard blocks in `references/readme.md`:
 
 - `<readme_identity>`
 - `<readme_boundaries>`
+
+For PRD.md targets, obey the extra hard block in `references/prdmd.md`:
+
+- `<prdmd_facts_source>` — only quantified claims need a named source; write every section in full, since PRD.md must stand on its own without requiring `PRODUCT.md`/`FEATURES.md`.
+
+For DESIGN.md targets, obey the extra hard blocks in `references/designmd.md`:
+
+- `<designmd_facts_source>` — identify the visual-facts source before drafting any token.
+- `<boundary>` (Lint Gate) — `npx @google/design.md lint DESIGN.md` must exit `0` before reporting done.
+- `<designmd_no_visual_surface>` — stop instead of drafting a placeholder when the project has no visual surface.
 
 When documenting repository options or configuration in a table, always use this column order:
 
@@ -208,11 +238,16 @@ Before finishing, check:
 - Sections serve reader tasks instead of a fixed template.
 - Generic filler, passive phrasing, and repeated setup prose are removed.
 - Every options table uses `Option | Type | Default | Example | Description`.
+- `PRD.md` sources every quantified claim or marks it "Unknown — needs a target from `<role>`"; qualitative goals and principles need only trace to user input or an existing spec.
+- `PRD.md` is readable without opening `PRODUCT.md` or `FEATURES.md` — every section is written in full, not as a link-only stub.
+- `PRD.md`'s Product Principles state general rules, not a restatement of a single flow step.
 - `PRODUCT.md` ties product claims to repository facts, user-provided requirements, existing docs, visible UI, or clearly marked assumptions.
 - `PRODUCT.md` covers Strategy, Scope, Structure, Skeleton, and Surface either directly or by an intentional omission.
 - `PRODUCT.md` justifies scope decisions by user need, product objective, and feasibility or constraints instead of listing features by enthusiasm.
 - `FEATURES.md` explains user-visible behavior, system response, states, and acceptance checks instead of only listing feature names.
 - `FEATURES.md` does not turn milestone ideas, release sequencing, or delivery tasks into feature specs unless product scope evidence accepts the behavior.
+- `FEATURES.md`'s per-feature Flow diagrams stay inside one feature; cross-feature journeys and site maps live in `PRODUCT.md`'s Structure section instead.
+- `DESIGN.md` names its visual-facts source, invents no token values, and passes `npx @google/design.md lint` before being reported done.
 - README cat signature appears only at the end.
 - Internal links use correct path casing.
 - Instructions for adding options or workflows mention related docs or tests when relevant.
@@ -227,8 +262,10 @@ In the final response, say:
 - Badge sources checked, when the target is README.
 - Missing facts that blocked required identity elements, when applicable.
 - Whether README boundaries were enforced, when the target is README.
+- PRD references read and whether quantified metrics were used and their source, when the target is `PRD.md`.
 - Product references read and product facts verified, when the target is `PRODUCT.md`.
 - Feature references read and feature facts verified, when the target is `FEATURES.md`.
+- The visual-facts source and lint result, when the target is `DESIGN.md`.
 - Which checks or commands were run.
 
 If no file changed, say what blocked the edit and what facts were missing.
@@ -241,10 +278,15 @@ If no file changed, say what blocked the edit and what facts were missing.
 | Options table lacks `Type` or `Example` | Rewrite with `Option | Type | Default | Example | Description`. |
 | Option type inferred from a default value | Read the schema/type source or mark the type as unverified. |
 | Badge looks nice but has no source | Remove it or replace it with a verified fact badge. |
+| PRD invents a quantified metric because "a PRD should have numbers" | Write "Unknown — needs a target from `<role>`" instead. |
+| PRD written as a stub that only links to `PRODUCT.md`/`FEATURES.md` | Write each section in full; PRD.md must stand on its own. |
+| PRD's Product Principles just restate one flow step | Rewrite as a general rule that resolves tension across multiple flows. |
 | Product docs become unsupported personas or vague strategy | Ground product claims in repository facts, user-provided requirements, existing docs, visible UI, or marked assumptions. |
 | Feature docs are only a feature list | Add user need, entry points, actions, system responses, states, and acceptance checks. |
 | Scope is only a wishlist or status table | Justify each scope item by strategy fit, user need, product objective, and feasibility or constraints. |
 | Milestone notes become feature specs | Keep delivery planning in roadmap or milestone docs unless a user-visible behavior is accepted into product scope. |
+| DESIGN.md tokens invented without a facts source | Stop and report the missing source; never guess hex codes, fonts, or spacing. |
+| DESIGN.md reported done without running the lint gate | Run `npx @google/design.md lint DESIGN.md` and fix errors before reporting done. |
 | README signature is not a cat signature | Use only the README cat signature rule. |
 | Docs links have casual casing | Match real filenames exactly. |
 | User asks for an implementation plan, task plan, or planning document | Do not use `write-docs`; use the planning workflow unless the user is explicitly creating or editing project documentation. |

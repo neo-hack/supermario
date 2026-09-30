@@ -161,7 +161,7 @@ Do not turn scope into a wishlist, release plan, or milestone tracker. If the re
 
 ### Structure
 
-Structure explains how the user moves through the experience.
+Structure explains how the user moves through the experience. For a detailed template — site maps, cross-feature journeys, evidence rules, and the boundary against `FEATURES.md`'s per-feature behavior — see `structure.md`.
 
 Depending on the project, this can be:
 
