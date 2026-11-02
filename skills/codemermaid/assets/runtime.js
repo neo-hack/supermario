@@ -1,5 +1,6 @@
 /* runtime.js — minimal interactive runtime for codemermaid v2.
-   Handles: TOC scroll, quiz, annotation alignment, annotation clicks, code-graph sync, zoom.
+   Handles: TOC scroll, quiz/self-check, annotation alignment, annotation clicks,
+   code-graph sync, trace stepper, zoom.
    Linked via <script src="runtime.js"> in each generated HTML page. */
 
 function initTocScroll() {
@@ -205,6 +206,50 @@ function initCodeGraphSync() {
   }
 }
 
+function initTrace() {
+  var traces = document.querySelectorAll('[data-trace]');
+  for (var ti = 0; ti < traces.length; ti++) {
+    (function(trace) {
+      var steps = Array.from(trace.querySelectorAll('[data-trace-step]'));
+      var panels = Array.from(trace.querySelectorAll('[data-trace-panel]'));
+      var prev = trace.querySelector('[data-trace-prev]');
+      var next = trace.querySelector('[data-trace-next]');
+      var progress = trace.querySelector('[data-trace-progress]');
+      if (steps.length === 0 || panels.length === 0) return;
+
+      var current = 0;
+
+      function show(index) {
+        if (index < 0 || index >= steps.length) return;
+        current = index;
+        for (var i = 0; i < steps.length; i++) {
+          if (i === current) {
+            steps[i].setAttribute('aria-current', 'step');
+          } else {
+            steps[i].removeAttribute('aria-current');
+          }
+        }
+        for (var j = 0; j < panels.length; j++) {
+          panels[j].hidden = panels[j].dataset.tracePanel !== String(current);
+        }
+        if (prev) prev.disabled = current === 0;
+        if (next) next.disabled = current === steps.length - 1;
+        if (progress) progress.textContent = (current + 1) + ' / ' + steps.length;
+      }
+
+      for (var s = 0; s < steps.length; s++) {
+        steps[s].addEventListener('click', function() {
+          show(Number(this.dataset.traceStep));
+        });
+      }
+      if (prev) prev.addEventListener('click', function() { show(current - 1); });
+      if (next) next.addEventListener('click', function() { show(current + 1); });
+
+      show(0);
+    })(traces[ti]);
+  }
+}
+
 function initZoomOverlay() {
   var overlay = document.querySelector('.zoom-overlay');
   if (!overlay) return;
@@ -405,6 +450,7 @@ function bootPage() {
   initCodeWalkAnnotations();
   initAnnotationResize();
   initCodeGraphSync();
+  initTrace();
   initZoomOverlay();
   initFileActions();
 }
