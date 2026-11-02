@@ -44,7 +44,7 @@ A capability increment is a focused learning step. It explains what the reader u
 - Use as many units as needed to explain the step clearly. There is no fixed number of steps or units.
 - Use exact real source excerpts under the existing Real code only rules.
 - Use diagrams when they clarify structure, data flow, sequence, state, or before/after shape. Skip decorative diagrams.
-- End the page with a `takeaway` that summarizes how the smallest capability grew into the complete system.
+- End the page with a `self-check` (scenario questions) followed by a `takeaway` that summarizes how the smallest capability grew into the complete system.
 
 ## Unit Mix
 
@@ -52,9 +52,10 @@ Use existing unit kinds:
 
 - `concept` to explain the capability and why it comes now.
 - `diagram` for the shape of the capability, using `references/svg-patterns.md`.
+- `trace` when a step is a process unfolding over time (a request path, a startup sequence) — a stepper beats a static diagram there.
 - `code-walk` for exact source excerpts that implement the step.
 - `code-graph` only when code lines need click-sync to a 4-6 node call graph.
-- `quiz` to check whether the reader understood the design choice.
+- `self-check` once, at page end, with scenario questions about the route's design choices.
 - `takeaway` to close the step or the whole page.
 
 If a graph does not need code-line click-sync, use a Mermaid `diagram` instead of `code-graph`.

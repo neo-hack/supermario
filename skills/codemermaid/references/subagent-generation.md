@@ -12,7 +12,7 @@ The main agent is always the coordinator. It owns:
 - Mermaid node id registry.
 - Perspective list.
 - Build-Up route.
-- Global voice, unit, storyboard, and link rules.
+- Global voice, unit, trace, and link rules.
 - `index.html`.
 - `build-up.html`.
 - Final page graph and link closure.
@@ -38,11 +38,11 @@ Coordinator-owned work stays serial: final module list, perspective list, filena
 Workers may:
 
 - Scan assigned paths.
-- Scan related files discovered via imports/exports of assigned source (for cross-file storyboards).
+- Scan related files discovered via imports/exports of assigned source (for cross-file traces).
 - Draft assigned page data.
 - Draft assigned Build-Up step fragments only when the coordinator provides exact capability, source files, node ids, and link targets.
 - Generate assigned `docs/codemermaid/module-<name>.html` files.
-- Draft local Mermaid diagrams and storyboards for assigned scope.
+- Draft local Mermaid diagrams and traces for assigned scope.
 
 Workers must not:
 
@@ -67,10 +67,10 @@ Before dispatching workers, prepare:
 - Global `INDEX` link rules.
 - Node id registry.
 - Template paths and assembly rules.
-- Voice examples, unit examples, and storyboard rules.
+- Voice examples, unit examples, and trace rules.
 - Validation command.
 
-After workers return, reject any handoff that lacks source evidence, validation, assigned-path discipline, registry-safe links, unique filenames, or valid unit/storyboard budgets. Accept cross-file storyboards when workers provide import/export evidence.
+After workers return, reject any handoff that lacks source evidence, validation, assigned-path discipline, registry-safe links, unique filenames, or valid unit/trace budgets. Accept cross-file traces when workers provide import/export evidence.
 
 ## Module Worker Prompt
 
@@ -87,7 +87,7 @@ Rules:
 - Use exact real code snippets.
 - Follow global node ids and filename registry exactly.
 - **Use the exact output filename provided by the coordinator.** Do NOT infer or derive the filename from directory names, module display names, or source paths. If the coordinator says `module-chat-composer.html`, write `module-chat-composer.html` — not `module-composer.html` or `module-chat-composer.html`.
-- Use storyboard units for multi-step sequences, state transitions, and cross-file interactions.
+- Use trace units for multi-step sequences, state transitions, and cross-file interactions.
 - Use code-walk units for single-file deep dives.
 - Do not write index.html or unassigned files.
 - Validate before reporting.
@@ -205,7 +205,7 @@ Before accepting parallel work:
 - Every module page linked from `index.html` exists and matches the filename registry.
 - Perspective links point to real registered pages.
 - All module pages pass validation.
-- Voice, pedagogy, storyboards, and code presentation rules are consistent.
+- Voice, pedagogy, traces, and code presentation rules are consistent.
 
 ## Failure Handling
 

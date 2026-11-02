@@ -950,6 +950,221 @@ pre.code-block .line.active-note-line {
   color: var(--text);
 }
 
+/* ===== CONTRACT (module reference card) ===== */
+.contract-block { margin: 20px 0; }
+.contract-block h3 {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+}
+.contract-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 14px;
+  box-shadow: var(--shadow-card);
+}
+.contract-table thead th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.contract-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  line-height: 1.5;
+  vertical-align: top;
+}
+.contract-table tbody tr:last-child td { border-bottom: none; }
+.contract-table code {
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ===== GOTCHA (invariants & footguns) ===== */
+.unit-gotcha-box {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: var(--shadow-card);
+}
+.unit-gotcha-box .unit-kind {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+}
+.gotcha-list {
+  list-style: none;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.gotcha-item {
+  padding-left: 16px;
+  border-left: 2px solid var(--border);
+}
+.gotcha-rule {
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.gotcha-consequence {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.gotcha-evidence {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+}
+.gotcha-empty {
+  margin-top: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ===== TRACE (step-through stepper) ===== */
+.trace-scenario {
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.trace {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.trace-rail {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.trace-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.trace-step:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--text-faint);
+}
+.trace-step[aria-current="step"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.trace-step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+.trace-step[aria-current="step"] .trace-step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.trace-step-file {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.trace-detail { padding: 16px; }
+.trace-panel[hidden] { display: none; }
+.trace-panel-head {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.trace-panel .code-block { margin-bottom: 12px; }
+.trace-note {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.trace-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.trace-nav {
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.trace-nav:hover:not(:disabled) {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--text-faint);
+}
+.trace-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.trace-progress {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
 /* ===== ZOOM OVERLAY ===== */
 .zoom-overlay {
   position: fixed;
