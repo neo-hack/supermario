@@ -1,19 +1,24 @@
 ---
 name: codemermaid
-description: Generates interactive multi-page HTML codebase courses with Mermaid.js diagrams, architecture walkthroughs, module dependency tutorials, data-flow views, and per-module deep dives. Use when asked to teach, map, explain, or visually tour a repository.
+description: Generates interactive multi-page HTML onboarding guides that explain a repository to newcomers and future maintainers — architecture walkthroughs, module contracts, gotchas, end-to-end change traces, Mermaid.js diagrams, and per-module deep dives. Use when asked to explain a repository, onboard a developer toward maintainership, teach, map, or visually tour a codebase.
 compatibility: "Generated HTML uses Google Fonts CDN (Inter + Geist Mono) and the bundled beautiful-mermaid browser renderer. Zero npm, zero build tools. CSS, runtime JS, and diagram bundle are linked (not inlined)."
 ---
 
 # CodeMermaid
 
-Generate a multi-page interactive HTML site that teaches a codebase as scrollable essays — architecture views, default Build-Up walkthroughs, beautiful-mermaid diagrams, typed pedagogical units (concept, quiz, takeaway, diagram, code-walk, code-graph, whoa) carrying the lesson. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
+Generate a multi-page interactive HTML site that explains a codebase as scrollable essays — architecture views, Build-Up walkthroughs, change-scenario traces, beautiful-mermaid diagrams, and typed units (concept, contract, gotcha, trace, diagram, code-walk, code-graph, whoa, self-check, takeaway) carrying the explanation. Zero build tools, zero npm. Each output page links shared CSS, runtime JS, and the beautiful-mermaid browser bundle; diagrams render client-side with Raycast dark theming.
+
+## Audience
+
+The reader is a developer who will MODIFY this code — a newcomer onboarding toward maintainership, not a student passing a course. Every page succeeds when the reader knows how to change the module safely: what its public contract is, what state it owns, what breaks when they touch it, and where a typical change starts. Optimize for coverage, accuracy, and re-readability over narrative flow. When "explains the idea elegantly" and "tells the maintainer what they need before editing" conflict, choose the maintainer.
 
 ## When to Use
 
-- "Generate an interactive course for this codebase"
+- "Explain this repository to a new developer"
+- "Generate an onboarding guide / interactive course for this codebase"
+- "Help me get ready to maintain this project"
 - "Create a visual walkthrough of this project's architecture"
 - "Make an interactive module dependency diagram"
-- "Build a tutorial page from this codebase"
 
 ## Output
 
@@ -22,11 +27,13 @@ Directory: `docs/codemermaid/`
 ```
 style.css                     <- Copied from assets/style.css
 runtime.js                    <- Copied from assets/runtime.js
-index.html                    <- Entry page (perspective + module cards)
+index.html                    <- Entry page (perspective + module cards, core/supporting tiers)
 architecture.html             <- Architecture perspective (essay, always generated)
 build-up.html                 <- Build-Up Walkthrough perspective (essay, always generated)
+change-scenarios.html         <- Change Scenarios perspective (trace steppers, always generated)
 <perspective>.html            <- Other user-requested or auto-inferred perspectives (essays)
-module-<name>.html            <- Per-module deep dives (essays, optional module-level Build-Up when useful)
+module-<name>.html            <- Per-CORE-module deep dives (essays, optional module-level Build-Up when useful)
+supporting-modules.html       <- Grouped brief contracts for supporting-tier modules (when any exist)
 ```
 
 Each HTML page links `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` via `<link>` and `<script src>`. Diagrams use Mermaid.js syntax rendered via the beautiful-mermaid browser bundle. The assembly process copies these assets from `assets/` to the output directory alongside the HTML files.
@@ -109,33 +116,61 @@ From scan results:
 
 **Prioritization:** If the codebase has more than 12 modules, organize into sub-graphs.
 
-6. **Default perspective requirements** — Architecture and Build-Up are always included. `architecture.html` gives the finished-system map; `build-up.html` gives the gradual learning route from smallest useful capability to complete system.
-7. **User perspective requirements** — parse user prompt for explicit perspective requests. User-requested perspectives are mandatory.
-8. **Auto-infer perspectives** — from project characteristics:
+6. **Module tiering (core / supporting)** — split discovered modules into two tiers using the Phase 1.3 dependency graph:
+   - **core** — contains business logic, sits on a change-scenario path, or has high in/out degree in the dependency graph. Gets a full `module-<name>.html` deep dive with all mandatory units.
+   - **supporting** — config files, CI/build tooling, thin wrappers, primitive collections with no branching logic. Gets a brief contract-style entry in the shared `supporting-modules.html` (what it is, who depends on it, what to watch when changing it) — no dedicated page, no code-walk quota, no self-check.
+
+   **Budget:** aim for ≤ 12 core module pages. When over, merge the lowest-degree candidates into supporting or into a parent module's page. Tiering replaces page count as the scale control: every module is still covered, but only core modules get full pages.
+7. **Maintainer analysis** — for each core module, record from real code: its extension points (where a new command/type/handler/config plugs in), its invariants and implicit ordering constraints, and how errors propagate out of it. This is the raw material for `contract` and `gotcha` units — anything not captured here gets invented later, so dig it out now.
+8. **Change scenarios** — identify 2–3 realistic changes a maintainer would make (add a feature/command/config flag, fix a representative bug) and trace each across modules with file:line evidence. These become the `trace` units in `change-scenarios.html`.
+9. **Default perspective requirements** — Architecture, Build-Up, and Change Scenarios are always included. `architecture.html` gives the finished-system map; `build-up.html` gives the gradual learning route from smallest useful capability to complete system; `change-scenarios.html` shows how typical changes flow through the modules end to end.
+10. **User perspective requirements** — parse user prompt for explicit perspective requests. User-requested perspectives are mandatory.
+11. **Auto-infer perspectives** — from project characteristics:
    - Has HTTP handlers, WebSocket, or event streams → Data Flow perspective
    - Has database/ORM → Data Model perspective
    - Has state management → State Machine perspective
    - 10+ modules → Module Dependency perspective
    - Has CI/CD config → Build Pipeline perspective
-9. **Merge perspective list** — default + user-specified + auto-inferred, deduplicated. Recommended index order: Architecture Overview, Build-Up Walkthrough, then user-requested and auto-inferred perspectives. Every discovered module must be reachable from at least one perspective page.
-10. **Derive Build-Up route** — before drafting `build-up.html`, read `references/build-up.md` and choose a reader-comprehension order from discovered modules and dependency evidence.
+12. **Merge perspective list** — default + user-specified + auto-inferred, deduplicated. Recommended index order: Architecture Overview, Build-Up Walkthrough, Change Scenarios, then user-requested and auto-inferred perspectives. Every discovered module must be reachable from at least one perspective page.
+13. **Derive Build-Up route** — before drafting `build-up.html`, read `references/build-up.md` and choose a reader-comprehension order from discovered modules and dependency evidence.
 
 ## Phase 3: Build Page Data
 
 Each per-module and per-perspective page has a `learningPromise`, optional `prereqs`, and a `units[]` array. Read `references/units-examples.md` for concrete patterns and `references/voice-examples.md` for tone.
 
-### COURSE (per-module page, `module-<name>.html`)
+### COURSE (per-core-module page, `module-<name>.html`)
 
 ```javascript
 const COURSE = {
   module: "auth",
+  tier: "core",
   learningPromise: "...",
   prereqs: ["..."],
   units: []
 };
 ```
 
+Module pages are generated for core-tier modules only (see Phase 2 tiering). Supporting-tier modules get grouped brief entries in `supporting-modules.html` instead.
+
 Module pages may include a module-level Build-Up section when the module has a natural internal progression. This section is optional; read `references/build-up.md` before adding one.
+
+### Module Coverage Contract (mandatory)
+
+Every core module page MUST answer all nine questions below. Most are answered by specific unit kinds; the rest may live in concept prose or code-walk annotations. A question with no answer in the code gets an explicit "none" — never silently skipped.
+
+| # | Question | Usually answered by |
+|---|----------|---------------------|
+| 1 | What does this module own, and what does it refuse to own? | opening `concept` |
+| 2 | What is its public interface — every export, its callers, its calling conventions? | `contract` |
+| 3 | What state/data does it hold, and is each piece durable or in-memory? | `contract` or `concept` |
+| 4 | What is the main control flow, entry to exit? | `code-walk` / `diagram` |
+| 5 | Who depends on it, and what does it depend on — and why? | `contract` |
+| 6 | What are its error paths — what fails, and how does failure surface? | `code-walk` / `gotcha` |
+| 7 | Where are its extension points — where does a new X plug in safely? | `contract` (changeRouting) |
+| 8 | What are its gotchas, invariants, and implicit ordering constraints? | `gotcha` (explicit "none" allowed) |
+| 9 | Where are its tests, how do you run them, and what do they NOT cover? | `contract` or closing `concept` |
+
+Before finalizing a module page, walk this table and point at the unit answering each row. This table — not unit count — defines "detailed enough".
 
 ### PERSPECTIVE (per-perspective page, e.g. `architecture.html`)
 
@@ -162,11 +197,16 @@ const INDEX = {
 };
 ```
 
-### Unit kinds (7 types)
+### Unit kinds (10 types)
 
 ```javascript
 { kind: "concept",     title, body, style? }                          // style: "callout" for surprise-style red border
-{ kind: "quiz",        question, options: [{letter, text, correct}], explanation }
+{ kind: "contract",    title, exports: [{name, signature, callers, note}],
+                       dependsOn: [{target, why}], usedBy: [{source, why}],
+                       changeRouting: [{intent, where}] }                 // reference tables; neutral voice
+{ kind: "gotcha",      title, items: [{rule, consequence, evidence}], scannedNote? }  // items: [] allowed → explicit empty state
+{ kind: "trace",       title, scenario, steps: [{label, file, line, code?, note}] }   // rendered as a runtime.js stepper
+{ kind: "self-check",  questions: [{question, options: [{letter, text, correct}], explanation}] }  // page-end only, 2–4 scenario questions
 { kind: "takeaway",    body }
 { kind: "diagram",     title, mermaid, caption, zoomable? }               // Mermaid syntax, zoomable defaults true
 { kind: "code-walk",   title, file, startLine?, code, highlights: [{line, note}], layout? }  // layout defaults "split"
@@ -174,9 +214,34 @@ const INDEX = {
 { kind: "whoa",        angle, title, body, evidence? }                    // angle: "code" | "product" | "ux" | "architecture"
 ```
 
+### Contract unit rules
+
+The `contract` unit is the module's reference card — the thing a maintainer re-opens before every edit.
+
+- Every public export appears in `exports`. Trivial re-exports and type-only exports may be grouped into a single row labeled as such — never silently omitted.
+- `changeRouting` maps common change intents to concrete locations: `{ intent: "Add a new HumanCommand", where: "interpreter.rs — add a match arm, then scheduler.rs phase 2" }`. Derive intents from the Phase 2 maintainer analysis, not from imagination.
+- Neutral documentation voice: tables, complete rows, no teaching signposts (see Voice rules).
+
+### Gotcha unit rules
+
+- Each item states the rule, the consequence of violating it, and cites real evidence (`file:line`, a doc comment, a test).
+- An empty `items` list is allowed and REQUIRED to be honest: render the explicit empty state and set `scannedNote` to what was actually examined ("scanned error paths, lock ordering, and startup recovery"). Never invent a gotcha to fill the unit; never skip the unit because nothing was found.
+
+### Trace unit rules
+
+- 4–10 steps; every step names a real `file` and `line`, with a code excerpt of ≤ 10 lines for the hop when it clarifies (excerpts obey Real code only).
+- Rendered as a step-through: a step rail, one active detail panel, prev/next controls — all driven by `runtime.js` via `data-trace-*` attributes. Generated pages NEVER include bespoke `<script>`.
+- Interaction restraint: step controls only, one active panel at a time. Never add filters, search, autoplay, or other invented controls.
+
+### Self-check rules
+
+- Exactly one `self-check` unit per page, positioned second-to-last (immediately before `takeaway`). No quiz blocks anywhere else on the page.
+- 2–4 scenario questions testing whether the reader can ACT, not recall: "To add a new X, which files change?", "If the daemon restarts mid-turn, what happens to Y and why?", "Which change would break the contract between A and B?"
+- Each question has exactly one correct option, and the explanation cites specific code evidence (why right, briefly why each wrong).
+
 ### Whoa unit rules
 
-Use `whoa` only for rare design moments with strong evidence that explains why the project is unusually well-designed. Use zero `whoa` units when there is no strong evidence. When evidence exists, a normal course should stay around 3-5 `whoa` units total across all pages.
+Use `whoa` only for rare design moments with strong evidence that explains why the project is unusually well-designed. Use zero `whoa` units when there is no strong evidence. When evidence exists, a normal guide should stay around 3-5 `whoa` units total across all pages.
 
 Required fields:
 
@@ -201,9 +266,14 @@ Use one visual treatment for every angle. `angle` changes the label and placemen
 
 Before writing generated prose, read `references/voice-examples.md`. Follow that file for voice, signposts, anti-patterns, and rewrite recipes.
 
+Voice is LAYERED by unit kind:
+
+- **Narrative units** (`concept`, `takeaway`, `whoa`, Build-Up prose, diagram captions, code-walk notes) — use the pointed teacher voice from voice-examples.md.
+- **Reference units** (`contract`, `gotcha`) — use a neutral, scannable documentation voice: complete table rows, declarative sentences, no signposts. A maintainer re-reads these while editing code; "watch what they do here" is noise on the fifth read. The voice anti-patterns do NOT apply inside reference units.
+
 ### Code explanation depth (mandatory — do not skimp)
 
-Every piece of code shown to the reader MUST be thoroughly explained. This is the core value of the course — the reader is here to understand code they couldn't read on their own.
+Every piece of code shown to the reader MUST be thoroughly explained. This is the core value of the guide — the reader is here to understand code they couldn't read on their own.
 
 **concept units** before a code-walk must explain:
 - What the module/function does and why it exists (its role in the system)
@@ -220,7 +290,7 @@ Every piece of code shown to the reader MUST be thoroughly explained. This is th
 - What the diagram shows and why that flow/structure matters
 - Where the interesting part is (not just "this is the architecture")
 
-**quiz explanations** must explain:
+**self-check explanations** must explain:
 - Why the correct answer is correct (with specific code evidence)
 - Why each wrong answer is wrong (briefly)
 
@@ -247,10 +317,13 @@ Prefer depth over brevity. These are upper bounds, not targets — write as much
 | Unit | Suggested scope |
 |------|-----------------|
 | `concept` | 80–200 words — must explain *why*, not just *what* |
-| `quiz` | question ≤ 2 sentences, 4 options, explanation ≤ 100 words — must reference specific code |
+| `contract` | every public export listed (trivial ones may share a grouped row); 3–6 changeRouting intents |
+| `gotcha` | each item = rule + consequence + evidence; empty state must name what was scanned |
+| `trace` | 4–10 steps, each with file:line + note; per-step code excerpt ≤ 10 lines |
+| `self-check` | 2–4 scenario questions, 4 options each, explanation ≤ 100 words citing specific code |
 | `takeaway` | 3–5 sentences — must synthesize, not just repeat |
 | `diagram` | ≤ 8 nodes, caption 20–50 words — must say what's interesting, not just what it shows |
-| `code-walk` | 8–20 lines code + 3–6 annotations — each note must explain the reasoning, not just restate what the code says |
+| `code-walk` | 8–60 lines code + 3–8 annotations — core logic may show a full function; each note must explain the reasoning, not just restate what the code says |
 | `code-graph` | 8–15 lines code + mini SVG (4–6 nodes) — same depth as code-walk for annotations |
 
 **Rule of thumb:** If you can remove an annotation note and the reader loses no understanding, the note wasn't detailed enough — rewrite it, don't remove it.
@@ -273,16 +346,18 @@ Code-walk is the primary teaching unit — it shows real code with line-by-line 
 
 **ANTI-PATTERN: Diagram-only coverage.** A page contains a `diagram` unit showing edges between modules, but no code-walk on that page or the referenced module pages shows the code behind those edges. Every edge in a diagram represents real code — show it.
 
-### Pedagogy enforcement (mandatory)
+### Coverage enforcement (mandatory)
 
 Every generated page MUST satisfy these rules:
 
-- Every module MUST have a non-empty `learningPromise`.
-- Every module's `units[]` MUST contain ≥ 1 `quiz`.
-- Every module's `units[]` MUST end with a `takeaway`.
+- Every module page MUST have a non-empty `learningPromise`.
+- Every core module page MUST contain exactly 1 `contract` unit, and together its units MUST answer all nine Module Coverage Contract questions.
+- Every core module page MUST contain 1 `gotcha` unit (the explicit empty state counts).
+- Every page's `units[]` MUST end with a `self-check` (2–4 scenario questions) followed by a `takeaway`.
 - Every module's `units[]` MUST contain enough `code-walk` units to cover its core source files (see "Code-walk density" above).
-- Every perspective's `units[]` MUST start with a `concept` and end with a `takeaway`.
-- There is no hard cap on unit count; quality of explanation determines the length.
+- Every perspective's `units[]` MUST start with a `concept`.
+- Site-wide: `change-scenarios.html` MUST contain ≥ 2 `trace` units.
+- There is no hard cap on unit count; the Coverage Contract — not unit count — determines the length.
 
 ### Real code only
 
@@ -349,11 +424,17 @@ The selected editor option opens immediately. Selecting the already-active optio
 
 Before drafting unit data, read `references/units-examples.md` for concrete object shapes, unit-specific options, defaults, and interaction bindings.
 
-Keep the unit-level traps in mind: callout concepts use `style: "callout"`, quizzes need exactly one correct answer, code-walk line numbers are snippet-local, and code-graph bindings must match SVG `data-node-id` values.
+Keep the unit-level traps in mind: callout concepts use `style: "callout"`, self-check questions need exactly one correct answer each and live only in the page-end self-check unit, code-walk line numbers are snippet-local, code-graph bindings must match SVG `data-node-id` values, and trace step indices must match their detail panels.
 
 ## Phase 4: Build Mermaid Diagrams
 
 Before writing diagrams, read `references/svg-patterns.md`.
+
+**Pick the medium by what is being explained:**
+
+- **Static structure** (dependencies, layers, ownership) — labeled nodes and edges fully explain it → Mermaid `diagram`.
+- **A process that unfolds over time** (a request path, a state machine transitioning, a polling loop, a startup sequence) → prefer a `trace` stepper over a static diagram. A static diagram flattens the time axis into arrows the reader must animate in their head; the stepper plays it for them, one hop with its code at a time.
+- A static diagram MAY accompany a trace as the overview map, but must not substitute for it.
 
 Use Mermaid for `diagram` units and raw inline SVG only for `code-graph` mini-graphs that need `data-node-id` click-sync. Keep node IDs consistent across pages, use descriptive labels, and do not inline theme overrides; the Raycast dark theme is configured in `mermaid-bridge.js`.
 
@@ -361,13 +442,15 @@ Use Mermaid for `diagram` units and raw inline SVG only for `code-graph` mini-gr
 
 | File | Skeleton | Condition |
 |------|----------|-----------|
-| `index.html`            | `skeleton-index.html` | Always |
-| `architecture.html`     | `skeleton-essay.html` | Always |
-| `build-up.html`         | `skeleton-essay.html` | Always |
-| `<perspective>.html`    | `skeleton-essay.html` | One per non-default perspective |
-| `module-<name>.html`    | `skeleton-essay.html` | One per discovered module |
+| `index.html`              | `skeleton-index.html` | Always |
+| `architecture.html`       | `skeleton-essay.html` | Always |
+| `build-up.html`           | `skeleton-essay.html` | Always |
+| `change-scenarios.html`   | `skeleton-essay.html` | Always |
+| `<perspective>.html`      | `skeleton-essay.html` | One per non-default perspective |
+| `module-<name>.html`      | `skeleton-essay.html` | One per CORE-tier module |
+| `supporting-modules.html` | `skeleton-essay.html` | When any supporting-tier modules exist |
 
-All generated course files go in `docs/codemermaid/`. Filenames are kebab-case except the fixed `index.html`.
+All generated guide files go in `docs/codemermaid/`. Filenames are kebab-case except the fixed `index.html`.
 
 Before generating HTML pages, copy shared assets to the output directory:
 1. Copy `assets/style.css` → `docs/codemermaid/style.css`
@@ -392,11 +475,18 @@ For each page in the file list (Phase 5):
    - [ ] No `href="#"` placeholders — all back/next links point to real files
    - [ ] No `**bold**` markdown — use `<strong></strong>` instead
    - [ ] Inside `<pre class="code-block">`, `.line` spans are adjacent with NO whitespace between them
-   - [ ] Quiz has exactly 1 option with `data-correct="true"`
+   - [ ] Core module page: exactly one `contract` unit; every public export appears in it or in its grouped trivial row
+   - [ ] Core module page: all nine Module Coverage Contract questions answered by some unit (unanswerable ones explicitly marked "none")
+   - [ ] Core module page: a `gotcha` unit exists; if empty, its `scannedNote` names what was examined
+   - [ ] Self-check is the second-to-last unit, has 2–4 scenario questions, each with exactly 1 option `data-correct="true"`; no quiz blocks elsewhere on the page
+   - [ ] Every `[data-trace-step]` index has a matching `[data-trace-panel]`; every trace step cites a real file:line
+   - [ ] Interaction actually works — open the page: stepper prev/next updates the active panel, self-check options reveal the explanation, zoom opens
+   - [ ] No bespoke `<script>` in generated pages — all interactivity comes from the linked `runtime.js`
    - [ ] No double HTML entity escaping — scan for `&amp;#` or `&amp;lt;` or `&amp;gt;` patterns and fix them
    - [ ] Mermaid syntax is valid — no unclosed brackets, no missing quotes in edge labels
-   - [ ] `index.html` links to `build-up.html` in the Perspectives section
-   - [ ] `build-up.html` exists, starts with a `concept`, contains at least one `quiz`, and ends with a `takeaway`
+   - [ ] `index.html` links to `build-up.html` and `change-scenarios.html` in the Perspectives section
+   - [ ] `build-up.html` exists, starts with a `concept`, and ends with a `self-check` + `takeaway`
+   - [ ] `change-scenarios.html` exists and contains at least two `trace` units
    - [ ] Build-Up copy describes a learning order, not an unverified implementation chronology
    - [ ] Every Build-Up step explains a capability change; it is not only a module inventory
    - [ ] Every `whoa` unit has `angle`, `title`, and `body`
@@ -478,8 +568,99 @@ For evidence chips, repeat one `<span>{EVIDENCE_ITEM}</span>` per flattened evid
 </div>
 ```
 
-**quiz:**
+**contract:**
 ```html
+<span class="unit-kind">contract</span>
+<h2>{TITLE}</h2>
+<div class="contract-block">
+  <h3>Public interface</h3>
+  <table class="contract-table">
+    <thead><tr><th>Export</th><th>Signature</th><th>Called by</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>{NAME}</code></td><td><code>{SIGNATURE}</code></td><td>{CALLERS}</td><td>{NOTE}</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="contract-block">
+  <h3>Dependencies</h3>
+  <table class="contract-table">
+    <thead><tr><th>Direction</th><th>Module</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>uses</td><td><code>{TARGET}</code></td><td>{WHY}</td></tr>
+      <tr><td>used by</td><td><code>{SOURCE}</code></td><td>{WHY}</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="contract-block">
+  <h3>Change routing</h3>
+  <table class="contract-table">
+    <thead><tr><th>To change…</th><th>Go to</th></tr></thead>
+    <tbody>
+      <tr><td>{INTENT}</td><td>{WHERE}</td></tr>
+    </tbody>
+  </table>
+</div>
+```
+
+Omit a `contract-block` (e.g. Dependencies) only when the module genuinely has none in that category.
+
+**gotcha:**
+```html
+<div class="unit-gotcha-box">
+<span class="unit-kind">gotcha</span>
+<h2>{TITLE}</h2>
+<ul class="gotcha-list">
+  <li class="gotcha-item">
+    <p class="gotcha-rule">{RULE}</p>
+    <p class="gotcha-consequence">{CONSEQUENCE}</p>
+    <span class="gotcha-evidence">{EVIDENCE}</span>
+  </li>
+</ul>
+</div>
+```
+
+Empty state (no invented items — state what was scanned):
+```html
+<div class="unit-gotcha-box">
+<span class="unit-kind">gotcha</span>
+<h2>{TITLE}</h2>
+<p class="gotcha-empty">No known gotchas — {SCANNED_NOTE}.</p>
+</div>
+```
+
+**trace (stepper, runtime-driven — no bespoke JS):**
+```html
+<span class="unit-kind">trace</span>
+<h2>{TITLE}</h2>
+<p class="trace-scenario">{SCENARIO}</p>
+<div class="trace" data-trace>
+  <ol class="trace-rail">
+    <li><button class="trace-step" type="button" data-trace-step="0" aria-current="step"><span class="trace-step-num">1</span><span class="trace-step-label">{LABEL}</span><span class="trace-step-file">{FILE_BASENAME}</span></button></li>
+    <!-- one <li> per step, data-trace-step increments -->
+  </ol>
+  <div class="trace-detail">
+    <div class="trace-panel" data-trace-panel="0">
+      <div class="trace-panel-head"><span class="codewalk-file">{FILE}:{LINE}</span></div>
+      <pre class="code-block">{LINES}</pre>
+      <p class="trace-note">{NOTE}</p>
+    </div>
+    <!-- one panel per step; only panel 0 lacks the hidden attribute -->
+    <div class="trace-panel" data-trace-panel="1" hidden>…</div>
+  </div>
+  <div class="trace-controls">
+    <button class="trace-nav" type="button" data-trace-prev disabled>← Prev</button>
+    <span class="trace-progress" data-trace-progress>1 / {N}</span>
+    <button class="trace-nav" type="button" data-trace-next>Next →</button>
+  </div>
+</div>
+```
+
+`{LINES}` in a trace panel follows the same `.line` span rules as code-walk (adjacent spans, no whitespace). Step indices and panel indices must match one-to-one, starting at 0.
+
+**self-check (page-end only):**
+```html
+<span class="unit-kind">self-check</span>
+<h2>Check yourself before you change this code</h2>
 <div class="quiz">
   <div class="quiz-question">{QUESTION}</div>
   <div class="quiz-options">
@@ -490,6 +671,7 @@ For evidence chips, repeat one `<span>{EVIDENCE_ITEM}</span>` per flattened evid
   </div>
   <div class="quiz-explanation"><strong>Correct: {LETTER}</strong> — {EXPLANATION}</div>
 </div>
+<!-- repeat one .quiz block per question (2–4 total) -->
 ```
 
 **takeaway:**
@@ -576,7 +758,7 @@ Code lines with graph binding: `<span class="line{? line-hl}" data-line="{N}" da
 </div>
 ```
 
-Perspective cards should list default perspectives first: Architecture Overview, then Build-Up Walkthrough, followed by user-requested and auto-inferred perspectives. The Build-Up card must link to `build-up.html` and describe the gradual route from smallest useful capability to complete system.
+Perspective cards should list default perspectives first: Architecture Overview, Build-Up Walkthrough, then Change Scenarios, followed by user-requested and auto-inferred perspectives. The Build-Up card must link to `build-up.html` and describe the gradual route from smallest useful capability to complete system. The Change Scenarios card must link to `change-scenarios.html` and name the scenarios it traces.
 
 **`<!-- SLOT:MODULE_CARDS -->`:**
 ```html
@@ -588,6 +770,8 @@ Perspective cards should list default perspectives first: Architecture Overview,
 </div>
 ```
 
+Module cards list core-tier modules only. When supporting-tier modules exist, append one card linking `supporting-modules.html` (card-type `supporting`) that names how many modules it groups.
+
 ## Design System
 
 Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual rationale and token guidance, read `DESIGN.md` and `references/design-system.md`.
@@ -595,25 +779,36 @@ Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual ra
 ## Important Rules
 
 1. **Read Build-Up reference** — before creating `build-up.html` or a module-level Build-Up section, read `references/build-up.md`.
-2. **Default perspectives** — always generate `architecture.html` and `build-up.html`.
+2. **Default perspectives** — always generate `architecture.html`, `build-up.html`, and `change-scenarios.html`.
 3. **Real code only** — never invent, simplify, or modify code snippets.
-4. **Cover every module** — every module discovered in Phase 1 must appear in at least one perspective page AND have its own `module-<name>.html`.
+4. **Cover every module, page only the core** — every module discovered in Phase 1 must appear in at least one perspective page. Core-tier modules get their own `module-<name>.html`; supporting-tier modules get a brief contract entry in `supporting-modules.html`. Nothing is silently dropped.
 5. **Linked shared assets** — copy `style.css`, `runtime.js`, `beautiful-mermaid.bundle.js`, and `mermaid-bridge.js` to the output directory. Each HTML links them via `<link>` and `<script src>`.
 6. **Vanilla JS only** — no React, no build tools.
 7. **beautiful-mermaid via browser bundle** — all `diagram` units use Mermaid syntax rendered by the beautiful-mermaid browser bundle + `mermaid-bridge.js`. `code-graph` mini-graphs use raw SVG for `data-node-id` click-sync.
 8. **Build-Up is learning order** — describe capability increments in the order that teaches the system, not unverified git or implementation history.
 9. **Module-level Build-Up is optional** — include it only when the module has a natural internal progression. Do not force it into every module page.
 10. **Pre whitespace rule** — inside `<pre class="code-block">`, `.line` spans must be adjacent with NO whitespace between them.
-11. **Quiz correctness** — every quiz must have exactly 1 option with `data-correct="true"`.
+11. **Self-check discipline** — exactly one self-check unit per page, second-to-last, 2–4 scenario questions, each with exactly 1 option `data-correct="true"`. No quiz blocks elsewhere.
 12. **Consistent node IDs** — same module = same node ID across all pages.
 13. **User perspective overrides** — user-specified perspectives are mandatory; auto-inferred are supplementary.
 14. **Annotation alignment** — the runtime's `alignAnnotations()` handles vertical positioning. CSS `gap` on `.codewalk-annotations` must be `0`.
+15. **Declarative interactivity only** — generated pages never contain bespoke `<script>`. All interaction (self-check, zoom, code-graph sync, trace stepper) is driven by the shared `runtime.js` through data attributes.
+16. **Answer the Coverage Contract** — a core module page is done when all nine Coverage Contract questions are answered, not when it "feels complete".
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
 | Missing `build-up.html` | Always generate the required Build-Up Walkthrough perspective and link it from `index.html`. |
+| Missing `change-scenarios.html` | Always generate the Change Scenarios perspective with ≥ 2 trace units and link it from `index.html`. |
+| Contract table missing an export | Every public symbol appears in the contract table, or in one explicit grouped row for trivial re-exports. Never silently omit. |
+| Invented gotcha to fill the unit | Every gotcha item cites real evidence (file:line, doc comment, test). If nothing was found, use the explicit empty state with `scannedNote`. |
+| Trace step without code evidence | Every step names a real file:line; the panel shows the excerpt implementing that hop. |
+| Quiz blocks scattered mid-page | Move all questions into the single page-end self-check unit, second-to-last before takeaway. |
+| Recall questions in self-check | Rewrite as action scenarios: "to add X, which files change?", not "what data structure does X use?". |
+| Bespoke `<script>` in a generated page | Remove it; express the interaction as runtime.js data attributes (`data-trace-*`, `.quiz`, `data-zoom-trigger`). |
+| Pointed teacher voice inside contract/gotcha tables | Reference units use neutral documentation voice; save signposts for concept and takeaway prose. |
+| Supporting module got a full page | Fold config/CI/thin-wrapper modules into `supporting-modules.html`; full pages are for core tier only. |
 | Build-Up reads like git history | Reframe it as reader learning order unless git history was explicitly inspected and cited. |
 | Build-Up is just a module list | Rewrite each step around a capability change and name the code that makes the change possible. |
 | Forced module-level Build-Up | Remove it when a normal code-walk teaches the module more clearly. |
@@ -622,7 +817,7 @@ Use the bundled Raycast-inspired dark theme in `assets/style.css`. For visual ra
 | Code snippet has invented lines | Paste the snippet back into a temp file and run the type checker. |
 | `href="#"` in links | Replace with actual relative paths. Never leave placeholder links. |
 | Side-by-side code looks cramped | Ensure `grid-template-columns: minmax(0, 1fr) 300px` is applied. |
-| Quiz has no correct answer | Exactly 1 option must have `data-correct="true"`. |
+| Self-check question has no correct answer | Exactly 1 option per question must have `data-correct="true"`. |
 | Double HTML entity escaping | Scan output for `&amp;#`, `&amp;lt;`, `&amp;gt;` — these are wrong. The correct forms are `&#39;`, `&lt;`, `&gt;`. |
 | Mermaid edge label missing quotes | Use pipe syntax: `A -->|"label text"| B` not `A -->|label text| B`. |
 | Annotations not aligned with code | Confirm CSS `.codewalk-annotations { gap: 0 }` and runtime.js `alignAnnotations()` runs on DOMContentLoaded. |

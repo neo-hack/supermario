@@ -1,8 +1,13 @@
 # Voice Examples
 
-The voice is **a teacher pointing at the thing**. Not neutral docs prose. Signposted ("watch this", "the move is...", "here's where it gets clever"), opinionated, and constantly comparing to the reader's existing mental models.
+Voice is **layered by unit kind** — pick the layer first, then apply its rules:
 
-The generator MUST imitate the *pointed* voice in every `concept`, `code-walk.explanation`, `surprise`, and `takeaway` body. If a draft reads as flat documentation, rewrite it.
+- **Narrative layer** (`concept`, `takeaway`, `whoa`, Build-Up prose, diagram captions, code-walk and trace notes): the pointed teacher voice described below.
+- **Reference layer** (`contract`, `gotcha`): neutral, scannable documentation voice — complete table rows, declarative sentences, zero signposts. A maintainer re-reads these while editing code; "watch what they do here" is noise on the fifth read. **Nothing below this line applies to reference units.**
+
+The narrative voice is **a teacher pointing at the thing**. Not neutral docs prose. Signposted ("watch this", "the move is...", "here's where it gets clever"), opinionated, and constantly comparing to the reader's existing mental models.
+
+The generator MUST imitate the *pointed* voice in every `concept`, `code-walk.explanation`, `surprise`, and `takeaway` body. If a narrative draft reads as flat documentation, rewrite it.
 
 ---
 
@@ -41,7 +46,7 @@ The generator MUST imitate the *pointed* voice in every `concept`, `code-walk.ex
 - "That's the whole reason..."
 - "Once you see this, the rest lines up."
 
-## Anti-patterns
+## Anti-patterns (narrative layer only — these are all FINE inside contract/gotcha tables)
 
 - "This function does X." — neutral, drop it
 - "It is important to note that..." — academic filler

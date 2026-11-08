@@ -132,7 +132,7 @@ test('runtime.js runs without error in a minimal DOM context', () => {
 test('SKILL.md documents all current unit types', () => {
   const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
 
-  const requiredTypes = ['concept', 'diagram', 'code-walk', 'code-graph', 'quiz', 'takeaway'];
+  const requiredTypes = ['concept', 'contract', 'gotcha', 'trace', 'self-check', 'diagram', 'code-walk', 'code-graph', 'takeaway'];
   for (const kind of requiredTypes) {
     const pattern = new RegExp('`' + kind + '`|kind.*' + kind);
     assert.match(skill, pattern, 'SKILL.md should document unit type: ' + kind);
@@ -160,7 +160,7 @@ test('SKILL.md keeps hard quality gates after slimming', () => {
   const skill = fs.readFileSync(path.join(root, 'SKILL.md'), 'utf8');
 
   assert.match(skill, /Code explanation depth/);
-  assert.match(skill, /Pedagogy enforcement/);
+  assert.match(skill, /Coverage enforcement/);
   assert.match(skill, /Real code only/);
   assert.match(skill, /Code presentation rules/);
   assert.match(skill, /Pre-flight verification/);
@@ -175,7 +175,7 @@ test('codemermaid references preserve unit-specific rules moved out of SKILL.md'
   assert.match(units, /unit-surprise/);
   assert.match(units, /Exactly 4 options/);
   assert.match(units, /letters A-D/);
-  assert.match(units, /Exactly 1 option has `correct: true`/);
+  assert.match(units, /exactly 1 option has `correct: true`/);
   assert.match(units, /layout.*defaults to `split`/);
   assert.match(units, /`stacked`/);
   assert.match(units, /snippet-local/);

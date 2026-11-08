@@ -203,17 +203,115 @@ End-of-section recap. 2–4 sentences. Stronger styling than `concept` so reader
 }
 ```
 
-## quiz
+## contract
 
-Checks whether the reader understood a design choice, not trivia.
+The module's reference card — the table a maintainer re-opens before every edit. Neutral documentation voice: complete rows, no teaching signposts.
 
-### Quiz rules
+### Example — Auth middleware contract
 
-- Exactly 4 options.
-- Option letters A-D.
-- Exactly 1 option has `correct: true`.
-- `explanation` is shown after answering, regardless of correctness.
-- The explanation must cite specific code evidence and briefly rule out the wrong answers.
+```javascript
+{
+  kind: "contract",
+  title: "auth module contract",
+  exports: [
+    { name: "auth", signature: "Middleware (async (c, next) => void)", callers: "app.ts middleware chain", note: "Sets ctx.user or null; never throws on bad tokens." },
+    { name: "verify", signature: "async (token: string) => User", callers: "auth middleware only", note: "Throws on malformed/expired tokens; network call to JWKS endpoint." },
+    { name: "AuthUser (type), re-exported constants", signature: "—", callers: "handlers", note: "Trivial type/const re-exports, grouped." }
+  ],
+  dependsOn: [
+    { target: "jose", why: "JWT verification against the issuer's JWKS." }
+  ],
+  usedBy: [
+    { source: "every protected handler", why: "reads ctx.user to decide access." }
+  ],
+  changeRouting: [
+    { intent: "Add a new claim to the session user", where: "verify() in auth.ts — extend the mapping after jwtVerify, then the AuthUser type" },
+    { intent: "Make an endpoint public", where: "the handler itself — remove its ctx.user check; middleware never blocks" },
+    { intent: "Swap the token issuer", where: "JWKS_URL in config.ts; verify() reads it at call time" }
+  ]
+}
+```
+
+### Contract rules
+
+- Every public export appears in `exports`; trivial re-exports may share one explicitly-labeled grouped row.
+- `changeRouting` intents come from the Phase 2 maintainer analysis — real changes a maintainer would make, each mapped to a concrete location.
+- Omit `dependsOn`/`usedBy` only when the module genuinely has none in that category.
+
+---
+
+## gotcha
+
+Invariants, implicit ordering constraints, and footguns — each with the consequence of violating it and real evidence.
+
+### Example 1 — With items
+
+```javascript
+{
+  kind: "gotcha",
+  title: "Invariants the auth module assumes",
+  items: [
+    {
+      rule: "Middleware must run before ANY route that reads ctx.user.",
+      consequence: "A route registered above the middleware chain sees ctx.user === undefined (not null) and its `if (!ctx.user)` check passes for the wrong reason.",
+      evidence: "app.ts:12 — registration order is the only thing enforcing this"
+    },
+    {
+      rule: "verify() results are not cached; every request pays the JWKS latency.",
+      consequence: "Adding a hot public endpoint behind the middleware multiplies issuer traffic — cache or exempt it first.",
+      evidence: "auth.ts:5 doc comment; load test in tests/auth-latency.test.ts"
+    }
+  ]
+}
+```
+
+### Example 2 — Explicit empty state
+
+```javascript
+{
+  kind: "gotcha",
+  title: "Gotchas",
+  items: [],
+  scannedNote: "scanned error paths, registration order, and concurrent-call behavior; the module is stateless and order-independent"
+}
+```
+
+### Gotcha rules
+
+- Every item cites real evidence (file:line, doc comment, or test). Never invent an item to fill the unit.
+- An empty `items` is valid and must carry `scannedNote` naming what was actually examined.
+
+---
+
+## self-check
+
+Page-end scenario questions testing whether the reader can ACT — one `self-check` unit per page, second-to-last before `takeaway`, 2–4 questions.
+
+### Example — Scenario question
+
+```javascript
+{
+  kind: "self-check",
+  questions: [
+    {
+      question: "You need to add a `role` claim to the session user. Which files change?",
+      options: [
+        { letter: "A", text: "auth.ts only — extend the mapping in verify() and the AuthUser type", correct: true },
+        { letter: "B", text: "Every protected handler — each one re-parses the token", correct: false },
+        { letter: "C", text: "app.ts — claims are configured on the middleware chain", correct: false },
+        { letter: "D", text: "config.ts — add the claim to JWKS_URL parameters", correct: false }
+      ],
+      explanation: "verify() (auth.ts:5) is the single place raw JWT claims become the AuthUser object; handlers only ever read ctx.user. B re-implements parsing that already exists; C confuses registration with mapping; D — the JWKS URL serves keys, not claims."
+    }
+  ]
+}
+```
+
+### Self-check rules
+
+- Questions are action scenarios ("to add X, which files change?", "what happens after a restart?"), never recall trivia ("what data structure is used?").
+- Exactly 4 options, letters A-D, and exactly 1 option has `correct: true`.
+- `explanation` is shown after answering; it must cite specific code evidence and briefly rule out the wrong answers.
 
 ---
 
@@ -271,133 +369,55 @@ Architecture / sequence / state figure. Inline in `units[]`. Renders with a Zoom
 
 ---
 
-## storyboard
+## trace
 
-Multi-scene Mermaid player with optional paired code. Use when a static diagram would hide the sequence of moves.
+Step-through of a process that unfolds over time — a request path, a state machine, a startup sequence, or a change scenario crossing modules. Rendered by runtime.js as a stepper (step rail + one active detail panel + prev/next). The page contains data attributes only; never bespoke JS.
 
-Use storyboard for:
-- **Multi-step sequences**: state transitions, request lifecycles, build pipelines
-- **Cross-file interactions**: showing how components, hooks, or modules call each other
-- **Single-file drilling**: examining different aspects of one file across multiple scenes (Props → State → Handlers)
+Use trace for:
+- **Change scenarios** (`change-scenarios.html`): how a typical feature/bugfix flows across modules end to end
+- **Request lifecycles**: entry → response, one hop with its code at a time
+- **Cross-file interactions**: how components, hooks, or modules call each other in sequence
 
-### Example 1 — Single-file: Phase 6 assembly
+### Example — Request lifecycle
 
 ```javascript
 {
-  kind: "storyboard",
-  title: "How Phase 6 assembles one page",
-  caption: "The page appears when the shell, partials, data, and validator line up.",
-  scenes: [
+  kind: "trace",
+  title: "A protected request, entry to handler",
+  scenario: "GET /api/profile with a valid JWT — every hop until the handler runs.",
+  steps: [
     {
-      name: "Read shell",
-      mermaid:
-`flowchart LR
-  A["template-essay.html"] --> B["slot markers"]
-  B --> C["empty page shell"]`,
-      explanation:
-        "Start with the shell. It owns the document structure, but it is still hollow: title slots, CSS slots, JS slots, and one PAGE_DATA slot."
+      label: "Middleware chain starts",
+      file: "src/app.ts",
+      line: 12,
+      code: "app.use(auth);\napp.get('/api/profile', profileHandler);",
+      note: "Registration order IS the execution order — auth runs before any route because it is registered first."
     },
     {
-      name: "Inline partials",
-      mermaid:
-`flowchart LR
-  A["template-essay.html"] --> C["output HTML"]
-  B["_runtime.js"] --> C`,
-      code: {
-        file: "skills/codemermaid/SKILL.md",
-        lang: "markdown",
-        source: "1. Read template-essay.html\n2. Read _runtime.js and _essay.js\n3. Replace template slots",
-        highlights: [
-          { line: 2, note: "Runtime partials keep each output page interactive without a build step." }
-        ]
-      },
-      explanation:
-        "This is the key move: reusable partials become inline page assets, so the final course page opens as one file."
+      label: "Token extracted and verified",
+      file: "src/middleware/auth.ts",
+      line: 5,
+      code: "const user = await verify(token);\nc.set('user', user);",
+      note: "The only await on the hot path. verify() reaches the JWKS endpoint; every request pays this latency."
     },
     {
-      name: "Validate before emit",
-      mermaid:
-`flowchart LR
-  A["PAGE_DATA"] --> B["validate-units.js"]
-  B -->|ok| C["write HTML"]
-  B -->|errors| D["stop"]`,
-      code: {
-        file: "skills/codemermaid/scripts/validate-units.js",
-        lang: "js",
-        source: "if (!result.ok) {\n  console.error('Validation failed:');\n  for (const e of result.errors) console.error(`  - ${e}`);\n  process.exit(1);\n}\nconsole.log('OK');",
-        highlights: [
-          { line: 1, note: "Validation gates output instead of warning after the page exists." },
-          { lines: [2, 3, 4], note: "The run prints every failure, then exits once." }
-        ]
-      },
-      explanation:
-        "Bad pedagogy fails before the page is written. That keeps the generator honest when it starts producing richer units."
+      label: "Handler reads ctx.user",
+      file: "src/handlers/profile.ts",
+      line: 3,
+      code: "if (!ctx.user) return c.json({ error: 'unauthorized' }, 401);",
+      note: "The policy decision lives HERE, not in middleware — middleware only annotates. This is the check every protected handler repeats."
     }
   ]
 }
 ```
 
-### Example 2 — Cross-file: Component calls Hook
+### Trace rules
 
-```javascript
-{
-  kind: "storyboard",
-  title: "ChatPanel uses useAutoScroll",
-  caption: "How the top-level component initializes scrolling behavior via a custom hook.",
-  scenes: [
-    {
-      name: "Component Setup",
-      mermaid:
-`flowchart LR
-  A["ChatPanel.tsx"] --> B["useAutoScroll hook"]`,
-      code: {
-        file: "src/components/ChatPanel.tsx",
-        lang: "tsx",
-        source: "const containerRef = useRef<HTMLDivElement>(null);\nconst { autoScroll, scrollToBottom } = useAutoScroll(containerRef);",
-        highlights: [
-          { line: 1, note: "ChatPanel creates a ref to pass into the hook." },
-          { line: 2, note: "The hook returns both state and an imperative scroll function." }
-        ]
-      },
-      explanation:
-        "ChatPanel needs auto-scroll for new messages. It creates a ref and passes it to useAutoScroll, which manages the scroll state."
-    },
-    {
-      name: "Hook Internals",
-      mermaid:
-`flowchart LR
-  B["useAutoScroll hook"] --> C["scrollToBottom()"]`,
-      code: {
-        file: "src/hooks/useAutoScroll.ts",
-        lang: "ts",
-        source: "export function useAutoScroll(containerRef: RefObject<HTMLElement>) {\n  const [autoScroll, setAutoScroll] = useState(true);\n  // ...\n  const scrollToBottom = () => {\n    if (containerRef.current) {\n      containerRef.current.scrollTop = containerRef.current.scrollHeight;\n    }\n  };\n  return { autoScroll, scrollToBottom };\n}",
-        highlights: [
-          { line: 5, note: "The hook provides an imperative scroll function." },
-          { line: 8, note: "Returns state and controls to the caller." }
-        ]
-      },
-      explanation:
-        "The hook encapsulates scroll logic. It returns state so ChatPanel can show an indicator, and a function so ChatPanel can trigger scrolling."
-    },
-    {
-      name: "Back to Component",
-      mermaid:
-`flowchart LR
-  C["scrollToBottom()"] --> D["Message renders"]`,
-      code: {
-        file: "src/components/ChatPanel.tsx",
-        lang: "tsx",
-        source: "useEffect(() => {\n  if (autoScroll) scrollToBottom();\n}, [messages]);",
-        highlights: [
-          { line: 2, note: "Whenever messages change, auto-scroll if enabled." }
-        ]
-      },
-      explanation:
-        "ChatPanel wires the hook's return value into its effect. New messages trigger auto-scroll, but the user can disable it by toggling the state."
-    }
-  ]
-}
-```
+- 4–10 steps (fewer is fine when the real path is genuinely short, as above); every step has a real `file` and `line`.
+- Per-step `code` is optional but preferred; ≤ 10 lines, exact copy under the Real code only rules.
+- `note` explains what this hop does to the system state and why it matters — same depth bar as code-walk annotations.
+- Interaction restraint: the stepper renders step buttons, one active panel, and prev/next. Never add filters, autoplay, or extra controls.
+- Step indices and panel indices in the rendered HTML must match one-to-one, starting at 0.
 
 ---
 
