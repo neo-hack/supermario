@@ -2,7 +2,7 @@
 
 Each pass leaves the code simpler than it found it.
 
-- Start with names and local structure. Then extract functions. Then flatten control flow.
+- Start with names and local structure. Simplify control flow, then choose extraction or inlining according to which reduces reader load.
 - DRY: one rule, one place. Extract only when the duplication is the same rule, not similar-looking code.
 - KISS: prefer the obvious local fix over a new abstraction.
 - YAGNI: do not add extension points, extra types, or layers for a future need.
