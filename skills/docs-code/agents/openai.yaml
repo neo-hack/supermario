@@ -1,4 +1,4 @@
 interface:
   display_name: "Docs Code"
-  short_description: "Add and clean high-value code annotations"
-  default_prompt: "Use $docs-code to analyze the codebase, add useful explanatory comments, and clean experimental comments."
+  short_description: "Improve structure before adding code comments"
+  default_prompt: "Use $docs-code to inspect code clarity, make scoped behavior-preserving structural improvements before adding explanatory comments, and retain useful contracts and constraints. Honor explicit comment-only requests."
