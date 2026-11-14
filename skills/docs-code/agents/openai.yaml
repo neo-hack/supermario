@@ -1,4 +1,4 @@
 interface:
   display_name: "Docs Code"
-  short_description: "Improve structure before adding code comments"
-  default_prompt: "Use $docs-code to inspect code clarity, make scoped behavior-preserving structural improvements before adding explanatory comments, and retain useful contracts and constraints. Honor explicit comment-only requests."
+  short_description: "Maintain code comments with scoped structural fixes"
+  default_prompt: "Use $docs-code to maintain comments in the requested scope: make behavior-preserving structural improvements where needed, then add, rewrite, or remove comments while retaining useful contracts and constraints. Honor explicit comment-only requests and report the diff and verification results."

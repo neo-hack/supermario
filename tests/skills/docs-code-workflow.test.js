@@ -26,50 +26,6 @@ function assertIncludesAll(source, expectedLines) {
   }
 }
 
-test('inline exec requires module gates during annotation', () => {
-  const skill = readSkill();
-  const inlineSection = sectionBetween(
-    skill,
-    'For `inline exec` mode:',
-    'Inline exec preview format:',
-  );
-
-  assertIncludesAll(inlineSection, [
-    'Process Phase 2 module by module.',
-    'Before starting each module, show the module annotation plan and wait for user confirmation.',
-    'After finishing each module, show changed files, annotation types, and an ASCII flow explaining the module flow and comment coverage.',
-    'Wait for user confirmation before continuing to the next module.',
-  ]);
-});
-
-test('subagent driven mode does not pause per module and returns module summaries', () => {
-  const skill = readSkill();
-  const subagentSection = sectionBetween(
-    skill,
-    'For `subagent driven` mode:',
-    'For `inline exec` mode:',
-  );
-
-  assertIncludesAll(subagentSection, [
-    'Do not pause after each module during Phase 2.',
-    'Require each annotation subagent to return changed files, annotation types, and an ASCII flow for its owned module.',
-    'Consolidate post-confirmation annotation results into the final annotation summary without per-module user gates.',
-  ]);
-});
-
-test('module flow summaries use terminal-friendly ASCII instead of Mermaid checkpoints', () => {
-  const skill = readSkill();
-
-  assertIncludesAll(skill, [
-    '## ASCII Flow Summaries',
-    'Module flow summaries use terminal-friendly ASCII.',
-    'Use Mermaid only in separate written documentation when explicitly useful.',
-    'Module: parser',
-    '[API] parse(input)',
-    '[Boundary] resolve grammar',
-  ]);
-});
-
 test('phase 3 verification is required before the final report', () => {
   const skill = readSkill();
   const verifySection = sectionBetween(
@@ -80,7 +36,7 @@ test('phase 3 verification is required before the final report', () => {
 
   assertIncludesAll(verifySection, [
     'Run verification after Phase 2 and before the final report.',
-    'The main thread owns verification in both execution modes.',
+    'The main thread owns final verification.',
     'Detect the project validation commands from package scripts, build files, CI config, or existing docs.',
     'If verification fails, inspect whether the failure is caused by the code or comment changes.',
     'Fix failures caused by this pass and rerun the failing verification command.',
@@ -88,7 +44,7 @@ test('phase 3 verification is required before the final report', () => {
   ]);
 });
 
-test('final report includes module summaries and verification results', () => {
+test('final report includes maintenance changes and verification results', () => {
   const skill = readSkill();
   const finalReport = sectionBetween(
     skill,
@@ -99,8 +55,7 @@ test('final report includes module summaries and verification results', () => {
   assertIncludesAll(finalReport, [
     'The final report comes after Phase 3 verification.',
     'Changed files by module.',
-    'Annotation types added by module.',
-    'ASCII flow summaries by module.',
+    'Comments added, rewritten, or removed.',
     'Verification commands and outcomes.',
     'Skipped verification with reasons.',
     'Remaining risk, especially if a verification failure is unrelated or blocked.',
@@ -117,7 +72,6 @@ test('phase 1 inventories experimental comments before edits', () => {
 
   assertIncludesAll(phase1, [
     'Scan existing comments in the target files for experimental data.',
-    '**Comments to clean**:',
   ]);
 });
 
@@ -146,7 +100,7 @@ test('experimental comments are cleaned, not preserved', () => {
 
 test('both trigger paths check structure before writing comments', () => {
   const skill = readSkill();
-  const trigger = sectionBetween(skill, '## Trigger Scope', '## Phase 0:');
+  const trigger = sectionBetween(skill, '## Trigger Scope', '## Execution');
   const phase2 = sectionBetween(skill, '## Phase 2:', '### Comment Style');
 
   assert.match(trigger, /inline annotation[\s\S]*Structure Before Comments/);
@@ -195,7 +149,7 @@ test('large-file thresholds prompt structural inspection instead of automatic an
 test('structural simplification requires behavior evidence before explanatory comments are removed', () => {
   const skill = readSkill();
   const phase2 = sectionBetween(skill, '## Phase 2:', '### Comment Style');
-  const verification = sectionBetween(skill, '## Phase 3:', '## ASCII Flow Summaries');
+  const verification = sectionBetween(skill, '## Phase 3:', '## Final Report');
 
   assertIncludesAll(phase2, [
     'Verify each structural change before removing the explanation it replaces.',

@@ -5,10 +5,13 @@ description: Use when the user asks to add, modify, or delete code comments, or 
 
 # Docs Code
 
-Make code understandable before explaining it. Inspect the implementation, prefer small structural improvements over explanatory patches, then add, rewrite, or delete comments that still help maintainers. Preserve observable behavior.
+Maintain useful code comments. Inspect the implementation, prefer small structural improvements over explanatory patches, then add, rewrite, or delete comments that still help maintainers. Preserve observable behavior.
+
+Deliver a scoped maintenance diff and verification results.
 
 ## When NOT to Use
 
+- The request is only to explain code, architecture, or design history: answer through a read-only explanation workflow. Do not edit code or comments as part of that request.
 - The primary goal is a general simplification or refactoring pass: use `clean-code`. This skill starts from a comment or documentation need and uses `clean-code` for the specific structural problems it exposes.
 - The goal is deleting unused code: use `fire` instead.
 - The goal is documentation beyond code comments (README, guides, tutorials): use `write-docs` instead.
@@ -34,53 +37,14 @@ Keep legal and license notices, public API contracts, external constraints and s
 
 Pick one path based on how the skill was triggered:
 
-1. `full pass` (default when the user asks to document a codebase, directory, or module): run all phases below, including confirmations.
-2. `inline annotation` (when triggered proactively — e.g., the agent is about to write a comment — or the target is a single file, function, or small comment change): skip Phase 0 and Phase 1. Apply Structure Before Comments, then Phase 2 and Phase 3 to the target and its relevant callers. Do not start a repository-wide cleanup from an inline trigger.
+1. `full pass` (when the user asks to maintain comments across a codebase, directory, or module): run all phases for that scope.
+2. `inline annotation` (when triggered proactively — e.g., the agent is about to write a comment — or the target is a single file, function, or small comment change): keep analysis proportional to the target and its relevant callers. Apply Structure Before Comments and the same verification rules. Do not start a repository-wide cleanup from an inline trigger.
 
-## Phase 0: Execution Mode
+## Execution
 
-Full pass only. For `inline annotation`, skip this phase.
+Work in the current thread by default. Briefly state the planned maintenance, then proceed within the authorized scope. Honor user-requested checkpoints; pause when a required decision or scope expansion needs their input. Do not require an execution-mode choice or per-module approval by default.
 
-Before Phase 1, ask the user to choose one execution mode and wait for the answer: "Choose `subagent driven` or `inline exec`."
-
-1. `subagent driven`: use concurrent subagents for both Phase 1 exploration and Phase 2 annotation when scopes can be kept independent; do not pause after each module during Phase 2.
-2. `inline exec`: use concurrent subagents for Phase 1 exploration when useful, but do Phase 2 edits in the current thread with mandatory module gates; before each docs-code edit, briefly explain why that annotation is worth adding.
-
-If the user already specified a mode, proceed with that mode.
-
-For `subagent driven` mode:
-
-- During Phase 2, use concurrent annotation subagents only after Phase 1 confirmation.
-- Each annotation subagent must read the Phase 1 report, its owned files, and any immediately relevant local imports or importers before editing.
-- Require each annotation subagent to follow Structure Before Comments within its owned files and the accepted plan. Explicit comment-only requests remain comment-only; structural changes must preserve code behavior.
-- Do not pause after each module during Phase 2.
-- Require each annotation subagent to return changed files, annotation types, and an ASCII flow for its owned module.
-- Consolidate post-confirmation annotation results into the final annotation summary without per-module user gates.
-
-For `inline exec` mode:
-
-- Work directly in the current thread.
-- During Phase 2, re-read the Phase 1 report, the target files, and any immediately relevant local imports or importers before editing.
-- Process Phase 2 module by module.
-- Before starting each module, show the module annotation plan and wait for user confirmation.
-- Include structural findings, proposed code changes, preserved constraints, and verification in that plan. Before each structural edit, explain why it removes the need for an explanatory patch.
-- Before adding, rewriting, or deleting each file header, doc comment, or inline comment, state the reason it helps future readers.
-- When practical, show the reason together with the planned comment and a short code snippet or pseudocode sketch so the user can see where the comment will land.
-- Pseudocode is allowed for readability, but it must reflect code that was actually re-read and must not replace checking the real target code before editing.
-- Keep each reason brief and tied to intent, dependency boundaries, invariants, or non-obvious control flow.
-- After finishing each module, show changed files, annotation types, and an ASCII flow explaining the module flow and comment coverage.
-- Wait for user confirmation before continuing to the next module.
-
-Inline exec preview format:
-
-````markdown
-Reason: [why this comment helps]
-Planned comment: `[exact comment text]`
-Code or pseudocode:
-```language
-[small snippet or pseudocode sketch showing where the comment will be inserted]
-```
-````
+If work is delegated and the session permits it, give each agent disjoint owned files and the same scope, comment-only restrictions, and verification requirements. Review its diff and results before accepting the work.
 
 ## Argument Handling
 
@@ -114,52 +78,17 @@ coverage
 
 ## Phase 1: Module Analysis
 
-Complete this phase before editing. Both execution modes follow the same exploration rules.
+Complete this phase before editing. Analysis supports the maintenance diff; it is not a separate code walkthrough.
 
-1. Dispatch explorer subagents when the target contains two or more independent modules, directories, or meaningful file groups. Give each explorer a disjoint read scope and ask it to map responsibilities, key files, dependencies, dependents, likely annotation targets, and existing experimental comments to clean. Keep exploration read-only. Explorer subagents must not edit files.
-2. If the target is a single small file or has no sensible independent scopes, explore inline and state why subagents were not useful.
-3. Explore the target codebase or directory exhaustively, using the explorer findings plus direct reads as needed.
-4. Identify project type: monorepo, single package, or multi-language project.
-5. For each top-level module, package, or meaningful directory, read key files and map:
-   - Module name and one-sentence responsibility.
-   - Key files and what each does.
-   - Core exports or public API.
-   - Dependencies on other modules.
-   - Which modules depend on it.
-6. Scan existing comments in the target files for experimental data.
-   Apply Structure Before Comments to each annotation target. Name the exact symbol, the clarity problem, the smallest proposed fix, and any constraint that must remain documented.
-7. Consolidate all findings into the report, present it, and wait for user confirmation before Phase 2.
-
-Report format:
-
-```markdown
-## Module Analysis Report
-
-### [Module Name]
-- **Responsibility**: one-sentence description
-- **Key Files**:
-  - `path/to/file1.ext` — what it does
-  - `path/to/file2.ext` — what it does
-- **Exports**: key exported functions, types, classes, or commands
-- **Depends On**: other modules it uses
-- **Used By**: modules that depend on it
-- **Comments to clean**: existing experimental comments and the planned rewrite or deletion
-- **Structure before comments**: symbols to rename, extract, or move; behavior checks; changes outside the authorized scope
-- **Comments to keep**: public contracts, external constraints, and durable reasons with their evidence
-```
-
-For a file argument, skip the module-level report. Instead:
-
-1. Read the target file.
-2. Read files it imports or requires and files that import it, one hop within the project.
-3. Produce one paragraph explaining what the file does, what it depends on, and what depends on it.
-4. Scan existing comments in the target files for experimental data and list **Comments to clean**. Include structural findings and comments whose constraints must be preserved.
-5. Wait for user confirmation.
-6. In Phase 2, edit only the accepted scope. Report any caller changes needed beyond it before expanding the scope.
+1. Establish a baseline of user-owned changes and identify verification commands for the target scope.
+2. Read the target implementation, relevant local imports and callers, public entrypoints, and tests. Identify responsibilities, ownership boundaries, and contracts before judging comments. For a directory or module, cover its relevant files; for a file argument, inspect one-hop local dependencies and dependents without expanding the edit scope.
+3. Scan existing comments in the target files for experimental data. Identify outdated, redundant, or missing explanations, and verify any constraints they describe.
+4. Apply Structure Before Comments to each candidate. Identify the exact symbol, clarity problem, smallest proposed fix, and constraint that must remain documented.
+5. Briefly summarize the planned changes and unresolved findings, then proceed within the authorized scope. Report caller or public-path changes needed outside it separately.
 
 ## Phase 2: Improve Structure, Then Annotations
 
-After the applicable scope confirmation, follow the accepted plan. Apply Structure Before Comments before adding or rewriting an annotation.
+After scope analysis, follow the authorized plan. Apply Structure Before Comments before adding or rewriting an annotation.
 
 1. For an accepted structural finding, use `clean-code` for one pass on the exact accepted scope. Pass the existing authorization and preserve any comment-only restriction. If that skill is unavailable, follow the narrow refactor and verification rules here; do not invent a replacement cleanup framework.
 2. Verify each structural change before removing the explanation it replaces. Re-read the resulting code before deciding which comments remain necessary.
@@ -282,7 +211,7 @@ Do not skip a comment because it already exists. Review feedback about comments 
 
 Run verification after Phase 2 and before the final report.
 
-The main thread owns verification in both execution modes. Subagents can report local observations, but they do not decide that the full task is verified.
+The main thread owns final verification. Delegated checks are observations to review, not proof that the full task is verified.
 
 Verification steps:
 
@@ -294,64 +223,15 @@ Verification steps:
 5. Fix failures caused by this pass and rerun the failing verification command. If the structural change cannot be verified, undo only that change, preserve user-owned edits and the still-needed explanation, and report it open.
 6. Do not present the task as complete until verification passes or the remaining failure is clearly reported as unrelated or blocked.
 
-## ASCII Flow Summaries
-
-Module flow summaries use terminal-friendly ASCII. Explain the module's key flow and where the new comments help future readers understand API boundaries, invariants, state transitions, data flow, or non-obvious branches.
-
-Use descriptive labels such as `[API]`, `[Boundary]`, `[Invariant]`, `[Flow]`, `[State]`, or `[Compatibility]`. The labels are examples, not a fixed taxonomy.
-
-Example:
-
-```text
-Module: parser
-
-[API] parse(input)
-   |
-   v
-[Invariant] normalize tokens
-   |
-   v
-{ cached? }
-   | yes              | no
-   v                  v
-[Flow] return hit   [Boundary] resolve grammar
-```
-
-Use Mermaid only in separate written documentation when explicitly useful.
-
 ## Final Report
 
 The final report comes after Phase 3 verification.
 
-Process files module by module. For each module, list changed files, annotation types, and the ASCII flow summary:
-
-````markdown
-## Annotation Summary
-
-### parser
-
-- `src/parser.ts` — file header and exported function docs
-- `src/render.tsx` — JSX-safe inline comments for non-obvious branches
-
-```text
-Module: parser
-
-[API] parse(input)
-   |
-   v
-[Invariant] normalize tokens
-   |
-   v
-[Flow] return parsed document
-```
-````
-
-Also report:
+Keep the report focused on the maintenance result:
 
 - Changed files by module.
 - Structural changes and the explanations they made unnecessary; preserved constraints and unresolved findings.
-- Annotation types added by module.
-- ASCII flow summaries by module.
+- Comments added, rewritten, or removed.
 - Verification commands and outcomes.
 - Skipped verification with reasons.
 - Remaining risk, especially if a verification failure is unrelated or blocked.
@@ -366,7 +246,7 @@ Also report:
 | Hiding a logic defect behind a comment | Reproduce it and use the bug-fix workflow with a regression test. |
 | Leaving experimental comments | Rewrite to the constraint reason or delete. |
 | Skipping existing comments | Existing experimental comments must be cleaned, not preserved. |
-| Skipping Phase 1 confirmation | Stop after the report and wait. |
+| Treating maintenance as a code walkthrough | Deliver the scoped diff and verification results; keep teaching requests separate. |
 | Using `//` inside JSX markup | Use `{/* ... */}` inside JSX. |
 | Commenting trivial code | Explain intent only where it reduces confusion. |
 | Adding comments to generated files | Skip generated, bundled, dependency, and build output files. |
