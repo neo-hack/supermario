@@ -61,7 +61,7 @@ test('module flow summaries use terminal-friendly ASCII instead of Mermaid check
   const skill = readSkill();
 
   assertIncludesAll(skill, [
-    '### ASCII Flow Summaries',
+    '## ASCII Flow Summaries',
     'Module flow summaries use terminal-friendly ASCII.',
     'Use Mermaid only in separate written documentation when explicitly useful.',
     'Module: parser',
@@ -82,8 +82,8 @@ test('phase 3 verification is required before the final report', () => {
     'Run verification after Phase 2 and before the final report.',
     'The main thread owns verification in both execution modes.',
     'Detect the project validation commands from package scripts, build files, CI config, or existing docs.',
-    'If verification fails, inspect whether the failure is caused by the annotation changes.',
-    'Fix comment-related failures when possible and rerun the failing verification command.',
+    'If verification fails, inspect whether the failure is caused by the code or comment changes.',
+    'Fix failures caused by this pass and rerun the failing verification command.',
     'Do not present the task as complete until verification passes or the remaining failure is clearly reported as unrelated or blocked.',
   ]);
 });
@@ -112,7 +112,7 @@ test('phase 1 inventories experimental comments before edits', () => {
   const phase1 = sectionBetween(
     skill,
     '## Phase 1: Module Analysis',
-    '## Phase 2: Add Annotations',
+    '## Phase 2:',
   );
 
   assertIncludesAll(phase1, [
@@ -138,8 +138,70 @@ test('experimental comments are cleaned, not preserved', () => {
   ]);
 
   assertIncludesAll(skill, [
-    'change only comments (add, rewrite, or delete)',
+    'If the user explicitly requests comments only, change only comments (add, rewrite, or delete)',
     'Review feedback about comments is in scope.',
     'Leaving experimental comments',
+  ]);
+});
+
+test('both trigger paths check structure before writing comments', () => {
+  const skill = readSkill();
+  const trigger = sectionBetween(skill, '## Trigger Scope', '## Phase 0:');
+  const phase2 = sectionBetween(skill, '## Phase 2:', '### Comment Style');
+
+  assert.match(trigger, /inline annotation[\s\S]*Structure Before Comments/);
+  assertIncludesAll(phase2, [
+    'Apply Structure Before Comments before adding or rewriting an annotation.',
+    'use `clean-code` for one pass on the exact accepted scope',
+    'Re-read the resulting code before deciding which comments remain necessary.',
+  ]);
+});
+
+test('structure changes respect behavior, explicit comment-only requests, and proactive scope', () => {
+  const skill = readSkill();
+  const structure = sectionBetween(skill, '## Structure Before Comments', '## Trigger Scope');
+
+  assertIncludesAll(structure, [
+    'Preserve observable behavior, public contracts, side-effect ordering, and compatibility.',
+    'If the user explicitly requests comments only, change only comments (add, rewrite, or delete)',
+    'A proactive trigger does not expand the current task',
+    'Reproduce a suspected logic bug and handle it through the bug-fix workflow with a regression test',
+  ]);
+});
+
+test('durable comments survive until their constraint is understood and represented', () => {
+  const skill = readSkill();
+  const structure = sectionBetween(skill, '## Structure Before Comments', '## Trigger Scope');
+
+  assertIncludesAll(structure, [
+    'Keep legal and license notices, public API contracts, external constraints and source links',
+    'A useful comment may remain beside a type or test',
+    'When a constraint is uncertain, inspect callers, tests, and relevant history before deleting it.',
+    'If evidence is still missing, keep it and report the uncertainty.',
+  ]);
+});
+
+test('large-file thresholds prompt structural inspection instead of automatic annotations', () => {
+  const skill = readSkill();
+  const largeFiles = sectionBetween(skill, '## Large File Rules', '## Phase 3:');
+
+  assertIncludesAll(largeFiles, [
+    'Treat size and complexity thresholds as investigation signals, not comment quotas.',
+    'Do not add section banners or split files solely because a line threshold was crossed.',
+  ]);
+  assert.doesNotMatch(largeFiles, /add intent comments before major branches|add section banners between/);
+});
+
+test('structural simplification requires behavior evidence before explanatory comments are removed', () => {
+  const skill = readSkill();
+  const phase2 = sectionBetween(skill, '## Phase 2:', '### Comment Style');
+  const verification = sectionBetween(skill, '## Phase 3:', '## ASCII Flow Summaries');
+
+  assertIncludesAll(phase2, [
+    'Verify each structural change before removing the explanation it replaces.',
+  ]);
+  assertIncludesAll(verification, [
+    'For code changes, run the focused behavior tests before and after the refactor.',
+    'Do not weaken assertions to make a refactor pass.',
   ]);
 });

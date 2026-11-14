@@ -13,7 +13,7 @@ A collection of agent skills for documentation, code annotation, visual mockups,
 | [clean-code](skills/clean-code/SKILL.md) | Simplify live code in successive Clean Code passes without changing behavior. | `:recycle:` | ✅ Available |
 | [codemermaid](skills/codemermaid/SKILL.md) | Generate interactive multi-page HTML codebase courses with Mermaid diagrams, architecture walkthroughs, and module dependency tutorials. | `:memo:` | ✅ Available |
 | [create-mr](skills/create-mr/SKILL.md) | Create a GitHub pull request from the current branch, respecting project PR templates. | `:twisted_rightwards_arrows:` | ✅ Available |
-| [docs-code](skills/docs-code/SKILL.md) | Analyze code, add explanatory annotations, and clean experimental comments. | `:bulb:` | ✅ Available |
+| [docs-code](skills/docs-code/SKILL.md) | Improve code structure before adding comments, preserving useful contracts and constraints. | `:bulb:` | ✅ Available |
 | [fast-commit](skills/fast-commit/SKILL.md) | Stage all changes and commit with an automatically selected message. | `:wrench:` | ✅ Available |
 | [fire](skills/fire/SKILL.md) | Dispatch parallel explorer agents to find, prove, and remove dead code, and report duplicated code. | `:fire:` | ✅ Available |
 | [mockup](skills/mockup/SKILL.md) | Create framed PNG screenshot mockups from images, URLs, or local HTML in Chrome, Safari, iPhone, or iPad frames. | `:camera_flash:` | 🚧 WIP |
