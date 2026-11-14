@@ -155,7 +155,7 @@ Coverage applies by mode:
 
 After all required interactions are complete:
 
-1. Compute the final 8-dimension health score using `references/evidence-and-reporting.md`.
+1. Assess category coverage before scoring using `references/evidence-and-reporting.md`. Report `Assessment incomplete` when the overall score is unavailable.
 2. Re-read the report and make summary counts match actual issues.
 3. Generate `{OUTPUT_DIR}/report.html` from `{OUTPUT_DIR}/report.md` by starting from `templates/qa-report-template.html`. Every step and issue must link real evidence images. Preserve the template shell, log filtering/search, click-to-zoom screenshots, and `{OUTPUT_DIR}/session.webm` embedding/linking when recording is enabled.
 4. Save `{OUTPUT_DIR}/baseline.json`.

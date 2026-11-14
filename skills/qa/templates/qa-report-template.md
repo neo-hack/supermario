@@ -14,17 +14,22 @@
 
 ## Health Score
 
-| Category | Score | Weight | Weighted |
-|----------|-------|--------|----------|
-| Console | | 15% | |
-| Links | | 10% | |
-| Visual | | 10% | |
-| Functional | | 20% | |
-| UX | | 15% | |
-| Performance | | 10% | |
-| Content | | 5% | |
-| Accessibility | | 15% | |
-| **Total** | | | **/100** |
+Assessment scope: {assessmentScope}
+
+| Category | Assessment status | Score | Scope and evidence or gap |
+|----------|-------------------|-------|--------------------------|
+| Console | not_assessed | — | {scope, evidence links, or gap} |
+| Links | not_assessed | — | {scope, evidence links, or gap} |
+| Visual | not_assessed | — | {scope, evidence links, or gap} |
+| Functional | not_assessed | — | {scope, evidence links, or gap} |
+| UX | not_assessed | — | {scope, evidence links, or gap} |
+| Performance | not_assessed | — | {scope, evidence links, or gap} |
+| Content | not_assessed | — | {scope, evidence links, or gap} |
+| Accessibility | not_assessed | — | {scope, evidence links, or gap} |
+
+**Overall score: —. Assessment incomplete.**
+
+<!-- Update scores only under references/evidence-and-reporting.md's eligibility rules. Leave incomplete totals unavailable; document every not_applicable category's reason. -->
 
 ## Coverage Status
 

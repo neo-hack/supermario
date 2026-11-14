@@ -122,6 +122,7 @@ a:hover { text-decoration: underline; }
 .score-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--body-muted); margin-bottom: 8px; }
 .score-card .value { font-family: "SF Pro Display", system-ui, -apple-system, sans-serif; font-size: 32px; font-weight: 600; }
 .score-card .weight { font-size: 12px; color: var(--body-muted); margin-top: 4px; }
+.score-card .assessment, .score-card .evidence { font-size: 12px; color: var(--body-muted); margin-top: 8px; overflow-wrap: anywhere; }
 
 .score-total {
   text-align: center; margin-top: 32px;
@@ -289,6 +290,7 @@ a:hover { text-decoration: underline; }
 
 <div class="section-alt">
   <h2>TL;DR</h2>
+  <!-- Incomplete assessment: finalScore is — and verdict is Assessment incomplete. Never substitute 0 or 100 for missing evidence. -->
   <div class="tldr">
     <div class="tldr-score">
       <div class="value">{finalScore}</div>
@@ -327,15 +329,16 @@ a:hover { text-decoration: underline; }
 
 <div class="section-dark">
   <h2>Health Score</h2>
+  <p>Assessment scope: {assessmentScope}</p>
   <div class="score-grid">
-    <div class="score-card"><div class="label">Console</div><div class="value">{score}</div><div class="weight">15%</div></div>
-    <div class="score-card"><div class="label">Links</div><div class="value">{score}</div><div class="weight">10%</div></div>
-    <div class="score-card"><div class="label">Visual</div><div class="value">{score}</div><div class="weight">10%</div></div>
-    <div class="score-card"><div class="label">Functional</div><div class="value">{score}</div><div class="weight">20%</div></div>
-    <div class="score-card"><div class="label">UX</div><div class="value">{score}</div><div class="weight">15%</div></div>
-    <div class="score-card"><div class="label">Performance</div><div class="value">{score}</div><div class="weight">10%</div></div>
-    <div class="score-card"><div class="label">Content</div><div class="value">{score}</div><div class="weight">5%</div></div>
-    <div class="score-card"><div class="label">Accessibility</div><div class="value">{score}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Console</div><div class="value">{consoleScore}</div><div class="assessment">{consoleAssessmentStatus}</div><div class="evidence">{consoleScopeAndEvidence}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Links</div><div class="value">{linksScore}</div><div class="assessment">{linksAssessmentStatus}</div><div class="evidence">{linksScopeAndEvidence}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Visual</div><div class="value">{visualScore}</div><div class="assessment">{visualAssessmentStatus}</div><div class="evidence">{visualScopeAndEvidence}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Functional</div><div class="value">{functionalScore}</div><div class="assessment">{functionalAssessmentStatus}</div><div class="evidence">{functionalScopeAndEvidence}</div><div class="weight">20%</div></div>
+    <div class="score-card"><div class="label">UX</div><div class="value">{uxScore}</div><div class="assessment">{uxAssessmentStatus}</div><div class="evidence">{uxScopeAndEvidence}</div><div class="weight">15%</div></div>
+    <div class="score-card"><div class="label">Performance</div><div class="value">{performanceScore}</div><div class="assessment">{performanceAssessmentStatus}</div><div class="evidence">{performanceScopeAndEvidence}</div><div class="weight">10%</div></div>
+    <div class="score-card"><div class="label">Content</div><div class="value">{contentScore}</div><div class="assessment">{contentAssessmentStatus}</div><div class="evidence">{contentScopeAndEvidence}</div><div class="weight">5%</div></div>
+    <div class="score-card"><div class="label">Accessibility</div><div class="value">{accessibilityScore}</div><div class="assessment">{accessibilityAssessmentStatus}</div><div class="evidence">{accessibilityScopeAndEvidence}</div><div class="weight">15%</div></div>
   </div>
   <div class="score-total">
     <div class="value">{finalScore}</div>

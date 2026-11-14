@@ -67,7 +67,19 @@ If a new console delta is ignored, the step must state why it is benign. Do not 
 
 ## 8-Dimension Health Score
 
-Weighted average. Each category starts at 100 and deducts per finding:
+Start every category as `not_assessed`, with no numeric score. Declare the scope and planned category checks before judging their results. Use these assessment states:
+
+| State | Meaning | Score |
+|-------|---------|-------|
+| `assessed` | Planned checks for this category and scope completed, with linked evidence for their outcomes | Apply the deduction rules below |
+| `not_assessed` | Checks were not run, remain incomplete, were skipped or blocked, or lack evidence | `null`; display `—` and the gap |
+| `not_applicable` | The category does not apply to the declared scope, with an explicit reason | `null`; display `N/A` |
+
+A failed check with evidence is an assessed result, not missing coverage. Keep reporting all observed issues even when a category remains incomplete. Do not turn skipped or blocked checks into `not_applicable`, and do not narrow the scope after seeing failures to obtain a score. A `completed` exploration ledger alone does not prove every category was assessed.
+
+For assessed categories only, start at 100 and deduct per finding. Scores describe the declared checks and scope, not the whole product. Link evidence and state limitations, including when performance was checked only for observable responsiveness rather than measured latency or load.
+
+Count Console errors as JavaScript errors and failed network requests across the observed session. Clamp every category score to a minimum of 0.
 
 | Category | Weight | Scoring |
 |----------|--------|---------|
@@ -80,35 +92,57 @@ Weighted average. Each category starts at 100 and deducts per finding:
 | Content | 5% | critical -25, high -15, medium -8, low -3 |
 | Accessibility | 15% | critical -25, high -15, medium -8, low -3 |
 
-Final score = `sum(category_score * weight)`.
+Calculate an overall score only when at least one category applies and every applicable category is `assessed`. Exclude only documented `not_applicable` categories and normalize their remaining weights:
 
-Save the baseline as `{OUTPUT_DIR}/baseline.json`:
+`finalScore = round(sum(applicable_score * weight) / sum(applicable_weight))`
+
+When all eight categories apply, this is the original weighted average. If any applicable category is `not_assessed`, or none apply, leave `healthScore` as `null`, display `—` and `Assessment incomplete`, and do not assign an overall rating. Do not average just the completed categories to hide missing coverage.
+
+For a complete assessment only, use the existing rating bands:
+
+| Score | Rating |
+|-------|--------|
+| 90–100 | Excellent |
+| 75–89 | Good |
+| 60–74 | Needs Work |
+| 40–59 | Poor |
+| 0–39 | Critical |
+
+Markdown and HTML must show each category's assessment state, score or gap, scope, and evidence links. In the HTML template, `{finalScore}` is `—` and `{verdict}` is `Assessment incomplete` when the total is unavailable. Fill each named category's score, status, and scope/evidence slots consistently; an untested category is never rendered as 0 or 100.
+
+Save the baseline as `{OUTPUT_DIR}/baseline.json`. Preserve `categoryScores` as numeric values or `null`, and add matching assessment metadata for all eight categories. The initial unassessed shape is:
 
 ```json
 {
   "date": "YYYY-MM-DD",
   "url": "<target>",
-  "healthScore": 0,
+  "scope": "<declared assessment scope>",
+  "healthScore": null,
   "categoryScores": {
-    "console": 0,
-    "links": 0,
-    "visual": 0,
-    "functional": 0,
-    "ux": 0,
-    "performance": 0,
-    "content": 0,
-    "accessibility": 0
+    "console": null,
+    "links": null,
+    "visual": null,
+    "functional": null,
+    "ux": null,
+    "performance": null,
+    "content": null,
+    "accessibility": null
   },
-  "issues": [
-    {
-      "id": "ISSUE-001",
-      "title": "...",
-      "severity": "...",
-      "category": "..."
-    }
-  ]
+  "categoryAssessments": {
+    "console": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "links": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "visual": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "functional": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "ux": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "performance": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "content": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" },
+    "accessibility": { "status": "not_assessed", "evidence": [], "reason": "Checks not run" }
+  },
+  "issues": []
 }
 ```
+
+Replace initial assessment metadata with the actual evidence paths and gap or applicability reasons. Record narrower category-specific checks and limitations in that category's metadata. Never coerce `null` to 0 or 100. Numeric baseline comparisons require matching scope and applicable categories; older baselines without assessment metadata do not prove complete coverage.
 
 ## Severity
 
@@ -193,9 +227,9 @@ Do not add a new complex filter system for the first version. Preserve the exist
 Required top-level sections:
 
 - Title: `# QA Report: {URL}`
-- Summary: TL;DR with final score, issue counts, and top risks.
+- Summary: TL;DR with the scoped final score or `Assessment incomplete`, issue counts, and top risks.
 - Session Info: URL, date, mode, qa.md source if any, raw interactive element counts, artifact directory.
-- Health Score: category table and final score.
+- Health Score: category assessment states, scores or gaps, scope and evidence, and the overall score only when eligible.
 - Coverage Status: status, scope, ledger counts, stable passes, threshold, and halt reason.
 - Behavior Testing: inferred feature models, behavior cases planned, tested, skipped, and untested limitations.
 - Operation Guidance: product-authored instructions discovered from ARIA descriptions, visible helper text, tooltips, placeholders, and snapshots; each listed as covered, skipped, inconclusive, or linked to a behavior step.
@@ -245,5 +279,6 @@ Before finishing:
 - Ensure every step has before, target, and after screenshots plus a snapshot diff.
 - Ensure every step and issue in the HTML report contains `<img>` tags linking the actual screenshot files. Open `report.html` and verify images render correctly.
 - Ensure `report.html` was generated from `templates/qa-report-template.html` and still contains the required template markers and behavior hooks.
-- Ensure `baseline.json` matches the final score and issue list.
+- Ensure category scores are backed by completed checks and evidence; skipped, blocked, or unfinished checks remain unassessed.
+- Ensure `baseline.json`, Markdown, and HTML agree on assessment states, nullable scores, scope, gaps, and issues. An incomplete assessment must have no numeric overall score or overall rating.
 - Ensure report links are relative to the output directory.
