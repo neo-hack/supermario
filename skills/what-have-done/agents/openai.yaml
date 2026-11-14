@@ -1,4 +1,4 @@
 interface:
   display_name: "What Have Done"
-  short_description: "Summarize completed work and review needs"
-  default_prompt: "Use $what-have-done to summarize what was completed and what still needs human verification."
+  short_description: "Explain changes with flows and verification"
+  default_prompt: "Use $what-have-done to summarize completed work, explain meaningful flow changes with diagrams and before/after comparisons when needed, and connect why the change works to actual evidence. Separate verified results from untested reasoning and human review needs."
