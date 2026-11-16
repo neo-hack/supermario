@@ -51,6 +51,14 @@ Choose sections by project need. Do not force every section into every file.
 
 This document expands product scope into functional behavior that can be built, reviewed, and tested.
 
+## Glossary
+
+Optional. Add when the feature area uses domain-specific terms a reader needs before the spec makes sense. Skip this section when the vocabulary is already plain.
+
+| Term | Meaning |
+| --- | --- |
+| `<Term>` | `<plain-language definition>` |
+
 ## Feature Map
 
 | Feature | User Need | Status | Source |
@@ -74,6 +82,12 @@ State the user need and product outcome this feature serves.
 | --- | --- |
 | `<user action>` | `<system response>` |
 
+### Flow
+
+Optional. Add when this feature's actions have step dependency — a step only makes sense after another, or branches on a condition. Show it as numbered steps or a diagram (for example a mermaid flowchart or state diagram).
+
+Keep the flow scoped to this feature's own internal behavior. Cross-feature navigation, site maps, and end-to-end journeys that span multiple features belong in `PRODUCT.md`'s Structure layer — see `structure.md`.
+
 ### States
 
 | State | Expected Behavior |
@@ -90,6 +104,12 @@ State the user need and product outcome this feature serves.
 
 - [ ] The user can `<complete a concrete behavior>`.
 - [ ] The feature handles `<important state>` without losing context.
+
+## Out of Scope
+
+Optional, document-level. Behavior explicitly excluded across every feature in this document — not one feature's local exclusion, but a boundary for the whole functional area (for example, a related page this document does not cover, or a capability the product area does not own yet).
+
+- `<excluded behavior>`
 ```
 
 ## Evidence Rules
@@ -116,6 +136,7 @@ Write user-visible behavior:
 - Data or content shown to the user.
 - Loading, empty, error, disabled, permission, offline, or reduced-capability states.
 - Search, filter, sort, selection, edit, save, delete, import, export, and navigation behavior.
+- A flow diagram or numbered sequence for one feature's internal step dependency, when it clarifies actions or states.
 - Acceptance checks that a reviewer can run manually or automate later.
 
 For frontend products, it is acceptable for `FEATURES.md` to be page-level and state-aware. That is the point of functional specifications.
@@ -128,6 +149,7 @@ Keep implementation and visual-system detail out:
 - CSS class names, token values, spacing scales, or animation curves.
 - Database schema, backend module design, or API handler internals.
 - Broad product vision that belongs in `PRODUCT.md`.
+- Cross-feature navigation, site maps, or end-to-end journeys spanning multiple features — these belong in `PRODUCT.md`'s Structure layer (`structure.md`), not inside one feature's Flow.
 - Milestone status, release sequencing, owner assignment, or delivery tracking that belongs in `MILESTONES.md`, `ROADMAP.md`, planning docs, or issues.
 - Visual component rules that belong in `DESIGN.md`.
 - Module and data-flow explanations that belong in `ARCHITECTURE.md`.
@@ -183,7 +205,8 @@ Before finishing `FEATURES.md`, verify:
 - User actions describe expected system behavior, not implementation tasks.
 - Loading, empty, error, disabled, permission, or unavailable states are covered when relevant.
 - Status labels are consistent and evidence-backed.
-- Out-of-scope behavior is named when it prevents common misunderstandings.
+- Out-of-scope behavior is named when it prevents common misunderstandings, at the feature level or document level as appropriate.
+- Any Flow diagrams stay scoped to one feature's internal behavior, not cross-feature navigation.
 - Acceptance checks are concrete enough for manual review.
 - Visual details point to `DESIGN.md`; implementation details point to `ARCHITECTURE.md`.
 
@@ -198,3 +221,5 @@ Before finishing `FEATURES.md`, verify:
 | Duplicating ARCHITECTURE.md | Keep module, data-flow, and API internals out. |
 | Promising planned behavior without evidence | Mark it `Open` or cite the spec, issue, roadmap note, or user requirement. |
 | Treating milestone ideas as feature specs | Keep delivery planning in `MILESTONES.md`, `ROADMAP.md`, planning docs, or issues until a user-visible behavior is accepted into product scope. |
+| A feature's Flow diagram shows navigation to other features or pages | Cut it to this feature's own steps; move the cross-feature path to `PRODUCT.md`'s Structure layer (`structure.md`). |
+| Every scope exclusion is buried inside individual features | Add a document-level `Out of Scope` section for exclusions that apply across the whole functional area. |
