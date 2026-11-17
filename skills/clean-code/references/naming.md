@@ -7,4 +7,4 @@ Name reveals intent. A reader should know why the value exists without a comment
 - Keep one word per concept. Do not mix `fetch`, `get`, and `retrieve` for the same action.
 - Drop noise prefixes such as `the`, `my`, and `info` unless they change meaning.
 - Name booleans as predicates: `isReady`, `hasCache`, `canRetry`.
-- If a good name needs a comment, extract a function or type instead.
+- Improve names or structure when they clarify intent. A remaining comment does not by itself justify extraction; preserve necessary constraints and rationale under `comments.md`.

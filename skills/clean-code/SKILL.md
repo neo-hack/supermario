@@ -1,9 +1,8 @@
 ---
 name: clean-code
-description: Use when asked to simplify, clean, or refactor code for readability. Triggers include unclear names, long functions, mixed abstraction levels, duplication, nested conditionals, or messy error handling. Also use when asked to apply Clean Code or run successive simplification passes over a file or module.
-argument-hint: "[iterations] [scope]"
+description: Use when asked to simplify, clean, or refactor code for readability. Triggers include unclear names, long functions, mixed abstraction levels, duplication, nested conditionals, or messy error handling. Also use when asked to apply Clean Code or run successive simplification passes. Targets the current diff unless a path is given.
+argument-hint: "[scope]"
 arguments:
-  - iterations
   - scope
 ---
 
@@ -21,10 +20,11 @@ Simplify live code in successive passes. Preserve observable behavior. Read the 
 
 Do not use this skill to add comments only (`use docs-code`) or to delete unused code as the primary goal (`use fire`).
 
-## Arguments
+## Scope
 
-- `$iterations`: how many simplification passes to run.
-- `$scope`: optional path, package, module, or file.
+- `$scope`: optional path, package, module, or file. When given, simplify that code.
+- No scope: use the current diff against the base branch, including the working tree. The base branch is the one the user names, otherwise the repository's merge baseline. Simplify only code the diff adds or changes. Read surrounding code for context, but leave untouched code as it is.
+- An empty diff with no scope: report that there is nothing to simplify and stop.
 
 ## References
 
@@ -34,7 +34,7 @@ Load only the reference that matches the current pass:
 | --- | --- |
 | Unclear names | `references/naming.md` |
 | Long or mixed-level functions | `references/functions.md` |
-| Comments that restate code | `references/comments.md` |
+| Comments that compensate for structure or explain constraints | `references/comments.md` |
 | Swallowed or vague errors | `references/error-handling.md` |
 | What to do in the next pass | `references/successive-refinement.md` |
 
@@ -44,29 +44,29 @@ Local readability first, architecture later. Early passes use naming, functions,
 
 ## Iteration Loop
 
-Parse `$iterations` as a positive integer.
-
-If `$iterations` is missing, ask for a count. If the user does not provide one, use 3.
-
-If `$iterations` is greater than 8, use 8 and say so.
+There is no pass limit. Keep running passes until one finds no worthwhile simplification left in scope. If the user names a pass count, treat it as a ceiling, not a quota.
 
 Before pass 1:
 
-1. Establish a git baseline of user-owned changes.
-2. Detect verification commands for the changed scope.
+1. Record the starting state, including user-owned and already staged changes. Track this skill's edits separately: create a snapshot directory outside the repository for this run, with one subdirectory per pass.
+2. Detect verification commands for the changed scope and record relevant baseline results. If no applicable result is available, run the smallest useful check before editing. If no test, type check, lint, or build covers the scope, follow "Without verification" below.
 3. Read `references/successive-refinement.md`.
 
-For pass `i` from 1 to `$iterations`:
+Repeat for each pass:
 
-1. Re-read the target files and the current diff.
+1. Re-read the target files and the current diff. In diff scope, recompute the diff so the pass sees its own earlier edits.
 2. Read the matching Clean Code reference before applying that class of change.
-3. If no remaining simplifications: stop and report early exit.
-4. Apply the smallest behavior-preserving simplifications found in this pass.
+3. If no worthwhile simplification remains in scope, stop. This is the normal end of the loop.
+4. Before the first edit to each file in this pass, copy the file as it stands into this pass's snapshot directory. Then apply the smallest behavior-preserving simplifications found in this pass.
 5. Run verification for the changed scope.
-6. If verification fails: revert this pass, keep earlier passes, stop.
+6. If verification fails, stop and compare with the baseline. For a regression introduced by this pass, undo only this pass's own edits by restoring the files from this pass's snapshot directory. That keeps earlier passes and user changes, and leaves the index alone. Do not use `git checkout`, `git restore`, or `git stash` for this. For an existing failure, environment blocker, or uncertain cause, report the evidence and verification gap instead of blindly reverting or claiming success.
 7. Record what changed in this pass.
 
-Do not repeat the same rewrite across passes. Each pass must target remaining issues.
+### Without verification
+
+When nothing can verify the scope, run one pass only. Limit it to renames and local restructuring whose behavior can be checked by reading. Do not change control flow, error handling, or signatures. Report the pass as unverified and list the remaining issues instead of looping.
+
+Do not repeat the same rewrite across passes. Each pass must target remaining issues. A pass that would undo or reshuffle an earlier pass means the loop is done.
 
 Local readability first, architecture later.
 
@@ -76,14 +76,16 @@ Local readability first, architecture later.
 - Do not run a comment-only campaign.
 - Do not delete unused code as the primary goal.
 - Match existing project style. Do not reformat unrelated code.
-- Prefer making code obvious over adding comments.
+- Prefer making code obvious over adding comments; extract or inline only when it reduces the reader's work.
+- Apply `references/comments.md` when changing comments. Uncertainty about a comment is a reason to investigate, not delete it.
 - Stop a pass rather than force a rewrite that only reshuffles style.
 
 ## Report
 
-After the last pass or early exit, list:
+After the loop stops, list:
 
-- Passes run and whether the loop stopped early.
+- Scope used, with the base branch for diff scope.
+- Passes run and why the loop stopped.
 - Files changed per pass.
 - References used per pass.
 - Verification commands and outcomes.
@@ -96,6 +98,6 @@ After the last pass or early exit, list:
 | One giant rewrite | Run the iteration loop. Smallest change per pass. |
 | Commenting instead of simplifying | Make the code obvious, or `use docs-code`. |
 | Deleting unused code | `use fire`. |
-| Skipping verification | Run verification after every pass. |
+| Skipping verification | Run verification after every pass. With no check available, one restricted pass, reported as unverified. |
 | Repeating the same diff | Stop when a pass finds no remaining simplifications. |
 | Architecture in an early pass | Local readability first, architecture later. |
